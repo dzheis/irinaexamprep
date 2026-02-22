@@ -1,0 +1,61 @@
+"use client";
+
+import Link from 'next/link';
+import Image from 'next/image';
+import AnimatedButtonText from '@/components/AnimatedButtonText';
+
+const TEACHER_INTRO =
+  "Опытный преподаватель английского языка, специализируюсь на подготовке к экзаменам Cambridge: FCE (B2), CAE (C1), CPE (C2). Уроки простые и ориентированные на результат — помогу сдать экзамен уверенно и заговорить свободнее.";
+
+type HeroSectionProps = {
+  title: string;
+  description: string;
+  imageUrl?: string;
+};
+
+export default function HeroSection({ title, description, imageUrl }: HeroSectionProps) {
+  return (
+    <section className="hero relative overflow-hidden">
+      <div className="section relative z-10 max-w-7xl mx-auto">
+        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+          <div className="flex-1 flex justify-center lg:justify-end relative z-10 order-1 lg:order-2">
+            <div className="relative w-full max-w-lg lg:max-w-xl">
+              <div className="relative w-full h-full rounded-3xl overflow-hidden">
+                <Image
+                  src={imageUrl || '/irina_petrova.JPG'}
+                  alt="Irina Petrova"
+                  width={600}
+                  height={800}
+                  className="object-cover w-full h-auto rounded-3xl opacity-90"
+                  priority
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-1 flex flex-col gap-6 lg:gap-8 text-left lg:text-left order-2 lg:order-1">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-center lg:text-left text-theme">
+              {title}
+            </h1>
+            <p className="text-base md:text-lg text-theme/90 text-center lg:text-justify max-w-xl">
+              {TEACHER_INTRO}
+            </p>
+            {description ? (
+              <p className="text-lg md:text-xl lg:text-2xl leading-relaxed opacity-90 text-center lg:text-left text-theme">
+                {description}
+              </p>
+            ) : null}
+            <div className="flex flex-col min-[476px]:flex-row flex-wrap items-center justify-center lg:justify-start gap-4 mt-2">
+              <Link href="/courses" className="btn-primary text-lg px-8 py-4 w-full min-[476px]:w-auto">
+                <AnimatedButtonText text="Начать обучение" />
+              </Link>
+              <Link href="/methodology" className="btn-secondary text-lg px-8 py-4 w-full min-[476px]:w-auto">
+                <AnimatedButtonText text="Узнать больше" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
