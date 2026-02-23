@@ -189,7 +189,7 @@ export default function FeaturesSection() {
             Большой опыт преподавания и современная методика обучения.
           </p>
         </div>
-        <div ref={cardsWrapperRef} className="grid grid-cols-1 md:grid-cols-3 gap-8" style={{ perspective: '1000px' }}>
+        <div ref={cardsWrapperRef} className="grid grid-cols-1 lg:grid-cols-3 gap-8" style={{ perspective: '1000px' }}>
           {features.map((feature, i) => (
             <TiltCard
               key={feature.title}

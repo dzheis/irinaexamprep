@@ -132,11 +132,11 @@ export default function Header() {
         scrolled ? "shadow-md" : ""
       }`}
     >
-      <nav className="w-full max-w-[1550px] mx-auto px-6 py-4 box-border">
+      <nav className="w-full max-w-[1550px] mx-auto px-6 py-4 box-border min-h-[4.5rem]">
         <div className="flex items-center justify-between gap-2 sm:gap-4 min-w-0">
           <Link
             href="/"
-            className="relative text-lg md:text-xl font-semibold tracking-tight text-theme inline-flex flex-nowrap whitespace-nowrap flex-shrink-0"
+            className="relative text-lg md:text-xl font-semibold tracking-tight text-theme inline-flex flex-nowrap whitespace-nowrap flex-shrink-0 max-[1200px]:text-base lg:max-[1200px]:text-lg"
             onMouseEnter={handleLogoMouseEnter}
             onClick={(e) => {
               if (pathname === "/" && scrollToTop) {
@@ -210,7 +210,7 @@ export default function Header() {
             </span>
           </Link>
           
-          <div className="hidden md:flex items-center gap-1 sm:gap-2 text-sm md:text-base lg:text-lg min-w-0 flex-shrink">
+          <div className="hidden lg:flex items-center gap-1 sm:gap-2 text-sm min-w-0 flex-shrink max-[1200px]:gap-1 max-[1200px]:text-xs lg:max-[1200px]:text-sm">
             {ANCHOR_LINKS.map(({ href, id, label }) => (
               <Link
                 key={id}
@@ -261,7 +261,7 @@ export default function Header() {
             </Link>
             <button
               type="button"
-              className="btn-secondary"
+              className="btn-secondary max-[1200px]:!px-4 max-[1200px]:!py-2 max-[1200px]:!text-sm"
               aria-label="Подать заявку"
               onClick={() => {
                 applyModal?.openApplyModal(0, "Заявка");
@@ -273,7 +273,7 @@ export default function Header() {
 
           <button
             onClick={toggleMenu}
-            className="md:hidden flex flex-col gap-1.5 p-2 text-theme"
+            className="lg:hidden flex flex-col gap-1.5 p-2 text-theme"
             aria-label="Toggle menu"
           >
             <span
@@ -295,7 +295,7 @@ export default function Header() {
         </div>
 
         <div 
-          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
             isMenuOpen ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0'
           }`}
         >
