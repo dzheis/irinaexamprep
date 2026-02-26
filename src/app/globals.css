@@ -94,7 +94,9 @@ body {
   body {
     @apply antialiased;
     color: var(--color-text);
-    background: #f4f4f2;
+    background: #f4f4f2 url(/background.svg) repeat-y center top;
+    background-size: 100% auto;
+    background-attachment: scroll;
   }
 
   html {

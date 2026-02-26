@@ -235,7 +235,7 @@ function MethodologyVideoBlock({
 
   return (
     <div className="glass rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 w-full min-w-0 transition-[transform,box-shadow] duration-300 ease-in-out hover:scale-[1.01] hover:shadow-xl md:items-center">
-      {/* Слева: видео YouTube. На мобильных — сверху, на десктопе — по центру по высоте */}
+      {/* Left: YouTube video. On mobile above, on desktop vertically centered. */}
       <div className="flex-shrink-0 w-full md:min-w-0 md:w-[48%] lg:w-[50%] flex items-center">
         <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-theme-secondary-accent/10">
           <iframe
@@ -248,7 +248,7 @@ function MethodologyVideoBlock({
         </div>
       </div>
 
-      {/* Справа: описание и кнопка. На мобильных — снизу */}
+      {/* Right: description and button. On mobile below video. */}
       <div className="flex flex-col flex-1 min-w-0">
         {item.title && (
           <h2 className="text-lg md:text-xl min-[1200px]:text-2xl min-[1200px]:md:text-3xl font-bold mb-4 text-theme">

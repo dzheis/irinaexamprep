@@ -4,10 +4,10 @@ import crypto from "crypto";
 const ROBOKASSA_PASS2 = process.env.ROBOKASSA_PASS2;
 
 /**
- * Подпись для Result URL: MD5(OutSum:InvId:Password2).
- * При наличии пользовательских параметров Shp_*: OutSum:InvId:Password2:Shp_1=val:Shp_2=val (по алфавиту).
- * Robokassa присылает запрос (GET или POST) с OutSum, InvId, SignatureValue.
- * Ответ: "OK<InvId>" при успехе, иначе Robokassa будет повторять запрос.
+ * Result URL signature: MD5(OutSum:InvId:Password2).
+ * With custom Shp_* params: OutSum:InvId:Password2:Shp_1=val:Shp_2=val (alphabetical).
+ * Robokassa sends GET or POST with OutSum, InvId, SignatureValue.
+ * Respond with "OK<InvId>" on success; otherwise Robokassa retries.
  */
 function checkResultSignature(outSum: string, invId: string, signatureValue: string, pass2: string): boolean {
   const str = `${outSum}:${invId}:${pass2}`;

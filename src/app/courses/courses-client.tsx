@@ -97,7 +97,7 @@ export default function CoursesClient() {
                   className="flex justify-center perspective-1000"
                 >
                   <div className="course-card glass rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 w-full max-w-xl md:max-w-none min-w-0 transition-[transform,box-shadow] duration-300 ease-in-out hover:scale-[1.02] hover:shadow-xl">
-                    {/* Левая колонка: только фото (сглаженные края, по центру) */}
+                    {/* Left column: course image */}
                     <div className="flex flex-col items-center justify-center flex-shrink-0 md:w-[48%] min-w-0">
                       <div className="relative w-full max-h-[320px] sm:max-h-[380px] md:max-h-[360px] aspect-[3/4] rounded-3xl overflow-hidden bg-theme-secondary-accent/10 flex items-center justify-center">
                         <Image
@@ -109,7 +109,7 @@ export default function CoursesClient() {
                         />
                       </div>
                     </div>
-                    {/* Правая колонка: название курса, под ним кнопки */}
+                    {/* Right column: title and buttons */}
                     <div className="flex flex-col justify-center text-center md:text-left flex-1 min-w-0">
                       <h2 className="text-xl md:text-2xl min-[1200px]:text-3xl min-[1200px]:md:text-4xl font-bold mb-5 md:mb-6 text-theme break-words">
                         {course.title}
@@ -177,7 +177,7 @@ function DetailsModal({
     setIsClosing(true);
   };
 
-  // Не даём колёсику/тачу прокручивать страницу: перехватываем на оверлее
+  // Prevent wheel/touch from scrolling the page behind the overlay.
   const onOverlayWheel = (e: React.WheelEvent) => {
     if (e.target !== e.currentTarget) return;
     e.preventDefault();
