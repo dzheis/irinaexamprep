@@ -145,7 +145,7 @@ export default function Header() {
               }
             }}
           >
-            {/* Row 2: альтернативный текст — задаёт ширину и отображается отлично */}
+            {/* Row 2: alternate text for width and display */}
             <span className="inline-flex flex-nowrap">
               {CHARS2.map((_, i) => (
                 <span
@@ -170,7 +170,7 @@ export default function Header() {
                 </span>
               ))}
             </span>
-            {/* Row 1: первый текст — та же структура ячеек, по CHARS1 */}
+            {/* Row 1: primary text, same cell structure as CHARS1 */}
             <span className="absolute left-0 top-0 inline-flex flex-nowrap">
               {CHARS1.map((_, i) => (
                 <span

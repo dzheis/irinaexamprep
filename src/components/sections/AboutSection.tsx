@@ -236,7 +236,7 @@ export default function AboutSection() {
         </div>
       </div>
 
-      {/* Модальное окно сертификата на весь экран */}
+      {/* Full-screen certificate modal */}
       {certModalOpen &&
         modalImage &&
         typeof document !== 'undefined' &&

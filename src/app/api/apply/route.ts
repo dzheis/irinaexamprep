@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
       courseTitle: courseTitle?.trim() || undefined,
     };
 
-    // Письмо учителю
+    // Email to teacher
     await transporter.sendMail({
       from: FROM_EMAIL,
       to: TEACHER_EMAIL,
@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
 
     const coursesUrl = SITE_URL ? `${SITE_URL}/courses` : '/courses';
 
-    // Письмо клиенту с благодарностью и ссылками
+    // Thank-you email to client with links
     await transporter.sendMail({
       from: FROM_EMAIL,
       to: trimmedEmail,

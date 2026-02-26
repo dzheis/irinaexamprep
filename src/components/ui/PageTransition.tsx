@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
-/** Тумблер: true — анимация жалюзи при переходе между страницами, false — обычная навигация без анимации */
+/** When true, blinds animation on page transition; when false, normal navigation. */
 const ENABLE_BLINDS_TRANSITION = false;
 
 const numBlinds = 20;
@@ -35,7 +35,7 @@ export default function PageTransition({ children }: { children: ReactNode }) {
     { scope: containerRef }
   );
 
-  // Начальное состояние жалюзи после монтирования; показываем оверлей только после этого (убираем мелькание фото)
+  // Set initial blinds state after mount so overlay doesn't flash.
   useEffect(() => {
     if (!ENABLE_BLINDS_TRANSITION) return;
     const container = containerRef.current;

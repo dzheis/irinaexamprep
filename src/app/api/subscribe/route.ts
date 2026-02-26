@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       timeStyle: 'short',
     });
 
-    // Уведомление владельцу
+    // Notify site owner
     await transporter.sendMail({
       from: FROM_EMAIL,
       to: NOTIFY_EMAIL,
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
 
     const coursesUrl = SITE_URL ? `${SITE_URL}/courses` : '/courses';
 
-    // Письмо подписчику
+    // Email to subscriber
     await transporter.sendMail({
       from: FROM_EMAIL,
       to: trimmedEmail,
