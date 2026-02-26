@@ -77,7 +77,7 @@ function ResourceCard({ item }: { item: FreeResourceItem }) {
 
 export default function FreeResourcesClient() {
   return (
-    <div className="rose-petals-bg relative">
+    <div className="min-h-screen relative">
       <div className="relative z-10">
         <div className="pt-24 md:pt-28">
           <section className="py-20 md:py-28 max-w-[1680px] mx-auto px-4 md:px-8">

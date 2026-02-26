@@ -37,6 +37,9 @@ html.scroll-locked header.nav {
   --color-warm-bg: #E7DCD6;
   --color-warm-ui: #C9B7AE;
   --font-family-base: var(--font-playpen), cursive;
+  /* Matches background.svg gradient end (bottom); footer uses a slightly darker tone */
+  --bg-svg-end: #F4EEEE;
+  --footer-bg: color-mix(in srgb, var(--bg-svg-end) 88%, black 12%);
 }
 
 body {
@@ -94,9 +97,7 @@ body {
   body {
     @apply antialiased;
     color: var(--color-text);
-    background: #f4f4f2 url(/background.svg) repeat-y center top;
-    background-size: 100% auto;
-    background-attachment: scroll;
+    background-color: #f4f4f2;
   }
 
   html {
@@ -111,6 +112,10 @@ body {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
+}
+
+footer.nav {
+  background: var(--footer-bg);
 }
 
 .gradient-bg {

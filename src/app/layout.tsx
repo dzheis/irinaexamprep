@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import SmoothScroll from '@/components/ui/SmoothScroll';
 import PageTransition from '@/components/ui/PageTransition';
+import BackgroundSvg from '@/components/ui/BackgroundSvg';
 import { ApplyModalProvider } from '@/components/ui/ApplyModalContext';
 import CookieConsent from '@/components/ui/CookieConsent';
 
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SmoothScroll>
           <ApplyModalProvider>
             <PageTransition>
+              <BackgroundSvg />
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />

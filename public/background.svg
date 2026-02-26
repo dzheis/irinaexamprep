@@ -1,4 +1,4 @@
-<svg width="1900" height="5000" viewBox="0 0 1900 5000" xmlns="http://www.w3.org/2000/svg">
+<svg width="1920" height="5000" viewBox="0 0 1920 5000" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#8C92B8"/>
@@ -15,7 +15,7 @@
       <stop offset="100%" stop-color="#CFA6B4"/>
     </radialGradient>
   </defs>
-  <rect width="1900" height="5000" fill="url(#bgGradient)"/>
+  <rect width="1920" height="5000" fill="url(#bgGradient)"/>
   <circle cx="-150" cy="-694" r="2315" fill="url(#leftCircleGradient)" opacity="0.9"/>
   <circle cx="-80" cy="-370" r="1944" fill="#AEB4D6" opacity="0.4"/>
   <circle cx="0" cy="0" r="1620" fill="#D2B9CC" opacity="0.4"/>

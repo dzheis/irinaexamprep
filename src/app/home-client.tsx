@@ -15,7 +15,7 @@ type HomeClientProps = {
 
 export default function HomeClient({ title, description, imageUrl }: HomeClientProps) {
   return (
-    <div className="gradient-bg relative">
+    <div className="min-h-screen relative">
       <div className="relative z-10">
         <HeroSection title={title} description={description} imageUrl={imageUrl} />
         <CoursesMethodologySection />
