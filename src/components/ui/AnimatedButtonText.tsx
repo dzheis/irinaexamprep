@@ -49,16 +49,10 @@ export default function AnimatedButtonText({ text, className = "" }: Props) {
       {chars.map((char, i) => (
         <span
           key={`${i}-${char}`}
-          className="relative inline-block align-baseline overflow-hidden"
-          style={
-            char === " "
-              ? { minWidth: "0.25em", width: "0.25em" }
-              : undefined
-          }
+          className={`relative inline-block align-baseline overflow-hidden ${char === " " ? "char-space" : ""}`}
         >
           <span
-            className="invisible select-none"
-            style={{ font: "inherit" }}
+            className="invisible select-none font-inherit"
             aria-hidden
           >
             {cellChar(char)}
@@ -67,8 +61,7 @@ export default function AnimatedButtonText({ text, className = "" }: Props) {
             ref={(el) => {
               letterRefs.current[i] = el;
             }}
-            className="absolute left-0 top-0 overflow-hidden"
-            style={{ maxWidth: "100%" }}
+            className="absolute left-0 top-0 overflow-hidden max-w-full"
           >
             {cellChar(char)}
           </span>

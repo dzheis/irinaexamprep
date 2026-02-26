@@ -3,6 +3,7 @@ import crypto from "crypto";
 
 const ROBOKASSA_LOGIN = process.env.ROBOKASSA_LOGIN;
 const ROBOKASSA_PASS1 = process.env.ROBOKASSA_PASS1;
+const ROBOKASSA_TEST = process.env.ROBOKASSA_TEST === "1" || process.env.ROBOKASSA_TEST === "true";
 const ROBOKASSA_BASE_URL = "https://auth.robokassa.ru/Merchant/Index.aspx";
 
 type PayBody = {
@@ -55,6 +56,7 @@ export async function POST(req: NextRequest) {
     InvId: invId,
     SignatureValue: signature,
     Culture: "ru",
+    ...(ROBOKASSA_TEST && { IsTest: "1" }),
     ...(body.email?.trim() && { Email: body.email.trim() }),
     ...(successUrl && { SuccessURL: successUrl }),
     ...(failUrl && { FailURL: failUrl }),

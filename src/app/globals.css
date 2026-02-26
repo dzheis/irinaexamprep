@@ -76,12 +76,19 @@ body {
 }
 
 .blind-image {
-  background-image: url(/transition_back.jpg);
+  background-image: url(/images/photos/transition_back.jpg);
   background-size: 2100% 100%;
   background-repeat: no-repeat;
   background-position: calc(var(--start, 0) * 1%) 0;
   opacity: 0.92;
 }
+
+/* Utilities: replace inline styles */
+.font-inherit { font: inherit; }
+.char-space { min-width: 0.25em; width: 0.25em; }
+.overflow-touch { -webkit-overflow-scrolling: touch; }
+.perspective-1000 { perspective: 1000px; }
+.preserve-3d { transform-style: preserve-3d; }
 
 @layer base {
   body {

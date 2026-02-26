@@ -1,9 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Particles } from "@/components/ui/particles";
-
-const SHOW_PARTICLES = true;
 
 export type MethodologyVideoItem = {
   id: string;
@@ -172,6 +169,12 @@ function PaymentModal({
         <p className="text-sm text-theme/80 mb-3">
           После нажатия вы перейдёте на защищённую страницу Robokassa для ввода данных карты и оплаты.
         </p>
+        <p className="text-xs text-theme/80 mb-3">
+          Нажимая кнопку, вы соглашаетесь с{' '}
+          <a href="/offer" target="_blank" rel="noopener noreferrer" className="underline text-theme-accent hover:text-theme">
+            договором оферты
+          </a>.
+        </p>
         {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
         <button
           type="button"
@@ -189,54 +192,13 @@ function PaymentModal({
 export default function MethodologyClient({ videos }: MethodologyClientProps) {
   const list = videos && videos.length > 0 ? videos : METHODOLOGY_VIDEOS;
   const [paymentProduct, setPaymentProduct] = useState<PaymentProduct | null>(null);
-  const [particlesConfig, setParticlesConfig] = useState<{
-    show: boolean;
-    quantity: number;
-  } | null>(null);
-
-  useEffect(() => {
-    if (!SHOW_PARTICLES) return;
-    const mqMobile = window.matchMedia("(max-width: 768px)");
-    const mqNarrow = window.matchMedia("(max-width: 1280px)");
-    const mqParticles = window.matchMedia("(min-width: 1280px)");
-    const update = () => {
-      setParticlesConfig({
-        show: mqParticles.matches,
-        quantity: mqMobile.matches ? 25 : mqNarrow.matches ? 35 : 45,
-      });
-    };
-    update();
-    mqMobile.addEventListener("change", update);
-    mqNarrow.addEventListener("change", update);
-    mqParticles.addEventListener("change", update);
-    return () => {
-      mqMobile.removeEventListener("change", update);
-      mqNarrow.removeEventListener("change", update);
-      mqParticles.removeEventListener("change", update);
-    };
-  }, []);
 
   return (
     <div className="rose-petals-bg relative">
-      {SHOW_PARTICLES && particlesConfig?.show && (
-        <div className="fixed inset-0 z-0 pointer-events-none">
-          <Particles
-            className="fixed inset-0 w-screen h-screen"
-            quantity={particlesConfig.quantity}
-            ease={30}
-            color="#C9B7AE"
-            size={35}
-            staticity={15}
-            vx={0.35}
-            vy={0.3}
-            opacity={0.7}
-          />
-        </div>
-      )}
       <div className="relative z-10">
         <div className="pt-24 md:pt-28">
           <section className="py-20 md:py-28 max-w-[1680px] mx-auto px-4 md:px-8">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-14 md:mb-20 text-theme">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl min-[1200px]:lg:text-7xl font-bold text-center mb-14 md:mb-20 text-theme">
               Методология
             </h1>
 
@@ -289,7 +251,7 @@ function MethodologyVideoBlock({
       {/* Справа: описание и кнопка. На мобильных — снизу */}
       <div className="flex flex-col flex-1 min-w-0">
         {item.title && (
-          <h2 className="text-xl md:text-2xl font-bold mb-4 text-theme">
+          <h2 className="text-lg md:text-xl min-[1200px]:text-2xl min-[1200px]:md:text-3xl font-bold mb-4 text-theme">
             {item.title}
           </h2>
         )}
@@ -298,7 +260,7 @@ function MethodologyVideoBlock({
         </div>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-3 md:gap-4">
           <span
-            className="inline-flex items-center rounded-full px-5 py-2.5 md:px-6 md:py-3 text-lg md:text-xl font-semibold text-theme bg-white/80 border border-theme/20 shadow-[0_2px_8px_rgba(47,52,64,0.12),0_1px_3px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.8)] transition-transform duration-300 hover:scale-[1.02]"
+            className="inline-flex items-center rounded-full px-5 py-2.5 md:px-6 md:py-3 text-base md:text-lg min-[1200px]:text-xl min-[1200px]:md:text-2xl font-semibold text-theme bg-white/80 border border-theme/20 shadow-[0_2px_8px_rgba(47,52,64,0.12),0_1px_3px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.8)] transition-transform duration-300 hover:scale-[1.02]"
             aria-label="Цена"
           >
             {typeof item.price === "number"
@@ -309,7 +271,7 @@ function MethodologyVideoBlock({
           <button
             type="button"
             onClick={onBuy}
-            className="btn-primary text-base md:text-lg px-10 py-3 md:py-4 min-w-[200px]"
+            className="btn-primary text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl px-10 py-3 md:py-4 min-w-[200px]"
           >
             Купить
           </button>

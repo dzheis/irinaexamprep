@@ -20,6 +20,9 @@
 # production
 /build
 
+# backup (not needed for production)
+/backup/
+
 # misc
 .DS_Store
 *.pem

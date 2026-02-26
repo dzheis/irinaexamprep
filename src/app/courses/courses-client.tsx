@@ -2,13 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Particles } from "@/components/ui/particles";
-import { useApplyModal } from "@/components/ApplyModalContext";
+import { useApplyModal } from "@/components/ui/ApplyModalContext";
 
 const COURSE_CARDS = [
-  { id: 1, title: "FCE course B2", slug: "fce", imagePath: "/Courses Certificates/FCE B2.jpg" },
-  { id: 2, title: "CAE course C1", slug: "cae", imagePath: "/Courses Certificates/СAE C1.jpg" },
-  { id: 3, title: "CPE course C2", slug: "cpe", imagePath: "/Courses Certificates/CPE C2.jpg" },
+  { id: 1, title: "FCE course B2", slug: "fce", imagePath: "/images/certificates/FCE B2.jpg" },
+  { id: 2, title: "CAE course C1", slug: "cae", imagePath: "/images/certificates/СAE C1.jpg" },
+  { id: 3, title: "CPE course C2", slug: "cpe", imagePath: "/images/certificates/CPE C2.jpg" },
 ] as const;
 
 const COURSE_DESCRIPTIONS: Record<number, string> = {
@@ -60,8 +59,6 @@ const COURSE_DESCRIPTIONS: Record<number, string> = {
 };
 
 
-const SHOW_PARTICLES = true;
-
 function useBodyScrollLock(locked: boolean) {
   useEffect(() => {
     if (!locked) return;
@@ -79,79 +76,25 @@ function useBodyScrollLock(locked: boolean) {
   }, [locked]);
 }
 
-type CourseViewModel = {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  imageUrl?: string;
-};
-
-type CoursesClientProps = {
-  courses?: CourseViewModel[];
-};
-
-export default function CoursesClient(_props: CoursesClientProps = {}) {
-  const [particlesConfig, setParticlesConfig] = useState<{
-    show: boolean;
-    quantity: number;
-  } | null>(null);
+export default function CoursesClient() {
   const [detailsModalCourseId, setDetailsModalCourseId] = useState<number | null>(null);
   const applyModal = useApplyModal();
 
-  useEffect(() => {
-    if (!SHOW_PARTICLES) return;
-    const mqMobile = window.matchMedia("(max-width: 768px)");
-    const mqNarrow = window.matchMedia("(max-width: 1280px)");
-    const mqParticles = window.matchMedia("(min-width: 1280px)");
-    const update = () => {
-      setParticlesConfig({
-        show: mqParticles.matches,
-        quantity: mqMobile.matches ? 25 : mqNarrow.matches ? 35 : 45,
-      });
-    };
-    update();
-    mqMobile.addEventListener("change", update);
-    mqNarrow.addEventListener("change", update);
-    mqParticles.addEventListener("change", update);
-    return () => {
-      mqMobile.removeEventListener("change", update);
-      mqNarrow.removeEventListener("change", update);
-      mqParticles.removeEventListener("change", update);
-    };
-  }, []);
-
   return (
     <div className="rose-petals-bg relative">
-      {SHOW_PARTICLES && particlesConfig?.show && (
-        <div className="fixed inset-0 z-0 pointer-events-none">
-          <Particles
-            className="fixed inset-0 w-screen h-screen"
-            quantity={particlesConfig.quantity}
-            ease={30}
-            color="#C9B7AE"
-            size={35}
-            staticity={15}
-            vx={0.35}
-            vy={0.3}
-            opacity={0.7}
-          />
-        </div>
-      )}
       <div className="relative z-10">
         <div className="pt-24 md:pt-28">
           <section className="py-20 md:py-28 max-w-[1680px] mx-auto px-4 md:px-8">
             <div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-14 md:mb-20 text-theme">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl min-[1200px]:lg:text-7xl font-bold text-center mb-14 md:mb-20 text-theme">
                 Курсы подготовки к экзаменам
               </h1>
 
-              <div className="grid grid-cols-1 min-[1400px]:grid-cols-3 gap-8 md:gap-10" style={{ perspective: "1000px" }}>
+              <div className="grid grid-cols-1 min-[1400px]:grid-cols-3 gap-8 md:gap-10 perspective-1000">
               {COURSE_CARDS.map((course) => (
                 <div
                   key={course.id}
-                  className="flex justify-center"
-                  style={{ perspective: "1000px" }}
+                  className="flex justify-center perspective-1000"
                 >
                   <div className="course-card glass rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 w-full max-w-xl md:max-w-none min-w-0 transition-[transform,box-shadow] duration-300 ease-in-out hover:scale-[1.02] hover:shadow-xl">
                     {/* Левая колонка: только фото (сглаженные края, по центру) */}
@@ -168,21 +111,21 @@ export default function CoursesClient(_props: CoursesClientProps = {}) {
                     </div>
                     {/* Правая колонка: название курса, под ним кнопки */}
                     <div className="flex flex-col justify-center text-center md:text-left flex-1 min-w-0">
-                      <h2 className="text-2xl md:text-3xl font-bold mb-5 md:mb-6 text-theme break-words">
+                      <h2 className="text-xl md:text-2xl min-[1200px]:text-3xl min-[1200px]:md:text-4xl font-bold mb-5 md:mb-6 text-theme break-words">
                         {course.title}
                       </h2>
                       <div className="flex flex-col gap-4 min-w-0">
                         <button
                           type="button"
                           onClick={() => setDetailsModalCourseId(course.id)}
-                          className="btn btn-secondary w-full text-center min-w-0 text-base md:text-lg py-3 md:py-3.5 overflow-hidden text-ellipsis whitespace-nowrap"
+                          className="btn btn-secondary w-full text-center min-w-0 text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl py-3 md:py-3.5 overflow-hidden text-ellipsis whitespace-nowrap"
                         >
                           Подробнее
                         </button>
                         <button
                           type="button"
                           onClick={() => applyModal?.openApplyModal(course.id, course.title)}
-                          className="btn-primary w-full text-base md:text-lg px-5 py-3 md:py-4 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                          className="btn-primary w-full text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl px-5 py-3 md:py-4 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
                         >
                           Подать заявку
                         </button>
@@ -298,8 +241,7 @@ function DetailsModal({
         </div>
         <div
           ref={scrollRef}
-          className="mt-4 overflow-y-auto overflow-x-hidden min-h-0 max-h-[calc(85vh-8rem)] pr-1 overscroll-contain touch-auto"
-          style={{ WebkitOverflowScrolling: "touch" }}
+          className="mt-4 overflow-y-auto overflow-x-hidden min-h-0 max-h-[calc(85vh-8rem)] pr-1 overscroll-contain touch-auto overflow-touch"
         >
           <div className="prose prose-theme max-w-none text-theme whitespace-pre-line leading-relaxed text-justify [&>*]:text-justify">
             {description}

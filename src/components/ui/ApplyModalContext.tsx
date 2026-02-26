@@ -48,6 +48,7 @@ type ApplyFormData = {
   telegram: string;
   instagram: string;
   whatsapp: string;
+  consentPersonalData: boolean;
 };
 
 type ApplyModalContextValue = {
@@ -277,9 +278,35 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
                   className={inputBase}
                 />
               </div>
+              <div className="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  id="apply-consent-pd"
+                  {...register("consentPersonalData", {
+                    required: "Необходимо дать согласие на обработку персональных данных",
+                  })}
+                  className="mt-1 rounded border-theme/30 text-theme-accent focus:ring-theme-accent"
+                />
+                <label htmlFor="apply-consent-pd" className="text-sm text-theme/90">
+                  Даю согласие на обработку персональных данных в соответствии с{" "}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline text-theme-accent hover:text-theme">
+                    политикой конфиденциальности
+                  </a>
+                  .
+                </label>
+              </div>
+              {errors.consentPersonalData && (
+                <p className="text-sm text-red-500">{errors.consentPersonalData.message}</p>
+              )}
               {submitError && (
                 <p className="text-sm text-red-500">{submitError}</p>
               )}
+              <p className="text-xs text-theme/80 mb-3">
+                Отправляя заявку, вы также соглашаетесь с{" "}
+                <a href="/offer" target="_blank" rel="noopener noreferrer" className="underline text-theme-accent hover:text-theme">
+                  договором оферты
+                </a>.
+              </p>
               <button
                 type="submit"
                 className="btn-primary w-full text-lg px-8 py-4"

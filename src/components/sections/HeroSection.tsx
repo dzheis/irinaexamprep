@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import AnimatedButtonText from '@/components/AnimatedButtonText';
+import AnimatedButtonText from '@/components/ui/AnimatedButtonText';
 
 const TEACHER_INTRO =
   "Опытный преподаватель английского языка, специализируюсь на подготовке к экзаменам Cambridge: FCE (B2), CAE (C1), CPE (C2). Уроки простые и ориентированные на результат — помогу сдать экзамен уверенно и заговорить свободнее.";
@@ -22,7 +22,7 @@ export default function HeroSection({ title, description, imageUrl }: HeroSectio
             <div className="relative w-full max-w-lg lg:max-w-xl">
               <div className="relative w-full h-full rounded-3xl overflow-hidden">
                 <Image
-                  src={imageUrl || '/irina_petrova.JPG'}
+                  src={imageUrl || '/images/photos/irina_petrova.JPG'}
                   alt="Irina Petrova"
                   width={600}
                   height={800}
@@ -34,14 +34,14 @@ export default function HeroSection({ title, description, imageUrl }: HeroSectio
           </div>
 
           <div className="flex-1 flex flex-col gap-6 lg:gap-8 text-left lg:text-left order-2 lg:order-1">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-center lg:text-left text-theme">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl min-[1200px]:lg:text-7xl font-bold tracking-tight leading-tight text-center lg:text-left text-theme">
               {title}
             </h1>
-            <p className="text-base md:text-lg text-theme/90 text-center lg:text-justify max-w-xl">
+            <p className="text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl text-theme/90 text-center lg:text-justify max-w-xl">
               {TEACHER_INTRO}
             </p>
             {description ? (
-              <p className="text-lg md:text-xl lg:text-2xl leading-relaxed opacity-90 text-center lg:text-left text-theme">
+              <p className="text-base md:text-lg lg:text-xl min-[1200px]:text-xl min-[1200px]:md:text-2xl min-[1200px]:lg:text-3xl leading-relaxed opacity-90 text-center lg:text-left text-theme">
                 {description}
               </p>
             ) : null}

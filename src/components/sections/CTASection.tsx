@@ -3,7 +3,7 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import Lottie, { LottieRefCurrentProps } from 'lottie-react';
-import AnimatedSection from './AnimatedSection';
+import AnimatedSection from '@/components/ui/AnimatedSection';
 
 import emailAnimation from '@/../public/lottie/e-mail_default.json';
 import instagramAnimation from '@/../public/lottie/instagram_default.json';
@@ -19,6 +19,7 @@ export default function CTASection() {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
   const [email, setEmail] = useState('');
+  const [consentSubscribe, setConsentSubscribe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,6 +84,10 @@ export default function CTASection() {
       setError('Введите email');
       return;
     }
+    if (!consentSubscribe) {
+      setError('Необходимо дать согласие на обработку данных для рассылки');
+      return;
+    }
     setIsLoading(true);
     try {
       const res = await fetch('/api/subscribe', {
@@ -102,61 +107,76 @@ export default function CTASection() {
     } finally {
       setIsLoading(false);
     }
-  }, [email]);
+  }, [email, consentSubscribe]);
 
   return (
     <AnimatedSection id="cta" animationDirection="left" containerClassName="max-w-7xl mx-auto">
       <div
-        className="relative p-4 cursor-pointer"
-        style={{ perspective: '1000px' }}
+        className="relative p-4 cursor-pointer perspective-1000"
         onMouseMove={handleCardMouseMove}
         onMouseLeave={handleCardMouseLeave}
       >
         <div
           ref={cardRef}
-          className={`card text-center transition-[transform,box-shadow] ${isHovering ? 'duration-[150ms]' : 'duration-500 ease-in-out'} ${isHovering ? 'shadow-xl' : ''}`}
+          className={`card text-center transition-[transform,box-shadow] preserve-3d ${isHovering ? 'duration-[150ms]' : 'duration-500 ease-in-out'} ${isHovering ? 'shadow-xl' : ''}`}
           style={{
             transform: `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${isHovering ? 1.02 : 1})`,
-            transformStyle: 'preserve-3d',
           }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-theme">
+          <h2 className="text-3xl md:text-4xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl font-bold mb-4 text-theme">
             Оставайтесь в курсе новостей
           </h2>
-          <p className="text-xl md:text-2xl opacity-90 mb-8 text-theme">
+          <p className="text-lg md:text-xl min-[1200px]:text-2xl min-[1200px]:md:text-3xl opacity-90 mb-8 text-theme">
             Подпишитесь на советы, ресурсы и обновления, это совсем не сложно, но очень полезно
           </p>
           <form
-            className="group flex flex-col sm:flex-row items-center gap-4 max-w-lg mx-auto mb-4"
+            className="group flex flex-col gap-4 max-w-lg mx-auto mb-4"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onSubmit={handleSubscribe}
           >
-            <div className="w-12 h-12 flex-shrink-0 transition-transform duration-300 group-hover:scale-110">
-              <Lottie
-                lottieRef={lottieRef}
-                animationData={emailAnimation}
-                loop={true}
-                autoplay={false}
-                className="w-full h-full"
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="w-12 h-12 flex-shrink-0 transition-transform duration-300 group-hover:scale-110">
+                <Lottie
+                  lottieRef={lottieRef}
+                  animationData={emailAnimation}
+                  loop={true}
+                  autoplay={false}
+                  className="w-full h-full"
+                />
+              </div>
+              <input
+                type="email"
+                placeholder="Email адрес"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
+                className="flex-1 w-full min-w-0 px-6 py-4 rounded-full border bg-white/60 backdrop-blur-sm focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-300 input-theme disabled:opacity-70"
+                aria-invalid={error ? "true" : undefined}
               />
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 shadow-lg btn-cta-subscribe disabled:opacity-70 disabled:cursor-not-allowed w-full sm:w-auto"
+              >
+                {isLoading ? 'Отправка…' : 'Подписаться'}
+              </button>
             </div>
-            <input
-              type="email"
-              placeholder="Email адрес"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isLoading}
-              className="flex-1 px-6 py-4 rounded-full border bg-white/60 backdrop-blur-sm focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-300 input-theme disabled:opacity-70"
-              aria-invalid={error ? "true" : undefined}
-            />
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 shadow-lg btn-cta-subscribe disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Отправка…' : 'Подписаться'}
-            </button>
+            <div className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                id="cta-consent-pd"
+                checked={consentSubscribe}
+                onChange={(e) => setConsentSubscribe(e.target.checked)}
+                className="mt-1 rounded border-theme/30 text-theme-accent focus:ring-theme-accent"
+              />
+              <label htmlFor="cta-consent-pd" className="text-sm text-theme/90">
+                Даю согласие на обработку email в соответствии с{" "}
+                <Link href="/privacy" className="underline text-theme-accent hover:text-theme">
+                  политикой конфиденциальности
+                </Link>
+              </label>
+            </div>
           </form>
           {isSuccess && (
             <p className="text-sm font-medium text-green-600 dark:text-green-400 mb-6" role="status">

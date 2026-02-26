@@ -1,10 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Particles } from "@/components/ui/particles";
-
-const SHOW_PARTICLES = true;
-
 type FreeResourceItem = {
   id: string;
   title: string;
@@ -49,7 +44,7 @@ function ResourceCard({ item }: { item: FreeResourceItem }) {
   return (
     <div className="flex flex-col md:flex-row gap-4 md:gap-6 w-full min-w-0">
       <div className="glass rounded-2xl p-6 md:p-8 flex items-center justify-center text-center min-h-[120px] md:min-h-[140px] w-full md:w-[36%] lg:w-[32%] flex-shrink-0 transition-[transform,box-shadow] duration-300 ease-in-out hover:scale-[1.01] hover:shadow-xl">
-        <h2 className="text-xl md:text-2xl font-bold text-theme">
+        <h2 className="text-lg md:text-xl min-[1200px]:text-2xl min-[1200px]:md:text-3xl font-bold text-theme">
           {item.title}
         </h2>
       </div>
@@ -61,7 +56,7 @@ function ResourceCard({ item }: { item: FreeResourceItem }) {
         <div className="mt-4 flex justify-end flex-shrink-0">
           <a
             href={href}
-            className="btn-primary text-base md:text-lg px-8 py-3 md:py-4 inline-flex items-center justify-center"
+            className="btn-primary text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl px-8 py-3 md:py-4 inline-flex items-center justify-center"
             {...(isDownload
               ? {
                   download: item.downloadFilename ?? undefined,
@@ -81,54 +76,12 @@ function ResourceCard({ item }: { item: FreeResourceItem }) {
 }
 
 export default function FreeResourcesClient() {
-  const [particlesConfig, setParticlesConfig] = useState<{
-    show: boolean;
-    quantity: number;
-  } | null>(null);
-
-  useEffect(() => {
-    if (!SHOW_PARTICLES) return;
-    const mqMobile = window.matchMedia("(max-width: 768px)");
-    const mqNarrow = window.matchMedia("(max-width: 1280px)");
-    const mqParticles = window.matchMedia("(min-width: 1280px)");
-    const update = () => {
-      setParticlesConfig({
-        show: mqParticles.matches,
-        quantity: mqMobile.matches ? 25 : mqNarrow.matches ? 35 : 45,
-      });
-    };
-    update();
-    mqMobile.addEventListener("change", update);
-    mqNarrow.addEventListener("change", update);
-    mqParticles.addEventListener("change", update);
-    return () => {
-      mqMobile.removeEventListener("change", update);
-      mqNarrow.removeEventListener("change", update);
-      mqParticles.removeEventListener("change", update);
-    };
-  }, []);
-
   return (
     <div className="rose-petals-bg relative">
-      {SHOW_PARTICLES && particlesConfig?.show && (
-        <div className="fixed inset-0 z-0 pointer-events-none">
-          <Particles
-            className="fixed inset-0 w-screen h-screen"
-            quantity={particlesConfig.quantity}
-            ease={30}
-            color="#C9B7AE"
-            size={35}
-            staticity={15}
-            vx={0.35}
-            vy={0.3}
-            opacity={0.7}
-          />
-        </div>
-      )}
       <div className="relative z-10">
         <div className="pt-24 md:pt-28">
           <section className="py-20 md:py-28 max-w-[1680px] mx-auto px-4 md:px-8">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-14 md:mb-20 text-theme">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl min-[1200px]:lg:text-7xl font-bold text-center mb-14 md:mb-20 text-theme">
               Free resources
             </h1>
 

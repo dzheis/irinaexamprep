@@ -3,7 +3,7 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
-import { useScrollLock } from '@/components/SmoothScroll';
+import { useScrollLock } from '@/components/ui/SmoothScroll';
 
 const BASE_DURATION_SEC = 20;
 const DECAY = 0.035;
@@ -25,32 +25,32 @@ const testimonials: Testimonial[] = [
     name: 'Анна Смирнова',
     role: 'Студентка МГУ',
     text: 'Просто лучший преподаватель!',
-    avatar: '/placeholder-avatar.svg',
-    certificateImage: '/placeholder-certificate.svg',
+    avatar: '/icons/placeholder-avatar.svg',
+    certificateImage: '/icons/placeholder-certificate.svg',
   },
   {
     id: 2,
     name: 'Михаил Петров',
     role: 'Выпускник 2024',
     text: 'Отличный преподаватель! За полгода подготовки мой уровень вырос с B1 до C1. Рекомендую всем, кто хочет реальных результатов.',
-    avatar: '/placeholder-avatar.svg',
-    certificateImage: '/placeholder-certificate.svg',
+    avatar: '/icons/placeholder-avatar.svg',
+    certificateImage: '/icons/placeholder-certificate.svg',
   },
   {
     id: 3,
     name: 'Елена Козлова',
     role: 'Студентка ВШЭ',
     text: 'Ирина помогла мне не только подготовиться к экзамену, но и полюбить английский язык. Уроки всегда интересные и продуктивные!',
-    avatar: '/placeholder-avatar.svg',
-    certificateImage: '/placeholder-certificate.svg',
+    avatar: '/icons/placeholder-avatar.svg',
+    certificateImage: '/icons/placeholder-certificate.svg',
   },
   {
     id: 4,
     name: 'Дмитрий Волков',
     role: 'Выпускник 2023',
     text: 'Сдал IELTS на 7.5 после курса подготовки. Очень благодарен за индивидуальный подход и постоянную поддержку!',
-    avatar: '/placeholder-avatar.svg',
-    certificateImage: '/placeholder-certificate.svg',
+    avatar: '/icons/placeholder-avatar.svg',
+    certificateImage: '/icons/placeholder-certificate.svg',
   },
 ];
 
@@ -106,10 +106,10 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
             />
           </div>
           <div className="flex flex-col min-w-0 flex-1">
-            <p className="font-semibold text-lg text-theme truncate">
+            <p className="font-semibold text-base min-[1200px]:text-xl text-theme truncate">
               {testimonial.name}
             </p>
-            <p className="text-sm text-theme-accent truncate">
+            <p className="text-xs min-[1200px]:text-base text-theme-accent truncate">
               {testimonial.role}
             </p>
           </div>
@@ -135,7 +135,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
               />
             </div>
           )}
-          <p className="text-base leading-relaxed text-justify text-theme break-words hyphens-auto">
+          <p className="text-sm min-[1200px]:text-lg leading-relaxed text-justify text-theme break-words hyphens-auto">
             &ldquo;{testimonial.text}&rdquo;
           </p>
         </div>
@@ -296,7 +296,7 @@ export default function TestimonialsSection() {
   return (
     <section className="section py-16 md:py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 mb-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-theme">
+        <h2 className="text-2xl md:text-3xl min-[1200px]:text-4xl min-[1200px]:md:text-5xl font-bold text-center text-theme">
           Отзывы студентов
         </h2>
       </div>
@@ -316,8 +316,7 @@ export default function TestimonialsSection() {
       >
         <div
           ref={stripRef}
-          className="flex gap-6 items-stretch w-max"
-          style={{ willChange: 'transform' }}
+          className="flex gap-6 items-stretch w-max will-change-transform"
         >
           {testimonials.map((testimonial) => (
             <TestimonialCard key={`first-${testimonial.id}`} testimonial={testimonial} />

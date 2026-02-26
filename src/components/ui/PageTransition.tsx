@@ -159,21 +159,13 @@ export default function PageTransition({ children }: { children: ReactNode }) {
       {ENABLE_BLINDS_TRANSITION && (
         <div
           ref={overlayRef}
-          className="pointer-events-none fixed inset-0 z-[100] flex perspective-[1000px]"
-          style={{ transform: "translateZ(0)", visibility: "hidden" }}
+          className="pointer-events-none fixed inset-0 z-[100] flex perspective-[1000px] [transform:translateZ(0)] invisible"
         >
           {Array.from({ length: numBlinds }).map((_, index) => (
             <div
               key={index}
-              className="blind blind-image flex-1 origin-center"
-              style={
-                {
-                  transformStyle: "preserve-3d",
-                  backfaceVisibility: "hidden",
-                  transform: "rotateY(90deg)",
-                  ["--start"]: (index / numBlinds) * 100 - 0.5,
-                } as React.CSSProperties
-              }
+              className="blind blind-image flex-1 origin-center preserve-3d backface-hidden [transform:rotateY(90deg)]"
+              style={{ ["--start"]: (index / numBlinds) * 100 - 0.5 } as React.CSSProperties}
             />
           ))}
         </div>

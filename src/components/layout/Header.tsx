@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import gsap from "gsap";
-import AnimatedButtonText from "@/components/AnimatedButtonText";
-import { useScrollToSection, useScrollToTop } from "@/components/SmoothScroll";
-import { useApplyModal } from "@/components/ApplyModalContext";
+import AnimatedButtonText from "@/components/ui/AnimatedButtonText";
+import { useScrollToSection, useScrollToTop } from "@/components/ui/SmoothScroll";
+import { useApplyModal } from "@/components/ui/ApplyModalContext";
 
 const LOGO_TEXT = "Irina Petrova";
 const ALT_TEXT = "Best Practices for Learning English";
@@ -136,7 +136,7 @@ export default function Header() {
         <div className="flex items-center justify-between gap-2 sm:gap-4 min-w-0">
           <Link
             href="/"
-            className="relative text-lg md:text-xl font-semibold tracking-tight text-theme inline-flex flex-nowrap whitespace-nowrap flex-shrink-0 max-[1200px]:text-base lg:max-[1200px]:text-lg"
+            className="relative text-base md:text-lg min-[1200px]:text-xl min-[1200px]:md:text-2xl font-semibold tracking-tight text-theme inline-flex flex-nowrap whitespace-nowrap flex-shrink-0"
             onMouseEnter={handleLogoMouseEnter}
             onClick={(e) => {
               if (pathname === "/" && scrollToTop) {
@@ -150,16 +150,10 @@ export default function Header() {
               {CHARS2.map((_, i) => (
                 <span
                   key={`2-${i}`}
-                  className="relative inline-block align-baseline overflow-hidden"
-                  style={
-                    CHARS2[i] === " "
-                      ? { minWidth: "0.25em", width: "0.25em" }
-                      : undefined
-                  }
+                  className={`relative inline-block align-baseline overflow-hidden ${CHARS2[i] === " " ? "char-space" : ""}`}
                 >
                   <span
-                    className="invisible select-none"
-                    style={{ font: "inherit" }}
+                    className="invisible select-none font-inherit"
                     aria-hidden
                   >
                     <CellChar char={CHARS2[i]} />
@@ -168,8 +162,7 @@ export default function Header() {
                     ref={(el) => {
                       letter2Refs.current[i] = el;
                     }}
-                    className="absolute left-0 top-0 overflow-hidden opacity-0"
-                    style={{ maxWidth: "100%" }}
+                    className="absolute left-0 top-0 overflow-hidden opacity-0 max-w-full"
                     aria-hidden="true"
                   >
                     <CellChar char={CHARS2[i]} />
@@ -182,16 +175,10 @@ export default function Header() {
               {CHARS1.map((_, i) => (
                 <span
                   key={`1-${i}`}
-                  className="relative inline-block align-baseline overflow-hidden"
-                  style={
-                    CHARS1[i] === " "
-                      ? { minWidth: "0.25em", width: "0.25em" }
-                      : undefined
-                  }
+                  className={`relative inline-block align-baseline overflow-hidden ${CHARS1[i] === " " ? "char-space" : ""}`}
                 >
                   <span
-                    className="invisible select-none"
-                    style={{ font: "inherit" }}
+                    className="invisible select-none font-inherit"
                     aria-hidden
                   >
                     <CellChar char={CHARS1[i]} />
@@ -200,8 +187,7 @@ export default function Header() {
                     ref={(el) => {
                       letter1Refs.current[i] = el;
                     }}
-                    className="absolute left-0 top-0 overflow-hidden"
-                    style={{ maxWidth: "100%" }}
+                    className="absolute left-0 top-0 overflow-hidden max-w-full"
                   >
                     <CellChar char={CHARS1[i]} />
                   </span>
@@ -210,7 +196,7 @@ export default function Header() {
             </span>
           </Link>
           
-          <div className="hidden lg:flex items-center gap-1 sm:gap-2 text-sm min-w-0 flex-shrink max-[1200px]:gap-1 max-[1200px]:text-xs lg:max-[1200px]:text-sm">
+          <div className="hidden lg:flex items-center gap-1 sm:gap-2 text-xs sm:text-sm min-w-0 flex-shrink min-[1200px]:text-base">
             {ANCHOR_LINKS.map(({ href, id, label }) => (
               <Link
                 key={id}
@@ -261,7 +247,7 @@ export default function Header() {
             </Link>
             <button
               type="button"
-              className="btn-secondary max-[1200px]:!px-4 max-[1200px]:!py-2 max-[1200px]:!text-sm"
+              className="btn-secondary !px-4 !py-2 !text-sm min-[1200px]:!px-7 min-[1200px]:!py-3 min-[1200px]:!text-lg"
               aria-label="Подать заявку"
               onClick={() => {
                 applyModal?.openApplyModal(0, "Заявка");
