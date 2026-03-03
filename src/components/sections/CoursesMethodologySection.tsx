@@ -78,7 +78,7 @@ export default function CoursesMethodologySection() {
   }, []);
 
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)');
+    const mq = window.matchMedia('(min-width: 1280px)');
     const update = () => setIsDesktop(mq.matches);
     update();
     mq.addEventListener('change', update);
