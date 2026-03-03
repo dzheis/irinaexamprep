@@ -201,7 +201,7 @@ export default function Header() {
             </span>
           </Link>
           
-          <div className="hidden lg:flex items-center gap-1 sm:gap-2 text-xs sm:text-sm min-w-0 flex-shrink min-[1200px]:text-base">
+          <div className="header-nav-right hidden lg:flex items-center gap-1 sm:gap-2 text-xs sm:text-sm min-w-0 flex-shrink min-[1200px]:text-base">
             {ANCHOR_LINKS.map(({ href, id, label }) => (
               <Link
                 key={id}
@@ -264,7 +264,7 @@ export default function Header() {
 
           <button
             onClick={toggleMenu}
-            className="lg:hidden flex flex-col gap-1.5 p-2 text-theme"
+            className="header-nav-right lg:hidden flex flex-col gap-1.5 p-2 text-theme"
             aria-label="Toggle menu"
           >
             <span

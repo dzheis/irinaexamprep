@@ -4,6 +4,7 @@ import { useRef, useEffect, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { useScrollLock } from '@/components/ui/SmoothScroll';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
 const BASE_DURATION_SEC = 20;
 const DECAY = 0.035;
@@ -59,6 +60,8 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalClosing, setModalClosing] = useState(false);
   const scrollLock = useScrollLock();
+
+  useBodyScrollLock(certModalOpen);
 
   useEffect(() => {
     if (!certModalOpen) return;
@@ -154,6 +157,10 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
             }`}
             onClick={handleCloseModal}
             onTransitionEnd={handleTransitionEnd}
+            onWheel={(e) => {
+              if (e.target === e.currentTarget) e.preventDefault();
+              e.stopPropagation();
+            }}
             role="dialog"
             aria-modal="true"
             aria-label="Сертификат в полном размере"

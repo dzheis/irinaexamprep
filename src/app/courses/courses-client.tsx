@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import { useApplyModal } from "@/components/ui/ApplyModalContext";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 const COURSE_CARDS = [
   { id: 1, title: "FCE course B2", slug: "fce", imagePath: "/images/certificates/FCE B2.jpg" },
@@ -57,24 +58,6 @@ const COURSE_DESCRIPTIONS: Record<number, string> = {
 
 Сертификат CPE — это знак элитного владения английским, признаваемый топ-университетами и работодателями. Это кульминация языкового пути. Готовы покорить вершину? Запишитесь и станьте частью элиты!`,
 };
-
-
-function useBodyScrollLock(locked: boolean) {
-  useEffect(() => {
-    if (!locked) return;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    const prevOverflow = document.body.style.overflow;
-    const prevPaddingRight = document.body.style.paddingRight;
-    document.body.style.overflow = "hidden";
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-    }
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      document.body.style.paddingRight = prevPaddingRight;
-    };
-  }, [locked]);
-}
 
 export default function CoursesClient() {
   const [detailsModalCourseId, setDetailsModalCourseId] = useState<number | null>(null);
@@ -177,8 +160,8 @@ function DetailsModal({
   }, [isClosing]);
 
   const onOverlayWheel = useCallback((e: React.WheelEvent) => {
-    if (e.target !== e.currentTarget) return;
-    e.preventDefault();
+    if (e.target === e.currentTarget) e.preventDefault();
+    e.stopPropagation();
   }, []);
 
   useEffect(() => {
