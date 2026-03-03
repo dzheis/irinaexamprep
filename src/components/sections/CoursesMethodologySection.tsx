@@ -120,9 +120,6 @@ export default function CoursesMethodologySection() {
       gsap.set(methodologyCard, { opacity: 0, x: 120, y: 40, scale: 0.92 });
       gsap.set(freeResourcesCard, { opacity: 0, y: 80, scale: 0.92 });
 
-      let cardsCompleted = false;
-      const inertiaDuration = 0.8;
-
       ScrollTrigger.create({
         trigger: section,
         start: "top top",
@@ -130,57 +127,32 @@ export default function CoursesMethodologySection() {
         pin: true,
         anticipatePin: 1,
         onUpdate: (self) => {
-          const rawProgress = self.progress;
+          const p = self.progress;
+          const coursesProgress = Math.min(1, p / 0.4);
+          const methodologyProgress = Math.max(0, Math.min(1, (p - 0.35) / 0.65));
+          const freeResourcesProgress = Math.max(0, Math.min(1, (p - 0.65) / 0.35));
 
-          if (!cardsCompleted) {
-            const coursesProgress = Math.min(1, rawProgress / 0.4);
-            gsap.to(coursesCard, {
-              opacity: coursesProgress,
-              y: 80 * (1 - coursesProgress),
-              scale: 0.92 + 0.08 * coursesProgress,
-              duration: inertiaDuration,
-              ease: "power2.out",
-              overwrite: true
-            });
+          gsap.set(coursesCard, {
+            opacity: coursesProgress,
+            y: 80 * (1 - coursesProgress),
+            scale: 0.92 + 0.08 * coursesProgress,
+          });
+          gsap.set(methodologyCard, {
+            opacity: methodologyProgress,
+            x: 120 * (1 - methodologyProgress),
+            y: 40 * (1 - methodologyProgress),
+            scale: 0.92 + 0.08 * methodologyProgress,
+          });
+          gsap.set(freeResourcesCard, {
+            opacity: freeResourcesProgress,
+            y: 80 * (1 - freeResourcesProgress),
+            scale: 0.92 + 0.08 * freeResourcesProgress,
+          });
 
-            const methodologyProgress = Math.max(0, Math.min(1, (rawProgress - 0.35) / 0.65));
-            gsap.to(methodologyCard, {
-              opacity: methodologyProgress,
-              x: 120 * (1 - methodologyProgress),
-              y: 40 * (1 - methodologyProgress),
-              scale: 0.92 + 0.08 * methodologyProgress,
-              duration: inertiaDuration,
-              ease: "power2.out",
-              overwrite: true
-            });
-
-            const freeResourcesProgress = Math.max(0, Math.min(1, (rawProgress - 0.65) / 0.35));
-            gsap.to(freeResourcesCard, {
-              opacity: freeResourcesProgress,
-              y: 80 * (1 - freeResourcesProgress),
-              scale: 0.92 + 0.08 * freeResourcesProgress,
-              duration: inertiaDuration,
-              ease: "power2.out",
-              overwrite: true
-            });
-
-            if (rawProgress >= 0.99) {
-              cardsCompleted = true;
-              gsap.to(coursesCard, { opacity: 1, y: 0, scale: 1, duration: inertiaDuration, ease: "power2.out", overwrite: true });
-              gsap.to(methodologyCard, {
-                opacity: 1, x: 0, y: 0, scale: 1,
-                duration: inertiaDuration,
-                ease: "power2.out",
-                overwrite: true
-              });
-              gsap.to(freeResourcesCard, {
-                opacity: 1, y: 0, scale: 1,
-                duration: inertiaDuration,
-                ease: "power2.out",
-                overwrite: true,
-                onComplete: () => section.classList.add('section-cards-hover-ready')
-              });
-            }
+          if (p >= 0.95) {
+            section.classList.add('section-cards-hover-ready');
+          } else {
+            section.classList.remove('section-cards-hover-ready');
           }
         }
       });
