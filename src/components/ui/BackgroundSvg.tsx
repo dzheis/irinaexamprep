@@ -36,6 +36,7 @@ export default function BackgroundSvg() {
     >
       <div className="flex flex-col w-full min-h-full">
         {Array.from({ length: tileCount }).map((_, i) => (
+          // eslint-disable-next-line @next/next/no-img-element -- vector SVG via <img> by design
           <img
             key={i}
             src="/background.svg"

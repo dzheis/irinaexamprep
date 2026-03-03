@@ -19,8 +19,8 @@ html.lenis, html.lenis body {
   overflow: hidden;
 }
 
-/* Compensate scrollbar width for fixed header when modal is open */
-html.scroll-locked header.nav {
+/* Compensate scrollbar width: right-aligned nav stays fixed when modal opens */
+html.scroll-locked header.nav .header-nav-right {
   padding-right: var(--scrollbar-width, 0);
 }
 
@@ -44,46 +44,6 @@ html.scroll-locked header.nav {
 
 body {
   font-family: var(--font-family-base);
-}
-
-.blind-rainbow {
-  background: linear-gradient(
-    90deg,
-    var(--color-primary-cta),
-    var(--color-cta-button),
-    var(--color-accent),
-    var(--color-secondary-ui),
-    var(--color-secondary-accent),
-    var(--color-cta-soft),
-    var(--color-warm-ui),
-    var(--color-warm-bg),
-    var(--color-light-bg),
-    var(--color-secondary-accent),
-    var(--color-cta-soft),
-    var(--color-secondary-ui),
-    var(--color-accent),
-    var(--color-cta-button),
-    var(--color-primary-cta)
-  );
-  background-size: 1500% 100%;
-  background-position: calc(var(--start, 0) * 1%) 0;
-  animation: blindGradientFlow 4s ease-in-out infinite;
-}
-@keyframes blindGradientFlow {
-  0%, 100% {
-    background-position: calc(var(--start, 0) * 1%) 0;
-  }
-  50% {
-    background-position: calc((var(--start, 0) + 100) * 1%) 0;
-  }
-}
-
-.blind-image {
-  background-image: url(/images/photos/transition_back.jpg);
-  background-size: 2100% 100%;
-  background-repeat: no-repeat;
-  background-position: calc(var(--start, 0) * 1%) 0;
-  opacity: 0.92;
 }
 
 /* Utilities: replace inline styles */

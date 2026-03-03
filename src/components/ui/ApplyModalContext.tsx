@@ -11,39 +11,14 @@ import {
   ReactNode,
 } from "react";
 import { useForm } from "react-hook-form";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 const TEXT_ONLY_PATTERN = /^[a-zA-Zа-яА-ЯёЁ\s\-']*$/;
 const TEXT_ONLY_MSG = "Для ввода доступен только текст";
 
-const SCROLL_LOCK_CLASS = "scroll-locked";
-
 const INPUT_BASE_CLASS =
   "w-full px-4 py-3 rounded-xl border bg-white/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-theme-secondary-accent/50 transition-all duration-300 input-theme";
 const INPUT_ERROR_CLASS = "border-red-500 focus:ring-red-400 focus:border-red-500";
-
-function useBodyScrollLock(locked: boolean) {
-  useEffect(() => {
-    if (!locked) return;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    const prevOverflow = document.body.style.overflow;
-    const prevPaddingRight = document.body.style.paddingRight;
-    const html = document.documentElement;
-    document.body.style.overflow = "hidden";
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-      html.style.setProperty("--scrollbar-width", `${scrollbarWidth}px`);
-      html.classList.add(SCROLL_LOCK_CLASS);
-    }
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      document.body.style.paddingRight = prevPaddingRight;
-      if (scrollbarWidth > 0) {
-        html.classList.remove(SCROLL_LOCK_CLASS);
-        html.style.removeProperty("--scrollbar-width");
-      }
-    };
-  }, [locked]);
-}
 
 type ApplyFormData = {
   firstName: string;
@@ -154,6 +129,10 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
         show ? "opacity-100" : "opacity-0"
       }`}
       onClick={isClosing ? undefined : startClose}
+      onWheel={(e) => {
+        if (e.target === e.currentTarget) e.preventDefault();
+        e.stopPropagation();
+      }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="apply-modal-title"

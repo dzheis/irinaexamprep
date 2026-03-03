@@ -26,9 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen flex flex-col antialiased" suppressHydrationWarning>
         <SmoothScroll>
           <ApplyModalProvider>
+            <Header />
             <PageTransition>
               <BackgroundSvg />
-              <Header />
               <main className="flex-1">{children}</main>
               <Footer />
               <CookieConsentWrapper />

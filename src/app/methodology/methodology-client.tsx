@@ -128,6 +128,10 @@ function PaymentModal({
         show ? "opacity-100" : "opacity-0"
       }`}
       onClick={isClosing ? undefined : startClose}
+      onWheel={(e) => {
+        if (e.target === e.currentTarget) e.preventDefault();
+        e.stopPropagation();
+      }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="payment-modal-title"

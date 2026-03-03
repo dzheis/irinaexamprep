@@ -154,7 +154,7 @@ export default function FeaturesSection() {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: cardsWrapper,
-            start: 'top 70%',
+            start: 'top 90%',
             once: true,
           },
         });

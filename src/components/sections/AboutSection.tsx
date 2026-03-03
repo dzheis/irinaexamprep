@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { useScrollLock } from '@/components/ui/SmoothScroll';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
 const sideCertificates = [
   { id: 1, src: '/icons/placeholder-certificate.svg', alt: 'Сертификат CELTA' },
@@ -39,6 +40,8 @@ export default function AboutSection() {
   const [modalClosing, setModalClosing] = useState(false);
   const [modalImage, setModalImage] = useState<{ src: string; alt: string } | null>(null);
   const scrollLock = useScrollLock();
+
+  useBodyScrollLock(certModalOpen);
 
   useEffect(() => {
     if (!certModalOpen) return;
@@ -244,6 +247,10 @@ export default function AboutSection() {
             }`}
             onClick={handleCloseModal}
             onTransitionEnd={handleTransitionEnd}
+            onWheel={(e) => {
+              if (e.target === e.currentTarget) e.preventDefault();
+              e.stopPropagation();
+            }}
             role="dialog"
             aria-modal="true"
             aria-label={`${modalImage.alt} в полном размере`}
