@@ -119,13 +119,16 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
 
     const lenis = lenisRef.current;
     let attempt = 0;
-    const maxAttempts = 30;
-    const interval = 50;
+    const maxAttempts = 40;
+    const interval = 80;
+    const scrollDelay = 250;
     let id: ReturnType<typeof setTimeout> | null = null;
     const tryScroll = () => {
       const el = document.getElementById(targetId);
       if (el) {
-        lenis.scrollTo(el, { offset: -80, duration: 1.2 });
+        lenis.resize();
+        ScrollTrigger.refresh();
+        lenis.scrollTo(el, { offset: -80, duration: 0 });
         return;
       }
       attempt += 1;
@@ -133,7 +136,11 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         id = setTimeout(tryScroll, interval);
       }
     };
-    id = setTimeout(tryScroll, interval);
+    id = setTimeout(() => {
+      lenis.resize();
+      ScrollTrigger.refresh();
+      tryScroll();
+    }, scrollDelay);
     return () => {
       if (id) clearTimeout(id);
     };
