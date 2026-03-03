@@ -7,7 +7,7 @@ import SmoothScroll from '@/components/ui/SmoothScroll';
 import PageTransition from '@/components/ui/PageTransition';
 import BackgroundSvg from '@/components/ui/BackgroundSvg';
 import { ApplyModalProvider } from '@/components/ui/ApplyModalContext';
-import CookieConsent from '@/components/ui/CookieConsent';
+import CookieConsentWrapper from '@/components/ui/CookieConsentWrapper';
 
 const sourceSans = Source_Sans_3({
   subsets: ['latin', 'cyrillic'],
@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />
-              <CookieConsent />
+              <CookieConsentWrapper />
             </PageTransition>
           </ApplyModalProvider>
         </SmoothScroll>
