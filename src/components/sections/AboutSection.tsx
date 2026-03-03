@@ -19,6 +19,20 @@ const bottomCertificates = [
   { id: 7, src: '/icons/placeholder-certificate.svg', alt: 'Сертификат TKT' },
 ];
 
+const CERT_BUTTON_CLASS =
+  'relative rounded-lg overflow-hidden transition-[filter,box-shadow] duration-200 hover:brightness-105 hover:shadow-lg active:brightness-100 cursor-zoom-in select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50';
+
+const ABOUT_PARAGRAPHS = [
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+    'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.',
+    'Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur.',
+    'Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.',
+    'Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.',
+    'Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. Et harum quidem rerum facilis est et expedita distinctio.',
+    'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.',
+    'Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur. Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.',
+];
+
 export default function AboutSection() {
   const [certModalOpen, setCertModalOpen] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -60,20 +74,6 @@ export default function AboutSection() {
     [modalClosing]
   );
 
-  const certButtonClass =
-    'relative rounded-lg overflow-hidden transition-[filter,box-shadow] duration-200 hover:brightness-105 hover:shadow-lg active:brightness-100 cursor-zoom-in select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50';
-
-  const aboutParagraphs = [
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.',
-    'Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur.',
-    'Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.',
-    'Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.',
-    'Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. Et harum quidem rerum facilis est et expedita distinctio.',
-    'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.',
-    'Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur. Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.',
-  ];
-
   return (
     <AnimatedSection id="about" animationDirection="up">
       {/* Mobile (<768px): one card with photo, text and certificates */}
@@ -91,12 +91,9 @@ export default function AboutSection() {
           <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-theme">
             Обо мне
           </h2>
-          <div className="w-full prose prose-lg max-w-none leading-relaxed text-theme [&_p]:text-justify [&_p]:indent-8">
-            {aboutParagraphs.map((text, i) => (
-              <p
-                key={i}
-                className={`text-base text-justify ${i < aboutParagraphs.length - 1 ? 'mb-4' : ''}`}
-              >
+          <div className="w-full prose prose-lg max-w-none leading-relaxed text-theme [&_p]:text-justify [&_p]:indent-8 [&>p]:mb-4 [&>p:last-child]:mb-0">
+            {ABOUT_PARAGRAPHS.map((text, i) => (
+              <p key={i} className="text-base text-justify">
                 {text}
               </p>
             ))}
@@ -105,7 +102,7 @@ export default function AboutSection() {
             {sideCertificates.map((cert) => (
               <div
                 key={`mobile-${cert.id}`}
-                className={`relative w-[7.5rem] h-[10.5rem] ${certButtonClass}`}
+                className={`relative w-[7.5rem] h-[10.5rem] ${CERT_BUTTON_CLASS}`}
                 role="button"
                 tabIndex={0}
                 onClick={() => openCertModal(cert.src, cert.alt)}
@@ -123,7 +120,7 @@ export default function AboutSection() {
             {bottomCertificates.map((cert) => (
               <div
                 key={cert.id}
-                className={`relative w-[7.5rem] h-[10.5rem] ${certButtonClass}`}
+                className={`relative w-[7.5rem] h-[10.5rem] ${CERT_BUTTON_CLASS}`}
                 role="button"
                 tabIndex={0}
                 onClick={() => openCertModal(cert.src, cert.alt)}
@@ -161,11 +158,11 @@ export default function AboutSection() {
                 Обо мне
               </h2>
 
-              <div className="prose prose-lg max-w-none leading-relaxed text-white min-h-0 overflow-visible text-left [&_p]:text-justify">
-                {aboutParagraphs.map((text, i) => (
+              <div className="prose prose-lg max-w-none leading-relaxed text-white min-h-0 overflow-visible text-left [&_p]:text-justify [&>p]:mb-4 [&>p:last-child]:mb-0">
+                {ABOUT_PARAGRAPHS.map((text, i) => (
                   <p
                     key={i}
-                    className={`text-base md:text-lg min-[1200px]:text-xl min-[1200px]:md:text-2xl text-justify indent-8 ${i < aboutParagraphs.length - 1 ? 'mb-4' : ''}`}
+                    className="text-base md:text-lg min-[1200px]:text-xl min-[1200px]:md:text-2xl text-justify indent-8"
                   >
                     {text}
                   </p>
@@ -177,7 +174,7 @@ export default function AboutSection() {
               {sideCertificates.map((cert) => (
                 <div
                   key={cert.id}
-                  className={`w-48 h-[16.5rem] ${certButtonClass}`}
+                  className={`w-48 h-[16.5rem] ${CERT_BUTTON_CLASS}`}
                   role="button"
                   tabIndex={0}
                   onClick={() => openCertModal(cert.src, cert.alt)}
@@ -199,7 +196,7 @@ export default function AboutSection() {
             {sideCertificates.map((cert) => (
               <div
                 key={`mobile-${cert.id}`}
-                className={`lg:hidden relative w-[7.5rem] h-[10.5rem] sm:w-[9rem] sm:h-[12rem] ${certButtonClass}`}
+                className={`lg:hidden relative w-[7.5rem] h-[10.5rem] sm:w-[9rem] sm:h-[12rem] ${CERT_BUTTON_CLASS}`}
                 role="button"
                 tabIndex={0}
                 onClick={() => openCertModal(cert.src, cert.alt)}
@@ -217,7 +214,7 @@ export default function AboutSection() {
             {bottomCertificates.map((cert) => (
               <div
                 key={cert.id}
-                className={`relative w-[7.5rem] h-[10.5rem] sm:w-[9rem] sm:h-[12rem] ${certButtonClass}`}
+                className={`relative w-[7.5rem] h-[10.5rem] sm:w-[9rem] sm:h-[12rem] ${CERT_BUTTON_CLASS}`}
                 role="button"
                 tabIndex={0}
                 onClick={() => openCertModal(cert.src, cert.alt)}

@@ -1,11 +1,20 @@
 "use client";
 
 import Link from 'next/link';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
+
+const PIN_SCROLL_END = '+=150%';
+const HOVER_DURATION = 0.3;
+const HOVER_EASE = 'power2.out';
+const CARD_SHADOW_DEFAULT = '0 8px 32px rgba(47, 52, 64, 0.1)';
+const CARD_SHADOW_HOVER = '0 20px 40px rgba(47, 52, 64, 0.12)';
+
+const LOREM_TEXT =
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.';
 
 export default function CoursesMethodologySection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -16,28 +25,42 @@ export default function CoursesMethodologySection() {
   const freeResourcesCardRef = useRef<HTMLDivElement>(null);
 
   const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
-  const PIN_SCROLL_END = "+=150%";
 
-  const hoverDuration = 0.3;
-  const hoverEase = 'power2.out';
-  const cardShadowDefault = '0 8px 32px rgba(47, 52, 64, 0.1)';
-  const cardShadowHover = '0 20px 40px rgba(47, 52, 64, 0.12)';
-
-  const onCardMouseEnter = (el: HTMLDivElement | null) => {
+  const onCardMouseEnter = useCallback((el: HTMLDivElement | null) => {
     if (!el || !sectionRef.current?.classList.contains('section-cards-hover-ready')) return;
-    gsap.to(el, { scale: 1.02, boxShadow: cardShadowHover, duration: hoverDuration, ease: hoverEase, overwrite: true });
-  };
-  const onCardMouseLeave = (el: HTMLDivElement | null) => {
-    if (!el) return;
-    gsap.to(el, { scale: 1, boxShadow: cardShadowDefault, duration: hoverDuration, ease: hoverEase, overwrite: true });
-  };
+    gsap.to(el, {
+      scale: 1.02,
+      boxShadow: CARD_SHADOW_HOVER,
+      duration: HOVER_DURATION,
+      ease: HOVER_EASE,
+      overwrite: true,
+    });
+  }, []);
 
-  const onLinkMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    gsap.to(e.currentTarget, { scale: 1.08, transformOrigin: 'left center', duration: 0.25, ease: hoverEase, overwrite: true });
-  };
-  const onLinkMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    gsap.to(e.currentTarget, { scale: 1, duration: 0.25, ease: hoverEase, overwrite: true });
-  };
+  const onCardMouseLeave = useCallback((el: HTMLDivElement | null) => {
+    if (!el) return;
+    gsap.to(el, {
+      scale: 1,
+      boxShadow: CARD_SHADOW_DEFAULT,
+      duration: HOVER_DURATION,
+      ease: HOVER_EASE,
+      overwrite: true,
+    });
+  }, []);
+
+  const onLinkMouseEnter = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    gsap.to(e.currentTarget, {
+      scale: 1.08,
+      transformOrigin: 'left center',
+      duration: 0.25,
+      ease: HOVER_EASE,
+      overwrite: true,
+    });
+  }, []);
+
+  const onLinkMouseLeave = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    gsap.to(e.currentTarget, { scale: 1, duration: 0.25, ease: HOVER_EASE, overwrite: true });
+  }, []);
 
   useEffect(() => {
     const cardsWrapper = cardsWrapperRef.current;
@@ -165,8 +188,6 @@ export default function CoursesMethodologySection() {
     };
   }, [isDesktop]);
 
-  const loremText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.";
-
   return (
     <div id="courses-methodology" ref={sectionRef} className="relative scroll-mt-20 pt-8 lg:pt-12">
       <div ref={containerRef} className="section w-full py-16 md:py-24">
@@ -190,7 +211,7 @@ export default function CoursesMethodologySection() {
                 Подробнее →
               </Link>
               <p className="text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl leading-relaxed text-justify text-theme">
-                {loremText}
+                {LOREM_TEXT}
               </p>
             </div>
 
@@ -212,7 +233,7 @@ export default function CoursesMethodologySection() {
                 Подробнее →
               </Link>
               <p className="text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl leading-relaxed text-justify text-theme">
-                {loremText}
+                {LOREM_TEXT}
               </p>
             </div>
 
@@ -234,7 +255,7 @@ export default function CoursesMethodologySection() {
                 Подробнее →
               </Link>
               <p className="text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl leading-relaxed text-justify text-theme">
-                {loremText}
+                {LOREM_TEXT}
               </p>
             </div>
           </div>

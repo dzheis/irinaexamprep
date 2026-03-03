@@ -76,18 +76,21 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
     };
   }, [certModalOpen, scrollLock]);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     if (modalClosing) return;
     setModalClosing(true);
-  };
+  }, [modalClosing]);
 
-  const handleTransitionEnd = (e: React.TransitionEvent) => {
-    if (e.propertyName === 'opacity' && modalClosing) {
-      setCertModalOpen(false);
-      setModalClosing(false);
-      setModalVisible(false);
-    }
-  };
+  const handleTransitionEnd = useCallback(
+    (e: React.TransitionEvent) => {
+      if (e.propertyName === 'opacity' && modalClosing) {
+        setCertModalOpen(false);
+        setModalClosing(false);
+        setModalVisible(false);
+      }
+    },
+    [modalClosing]
+  );
 
   return (
     <>
@@ -218,9 +221,7 @@ export default function TestimonialsSection() {
           while (translateX.current < -seg) translateX.current += seg;
         }
         velocity.current += (baseSpeed.current - velocity.current) * DECAY;
-        if (strip) {
-          strip.style.transform = `translate3d(${translateX.current}px, 0, 0)`;
-        }
+        if (strip) strip.style.setProperty('--strip-tx', `${translateX.current}px`);
       }
 
       rafId.current = requestAnimationFrame(tick);
@@ -274,7 +275,7 @@ export default function TestimonialsSection() {
       if (isDragging.current && trackRef.current && stripRef.current) {
         const dx = e.clientX - startX.current;
         translateX.current = startTranslateX.current + dx;
-        stripRef.current.style.transform = `translate3d(${translateX.current}px, 0, 0)`;
+        stripRef.current.style.setProperty('--strip-tx', `${translateX.current}px`);
         pushMove(e.clientX);
       }
     },
@@ -293,6 +294,17 @@ export default function TestimonialsSection() {
     [getReleaseVelocity],
   );
 
+  const handlePointerLeave = useCallback(
+    (e: React.PointerEvent) => {
+      if (pointerId.current === e.pointerId) {
+        isDragging.current = false;
+        pointerId.current = null;
+        velocity.current = getReleaseVelocity();
+      }
+    },
+    [getReleaseVelocity],
+  );
+
   return (
     <section className="section py-16 md:py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 mb-8">
@@ -306,17 +318,11 @@ export default function TestimonialsSection() {
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerLeave={(e) => {
-          if (pointerId.current === e.pointerId) {
-            isDragging.current = false;
-            pointerId.current = null;
-            velocity.current = getReleaseVelocity();
-          }
-        }}
+        onPointerLeave={handlePointerLeave}
       >
         <div
           ref={stripRef}
-          className="flex gap-6 items-stretch w-max will-change-transform"
+          className="strip-translate flex gap-6 items-stretch w-max will-change-transform"
         >
           {testimonials.map((testimonial) => (
             <TestimonialCard key={`first-${testimonial.id}`} testimonial={testimonial} />
