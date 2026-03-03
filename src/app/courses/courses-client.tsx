@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import { useApplyModal } from "@/components/ui/ApplyModalContext";
 
@@ -163,7 +163,6 @@ function DetailsModal({
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   useBodyScrollLock(true);
 
@@ -172,16 +171,15 @@ function DetailsModal({
     return () => cancelAnimationFrame(t);
   }, []);
 
-  const startClose = () => {
+  const startClose = useCallback(() => {
     if (isClosing) return;
     setIsClosing(true);
-  };
+  }, [isClosing]);
 
-  // Prevent wheel/touch from scrolling the page behind the overlay.
-  const onOverlayWheel = (e: React.WheelEvent) => {
+  const onOverlayWheel = useCallback((e: React.WheelEvent) => {
     if (e.target !== e.currentTarget) return;
     e.preventDefault();
-  };
+  }, []);
 
   useEffect(() => {
     if (!isClosing) return;
@@ -239,10 +237,7 @@ function DetailsModal({
             ×
           </button>
         </div>
-        <div
-          ref={scrollRef}
-          className="mt-4 overflow-y-auto overflow-x-hidden min-h-0 max-h-[calc(85vh-8rem)] pr-1 overscroll-contain touch-auto overflow-touch"
-        >
+        <div className="mt-4 overflow-y-auto overflow-x-hidden min-h-0 max-h-[calc(85vh-8rem)] pr-1 overscroll-contain touch-auto overflow-touch">
           <div className="prose prose-theme max-w-none text-theme whitespace-pre-line leading-relaxed text-justify [&>*]:text-justify">
             {description}
           </div>

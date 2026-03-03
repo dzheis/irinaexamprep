@@ -6,6 +6,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const DURATION = 0.8;
+const EASE = 'power2.out';
+
 type AnimatedSectionProps = {
   children: ReactNode;
   animationDirection?: 'up' | 'down' | 'left' | 'right';
@@ -50,8 +53,8 @@ export default function AnimatedSection({
       opacity: 1,
       x: 0,
       y: 0,
-      duration: 0.8,
-      ease: "power2.out",
+      duration: DURATION,
+      ease: EASE,
       scrollTrigger: {
         trigger: section,
         start: "top 80%",

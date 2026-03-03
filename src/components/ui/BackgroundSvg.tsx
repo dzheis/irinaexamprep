@@ -15,7 +15,7 @@ export default function BackgroundSvg() {
       const singleHeight = (5000 / 1920) * vw;
       const pageHeight = document.documentElement.scrollHeight;
       const count = Math.max(2, Math.ceil(pageHeight / singleHeight) + 1);
-      setTileCount(count);
+      setTileCount((prev) => (count === prev ? prev : count));
     };
 
     updateTiles();

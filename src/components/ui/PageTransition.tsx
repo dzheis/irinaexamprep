@@ -150,8 +150,7 @@ export default function PageTransition({ children }: { children: ReactNode }) {
     <div ref={containerRef} className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
       <div
         id="page-content"
-        className="relative flex min-h-0 flex-1 flex-col"
-        style={{ opacity: isTransitioning ? 0 : 1 }}
+        className={`relative flex min-h-0 flex-1 flex-col ${isTransitioning ? "opacity-0" : "opacity-100"}`}
       >
         {displayChildren}
       </div>

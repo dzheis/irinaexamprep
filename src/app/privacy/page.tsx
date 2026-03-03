@@ -11,7 +11,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen">
       <div className="pt-24 md:pt-28 pb-16">
         <article className="max-w-3xl mx-auto px-6 text-theme">
-          <h1 className="text-3xl md:text-4xl min-[1200px]:text-4xl font-bold mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold mb-6">
             Политика конфиденциальности
           </h1>
           <p className="text-sm text-theme-accent mb-8 text-justify">

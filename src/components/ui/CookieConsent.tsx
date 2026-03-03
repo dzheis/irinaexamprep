@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 
 const STORAGE_KEY = "cookie-consent-accepted";
@@ -15,7 +15,7 @@ export default function CookieConsent() {
   });
   const [hiding, setHiding] = useState(false);
 
-  const handleAccept = () => {
+  const handleAccept = useCallback(() => {
     setHiding(true);
     setTimeout(() => {
       try {
@@ -23,18 +23,13 @@ export default function CookieConsent() {
       } catch {}
       setAccepted(true);
     }, 400);
-  };
+  }, []);
 
   if (accepted) return null;
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[100] px-4 py-3 backdrop-blur-lg border-t border-black/10 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] transition-[opacity,transform] duration-400 ease-in-out"
-      style={{
-        background: 'rgba(255, 255, 255, 0.6)',
-        opacity: hiding ? 0 : 1,
-        transform: hiding ? 'translateY(12px)' : 'translateY(0)',
-      }}
+      className={`fixed bottom-0 left-0 right-0 z-[100] px-4 py-3 bg-white/60 backdrop-blur-lg border-t border-black/10 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] transition-[opacity,transform] duration-400 ease-in-out ${hiding ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0"}`}
       role="dialog"
       aria-label="Уведомление об использовании cookie"
     >

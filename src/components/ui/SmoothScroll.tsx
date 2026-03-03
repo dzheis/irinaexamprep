@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback, createContext, useContext, ReactNode } from 'react';
+import { useEffect, useRef, useCallback, useMemo, createContext, useContext, ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import Lenis from 'lenis';
 import gsap from 'gsap';
@@ -73,16 +73,16 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     // Sync Lenis with GSAP ScrollTrigger
     lenis.on('scroll', ScrollTrigger.update);
 
-    gsap.ticker.add((time) => {
+    const tick = (time: number) => {
       lenis.raf(time * 1000);
-    });
-
+    };
+    gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
 
     return () => {
       lenis.destroy();
       lenisRef.current = null;
-      gsap.ticker.remove(lenis.raf);
+      gsap.ticker.remove(tick);
     };
   }, []);
 
@@ -139,8 +139,13 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     };
   }, [pathname]);
 
+  const contextValue = useMemo(
+    () => ({ lockScroll, unlockScroll, scrollToSection, scrollToTop }),
+    [lockScroll, unlockScroll, scrollToSection, scrollToTop],
+  );
+
   return (
-    <ScrollContext.Provider value={{ lockScroll, unlockScroll, scrollToSection, scrollToTop }}>
+    <ScrollContext.Provider value={contextValue}>
       {children}
     </ScrollContext.Provider>
   );
