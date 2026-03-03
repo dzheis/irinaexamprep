@@ -131,6 +131,19 @@ export default function Header() {
     setIsMenuOpen(false);
   };
 
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleCapture = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (mobileMenuRef.current?.contains(target)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener("click", handleCapture, true);
+    return () => document.removeEventListener("click", handleCapture, true);
+  }, []);
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 nav overflow-x-hidden ${
@@ -286,6 +299,7 @@ export default function Header() {
         </div>
 
         <div 
+          ref={mobileMenuRef}
           className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
             isMenuOpen ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0'
           }`}

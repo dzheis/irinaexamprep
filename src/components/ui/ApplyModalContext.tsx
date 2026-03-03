@@ -120,7 +120,6 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
   }, [isClosing, onClose]);
 
   const show = isOpen && !isClosing;
-  const title = courseTitle ? `Подать заявку — ${courseTitle}` : "Подать заявку";
 
   return (
     <div
@@ -145,14 +144,14 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
       >
         {!isSuccess ? (
           <>
-            <div className="flex items-center justify-between mb-5">
-              <h3 id="apply-modal-title" className="text-xl font-bold text-theme">
-                {title}
+            <div className="relative mb-5">
+              <h3 id="apply-modal-title" className="text-xl font-bold text-theme text-center">
+                Подать заявку
               </h3>
               <button
                 type="button"
                 onClick={startClose}
-                className="text-theme-accent hover:text-theme text-2xl leading-none p-1"
+                className="absolute top-0 right-0 text-theme-accent hover:text-theme text-2xl leading-none p-1"
                 aria-label="Закрыть"
               >
                 ×
