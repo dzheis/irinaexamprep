@@ -92,6 +92,12 @@ body {
 .overflow-touch { -webkit-overflow-scrolling: touch; }
 .perspective-1000 { perspective: 1000px; }
 .preserve-3d { transform-style: preserve-3d; }
+.tilt-card-inner {
+  transform: perspective(800px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(var(--scale, 1));
+}
+.strip-translate {
+  transform: translate3d(var(--strip-tx, 0), 0, 0);
+}
 
 @layer base {
   body {

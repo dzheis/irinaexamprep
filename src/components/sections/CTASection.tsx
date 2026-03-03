@@ -25,13 +25,13 @@ export default function CTASection() {
   const [error, setError] = useState<string | null>(null);
   const targetTiltRef = useRef({ x: 0, y: 0 });
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = useCallback(() => {
     lottieRef.current?.play();
-  };
+  }, []);
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     lottieRef.current?.stop();
-  };
+  }, []);
 
   const handleCardMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const inner = cardRef.current;
@@ -118,10 +118,14 @@ export default function CTASection() {
       >
         <div
           ref={cardRef}
-          className={`card text-center transition-[transform,box-shadow] preserve-3d ${isHovering ? 'duration-[150ms]' : 'duration-500 ease-in-out'} ${isHovering ? 'shadow-xl' : ''}`}
-          style={{
-            transform: `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${isHovering ? 1.02 : 1})`,
-          }}
+          className={`tilt-card-inner card text-center transition-[transform,box-shadow] preserve-3d ${isHovering ? 'duration-[150ms]' : 'duration-500 ease-in-out'} ${isHovering ? 'shadow-xl' : ''}`}
+          style={
+            {
+              '--tilt-x': `${tilt.x}deg`,
+              '--tilt-y': `${tilt.y}deg`,
+              '--scale': isHovering ? 1.02 : 1,
+            } as React.CSSProperties
+          }
         >
           <h2 className="text-3xl md:text-4xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl font-bold mb-4 text-theme">
             Оставайтесь в курсе новостей

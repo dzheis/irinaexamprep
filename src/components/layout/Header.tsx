@@ -40,9 +40,14 @@ export default function Header() {
   const hasRunOnceRef = useRef(false);
   const isShowingAltRef = useRef(false);
 
+  const prevScrolledRef = useRef(false);
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      const now = window.scrollY > 20;
+      if (now !== prevScrolledRef.current) {
+        prevScrolledRef.current = now;
+        setScrolled(now);
+      }
     };
 
     window.addEventListener("scroll", handleScroll);

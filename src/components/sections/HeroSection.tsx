@@ -33,7 +33,7 @@ export default function HeroSection({ title, description, imageUrl }: HeroSectio
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col gap-6 lg:gap-8 text-left lg:text-left order-2 lg:order-1">
+          <div className="flex-1 flex flex-col gap-6 lg:gap-8 text-left order-2 lg:order-1">
             <h1 className="text-3xl md:text-4xl lg:text-5xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl min-[1200px]:lg:text-7xl font-bold tracking-tight leading-tight text-center lg:text-left text-theme">
               {title}
             </h1>

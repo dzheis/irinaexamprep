@@ -1,7 +1,8 @@
-"use client";
-
 import Link from 'next/link';
 import { memo } from 'react';
+
+const FOOTER_LINK_CLASS =
+  'text-xs md:text-sm min-[1200px]:text-base min-[1200px]:md:text-lg text-theme-accent hover:text-theme underline transition-colors';
 
 function Footer() {
   return (
@@ -9,16 +10,10 @@ function Footer() {
       <div className="container mx-auto px-6 py-4 w-full flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-theme flex-wrap">
           <div className="flex items-center gap-4">
-            <Link
-              href="/offer"
-              className="text-xs md:text-sm min-[1200px]:text-base min-[1200px]:md:text-lg text-theme-accent hover:text-theme underline transition-colors"
-            >
+            <Link href="/offer" className={FOOTER_LINK_CLASS}>
               Публичная оферта
             </Link>
-            <Link
-              href="/privacy"
-              className="text-xs md:text-sm min-[1200px]:text-base min-[1200px]:md:text-lg text-theme-accent hover:text-theme underline transition-colors"
-            >
+            <Link href="/privacy" className={FOOTER_LINK_CLASS}>
               Политика конфиденциальности
             </Link>
           </div>

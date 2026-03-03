@@ -104,10 +104,14 @@ function TiltCard({
     >
       <div
         ref={innerRef}
-        className={`glass rounded-2xl p-8 flex flex-col items-center text-center h-full transition-[transform,box-shadow] preserve-3d ${isHovering ? 'duration-25' : 'duration-500 ease-in-out'} ${isHovering ? 'shadow-xl' : ''}`}
-        style={{
-          transform: `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${isHovering ? 1.02 : 1})`,
-        }}
+        className={`tilt-card-inner glass rounded-2xl p-8 flex flex-col items-center text-center h-full transition-[transform,box-shadow] preserve-3d ${isHovering ? 'duration-25' : 'duration-500 ease-in-out'} ${isHovering ? 'shadow-xl' : ''}`}
+        style={
+          {
+            '--tilt-x': `${tilt.x}deg`,
+            '--tilt-y': `${tilt.y}deg`,
+            '--scale': isHovering ? 1.02 : 1,
+          } as React.CSSProperties
+        }
       >
         <div className="w-16 h-16 rounded-full flex items-center justify-center mb-6 overflow-hidden bg-theme-secondary-accent">
           <Lottie
