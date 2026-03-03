@@ -12,6 +12,9 @@ export type MethodologyVideoItem = {
 
 const DEFAULT_PRICE = 1990;
 
+const INPUT_BASE_CLASS =
+  "w-full px-4 py-3 rounded-xl border bg-white/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-theme-secondary-accent/50 transition-all duration-300 input-theme";
+
 const METHODOLOGY_VIDEOS: MethodologyVideoItem[] = [
   {
     id: "1",
@@ -117,8 +120,6 @@ function PaymentModal({
   };
 
   const show = isOpen && !isClosing;
-  const inputBase =
-    "w-full px-4 py-3 rounded-xl border bg-white/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-theme-secondary-accent/50 transition-all duration-300 input-theme";
 
   return (
     <div
@@ -162,7 +163,7 @@ function PaymentModal({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="email@example.com"
-            className={inputBase}
+            className={INPUT_BASE_CLASS}
             disabled={loading}
           />
         </div>

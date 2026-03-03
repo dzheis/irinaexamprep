@@ -7,6 +7,7 @@ import {
   useCallback,
   useEffect,
   useRef,
+  useMemo,
   ReactNode,
 } from "react";
 import { useForm } from "react-hook-form";
@@ -15,6 +16,10 @@ const TEXT_ONLY_PATTERN = /^[a-zA-Zа-яА-ЯёЁ\s\-']*$/;
 const TEXT_ONLY_MSG = "Для ввода доступен только текст";
 
 const SCROLL_LOCK_CLASS = "scroll-locked";
+
+const INPUT_BASE_CLASS =
+  "w-full px-4 py-3 rounded-xl border bg-white/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-theme-secondary-accent/50 transition-all duration-300 input-theme";
+const INPUT_ERROR_CLASS = "border-red-500 focus:ring-red-400 focus:border-red-500";
 
 function useBodyScrollLock(locked: boolean) {
   useEffect(() => {
@@ -139,10 +144,6 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
     return () => el.removeEventListener("transitionend", onEnd);
   }, [isClosing, onClose]);
 
-  const inputBase =
-    "w-full px-4 py-3 rounded-xl border bg-white/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-theme-secondary-accent/50 transition-all duration-300 input-theme";
-  const inputError = "border-red-500 focus:ring-red-400 focus:border-red-500";
-
   const show = isOpen && !isClosing;
   const title = courseTitle ? `Подать заявку — ${courseTitle}` : "Подать заявку";
 
@@ -190,7 +191,7 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
                       !v.trim() || TEXT_ONLY_PATTERN.test(v) || TEXT_ONLY_MSG,
                   })}
                   placeholder="Имя"
-                  className={`${inputBase} ${errors.firstName ? inputError : ""}`}
+                  className={`${INPUT_BASE_CLASS} ${errors.firstName ? INPUT_ERROR_CLASS : ""}`}
                   onChange={(e) => {
                     register("firstName").onChange(e);
                     if (TEXT_ONLY_PATTERN.test(e.target.value)) clearErrors("firstName");
@@ -211,7 +212,7 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
                       !v.trim() || TEXT_ONLY_PATTERN.test(v) || TEXT_ONLY_MSG,
                   })}
                   placeholder="Фамилия"
-                  className={`${inputBase} ${errors.lastName ? inputError : ""}`}
+                  className={`${INPUT_BASE_CLASS} ${errors.lastName ? INPUT_ERROR_CLASS : ""}`}
                   onChange={(e) => {
                     register("lastName").onChange(e);
                     if (TEXT_ONLY_PATTERN.test(e.target.value)) clearErrors("lastName");
@@ -229,7 +230,7 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
                       !v?.trim() || TEXT_ONLY_PATTERN.test(v) || TEXT_ONLY_MSG,
                   })}
                   placeholder="Отчество"
-                  className={`${inputBase} ${errors.middleName ? inputError : ""}`}
+                  className={`${INPUT_BASE_CLASS} ${errors.middleName ? INPUT_ERROR_CLASS : ""}`}
                   onChange={(e) => {
                     register("middleName").onChange(e);
                     if (!e.target.value.trim() || TEXT_ONLY_PATTERN.test(e.target.value))
@@ -254,7 +255,7 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
                   })}
                   type="email"
                   placeholder="Email"
-                  className={`${inputBase} ${errors.email ? inputError : ""}`}
+                  className={`${INPUT_BASE_CLASS} ${errors.email ? INPUT_ERROR_CLASS : ""}`}
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
@@ -262,20 +263,20 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
               </div>
               <div>
                 <label className="block text-sm font-medium text-theme mb-1">Никнейм в TG</label>
-                <input {...register("telegram")} placeholder="@username" className={inputBase} />
+                <input {...register("telegram")} placeholder="@username" className={INPUT_BASE_CLASS} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-theme mb-1">
                   Никнейм в Instagram
                 </label>
-                <input {...register("instagram")} placeholder="@username" className={inputBase} />
+                <input {...register("instagram")} placeholder="@username" className={INPUT_BASE_CLASS} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-theme mb-1">WhatsApp</label>
                 <input
                   {...register("whatsapp")}
                   placeholder="+7 999 123-45-67"
-                  className={inputBase}
+                  className={INPUT_BASE_CLASS}
                 />
               </div>
               <div className="flex items-start gap-2">
@@ -339,8 +340,13 @@ export function ApplyModalProvider({ children }: { children: ReactNode }) {
     setModal(null);
   }, []);
 
+  const contextValue = useMemo(
+    () => ({ openApplyModal }),
+    [openApplyModal],
+  );
+
   return (
-    <ApplyModalContext.Provider value={{ openApplyModal }}>
+    <ApplyModalContext.Provider value={contextValue}>
       {children}
       {modal !== null && (
         <ApplyModal

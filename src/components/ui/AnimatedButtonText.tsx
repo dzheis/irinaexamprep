@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useMemo } from "react";
 import gsap from "gsap";
 
 function cellChar(char: string) {
@@ -15,7 +15,7 @@ type Props = {
 };
 
 export default function AnimatedButtonText({ text, className = "" }: Props) {
-  const chars = text.split("");
+  const chars = useMemo(() => text.split(""), [text]);
   const letterRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const animRef = useRef<gsap.core.Timeline | null>(null);
 
