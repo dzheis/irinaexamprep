@@ -37,7 +37,7 @@ export default function HeroSection({ title, description, imageUrl }: HeroSectio
             <h1 className="text-3xl md:text-4xl lg:text-5xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl min-[1200px]:lg:text-7xl font-bold tracking-tight leading-tight text-center lg:text-left text-theme">
               {title}
             </h1>
-            <p className="text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl text-theme/90 text-center lg:text-justify max-w-xl">
+            <p className="text-base md:text-lg min-[1200px]:text-xl min-[1200px]:md:text-2xl font-semibold text-theme/95 text-center lg:text-justify max-w-xl">
               {TEACHER_INTRO}
             </p>
             {description ? (
@@ -45,11 +45,11 @@ export default function HeroSection({ title, description, imageUrl }: HeroSectio
                 {description}
               </p>
             ) : null}
-            <div className="flex flex-col min-[476px]:flex-row flex-wrap items-center justify-center lg:justify-start gap-4 mt-2">
-              <Link href="/courses" className="btn-primary text-lg px-8 py-4 w-full min-[476px]:w-auto">
+            <div className="flex flex-col min-[476px]:flex-row flex-wrap items-center justify-center gap-4 mt-2">
+              <Link href="/courses" className="btn-primary text-lg px-8 py-4 w-full min-[476px]:w-auto justify-center">
                 <AnimatedButtonText text="Начать обучение" />
               </Link>
-              <Link href="/methodology" className="btn-secondary text-lg px-8 py-4 w-full min-[476px]:w-auto">
+              <Link href="/methodology" className="btn-secondary text-lg px-8 py-4 w-full min-[476px]:w-auto justify-center">
                 <AnimatedButtonText text="Узнать больше" />
               </Link>
             </div>
