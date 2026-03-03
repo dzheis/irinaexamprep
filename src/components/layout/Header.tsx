@@ -21,7 +21,7 @@ function CellChar({ char }: { char: string }) {
 }
 
 const ANCHOR_LINKS = [
-  { href: "/#about", id: "about", label: "Обо мне" },
+  { href: "/#about", id: "about", label: "About me" },
 ];
 
 const SCROLL_TO_SECTION_KEY = "scrollToSection";
@@ -219,10 +219,10 @@ export default function Header() {
               </Link>
             ))}
             <Link href="/courses" className="nav-link">
-              <AnimatedButtonText text="Курсы" />
+              <AnimatedButtonText text="Language Courses" />
             </Link>
             <Link href="/methodology" className="nav-link">
-              <AnimatedButtonText text="Методология" />
+              <AnimatedButtonText text="Methodology" />
             </Link>
             <Link href="/free-resources" className="nav-link">
               <AnimatedButtonText text="Free resources" />
@@ -243,17 +243,17 @@ export default function Header() {
                 }
               }}
             >
-              <AnimatedButtonText text="Контакты" />
+              <AnimatedButtonText text="Contacts" />
             </Link>
             <button
               type="button"
               className="btn-secondary !px-4 !py-2 !text-sm min-[1200px]:!px-7 min-[1200px]:!py-3 min-[1200px]:!text-lg"
-              aria-label="Подать заявку"
+              aria-label="Apply"
               onClick={() => {
                 applyModal?.openApplyModal(0, "Заявка");
               }}
             >
-              <AnimatedButtonText text="Подать заявку" />
+              <AnimatedButtonText text="Apply" />
             </button>
           </div>
 
@@ -309,10 +309,10 @@ export default function Header() {
               </Link>
             ))}
             <Link href="/courses" className="nav-link py-2" onClick={closeMenu}>
-              <AnimatedButtonText text="Курсы" />
+              <AnimatedButtonText text="Language Courses" />
             </Link>
             <Link href="/methodology" className="nav-link py-2" onClick={closeMenu}>
-              <AnimatedButtonText text="Методология" />
+              <AnimatedButtonText text="Methodology" />
             </Link>
             <Link href="/free-resources" className="nav-link py-2" onClick={closeMenu}>
               <AnimatedButtonText text="Free resources" />
@@ -334,18 +334,18 @@ export default function Header() {
                 closeMenu();
               }}
             >
-              <AnimatedButtonText text="Контакты" />
+              <AnimatedButtonText text="Contacts" />
             </Link>
             <button
               type="button"
               className="btn-secondary py-2"
-              aria-label="Подать заявку"
+              aria-label="Apply"
               onClick={() => {
                 applyModal?.openApplyModal(0, "Заявка");
                 closeMenu();
               }}
             >
-              <AnimatedButtonText text="Подать заявку" />
+              <AnimatedButtonText text="Apply" />
             </button>
           </div>
         </div>
