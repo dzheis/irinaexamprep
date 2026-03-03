@@ -196,7 +196,7 @@ export default function CoursesMethodologySection() {
   const loremText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.";
 
   return (
-    <div id="courses-methodology" ref={sectionRef} className="relative scroll-mt-20">
+    <div id="courses-methodology" ref={sectionRef} className="relative scroll-mt-20 pt-8 lg:pt-12">
       <div ref={containerRef} className="section w-full py-16 md:py-24">
         <div ref={cardsWrapperRef} className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
