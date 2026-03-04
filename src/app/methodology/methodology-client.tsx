@@ -301,17 +301,12 @@ export default function MethodologyClient({ videos }: MethodologyClientProps) {
   const list = videos && videos.length > 0 ? videos : METHODOLOGY_VIDEOS;
   const [paymentProduct, setPaymentProduct] = useState<PaymentProduct | null>(null);
   const searchParams = useSearchParams();
-  const [paymentResult, setPaymentResult] = useState<"success" | "fail" | null>(null);
-
-  useEffect(() => {
-    const payment = searchParams.get("payment");
-    if (payment === "success" || payment === "fail") {
-      setPaymentResult(payment);
-    }
-  }, [searchParams]);
+  const paymentFromUrl = searchParams.get("payment") === "success" ? "success" : searchParams.get("payment") === "fail" ? "fail" : null;
+  const [resultDismissed, setResultDismissed] = useState(false);
+  const paymentResult = paymentFromUrl && !resultDismissed ? paymentFromUrl : null;
 
   const closePaymentResult = useCallback(() => {
-    setPaymentResult(null);
+    setResultDismissed(true);
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.delete("payment");

@@ -4,16 +4,19 @@ import Link from 'next/link';
 import Image from 'next/image';
 import AnimatedButtonText from '@/components/ui/AnimatedButtonText';
 
-const TEACHER_INTRO =
+const DEFAULT_INTRO =
   "Опытный преподаватель английского языка, специализируюсь на подготовке к экзаменам Cambridge: FCE (B2), CAE (C1), CPE (C2). Уроки простые и ориентированные на результат — помогу сдать экзамен уверенно и заговорить свободнее.";
 
 type HeroSectionProps = {
   title: string;
   description: string;
+  intro?: string;
   imageUrl?: string;
 };
 
-export default function HeroSection({ title, description, imageUrl }: HeroSectionProps) {
+export default function HeroSection({ title, description, intro, imageUrl }: HeroSectionProps) {
+  const textIntro = intro?.trim() || DEFAULT_INTRO;
+
   return (
     <section className="hero relative overflow-hidden">
       <div className="section relative z-10 max-w-7xl mx-auto">
@@ -38,7 +41,7 @@ export default function HeroSection({ title, description, imageUrl }: HeroSectio
               {title}
             </h1>
             <p className="text-base md:text-lg min-[1200px]:text-xl min-[1200px]:md:text-2xl font-semibold text-theme/95 text-center lg:text-justify max-w-xl">
-              {TEACHER_INTRO}
+              {textIntro}
             </p>
             {description ? (
               <p className="text-base md:text-lg lg:text-xl min-[1200px]:text-xl min-[1200px]:md:text-2xl min-[1200px]:lg:text-3xl leading-relaxed opacity-90 text-center lg:text-left text-theme">
