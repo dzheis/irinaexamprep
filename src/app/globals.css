@@ -269,4 +269,11 @@ footer.nav {
     min-height: 180px;
     box-shadow: 0 4px 20px rgba(47, 52, 64, 0.12);
   }
+
+  .footer-credit-link {
+    cursor: pointer;
+  }
+  .footer-credit-char {
+    display: inline-block;
+  }
 }

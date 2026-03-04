@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export type MethodologyVideoItem = {
   id: string;
@@ -194,9 +195,129 @@ function PaymentModal({
   );
 }
 
+function PaymentResultModal({
+  variant,
+  onClose,
+}: {
+  variant: "success" | "fail";
+  onClose: () => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  const startClose = useCallback(() => {
+    if (isClosing) return;
+    setIsClosing(true);
+  }, [isClosing]);
+
+  useEffect(() => {
+    const t = requestAnimationFrame(() => setIsOpen(true));
+    return () => cancelAnimationFrame(t);
+  }, []);
+
+  useEffect(() => {
+    if (!isClosing) return;
+    const el = overlayRef.current;
+    if (!el) {
+      onClose();
+      return;
+    }
+    const onEnd = () => onClose();
+    el.addEventListener("transitionend", onEnd, { once: true });
+    return () => el.removeEventListener("transitionend", onEnd);
+  }, [isClosing, onClose]);
+
+  const isSuccess = variant === "success";
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") startClose();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [startClose]);
+
+  return (
+    <div
+      ref={overlayRef}
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${
+        isOpen && !isClosing ? "opacity-100" : "opacity-0"
+      }`}
+      aria-modal="true"
+      aria-labelledby="payment-result-title"
+      role="dialog"
+    >
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={startClose}
+        onKeyDown={(e) => e.key === "Escape" && startClose()}
+      />
+      <div
+        className={`relative glass rounded-2xl p-6 md:p-8 max-w-md w-full shadow-xl transition-transform duration-300 ${
+          isOpen && !isClosing ? "scale-100" : "scale-95"
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex flex-col items-center text-center gap-4">
+          <div
+            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${
+              isSuccess ? "bg-green-500/20 text-green-700" : "bg-red-500/20 text-red-700"
+            }`}
+            aria-hidden
+          >
+            {isSuccess ? (
+              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            )}
+          </div>
+          <h2 id="payment-result-title" className="text-xl font-bold text-theme">
+            {isSuccess ? "Платёж успешен" : "Платёж не прошёл"}
+          </h2>
+          <p className="text-theme/80 text-sm md:text-base">
+            {isSuccess
+              ? "Спасибо за оплату. Мы свяжемся с вами по указанной почте."
+              : "Операция была отменена или произошла ошибка. Попробуйте ещё раз или свяжитесь с нами."}
+          </p>
+          <button
+            type="button"
+            onClick={startClose}
+            className="btn-primary mt-2 px-8 py-3"
+          >
+            Закрыть
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function MethodologyClient({ videos }: MethodologyClientProps) {
   const list = videos && videos.length > 0 ? videos : METHODOLOGY_VIDEOS;
   const [paymentProduct, setPaymentProduct] = useState<PaymentProduct | null>(null);
+  const searchParams = useSearchParams();
+  const [paymentResult, setPaymentResult] = useState<"success" | "fail" | null>(null);
+
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    if (payment === "success" || payment === "fail") {
+      setPaymentResult(payment);
+    }
+  }, [searchParams]);
+
+  const closePaymentResult = useCallback(() => {
+    setPaymentResult(null);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("payment");
+      window.history.replaceState(null, "", url.pathname + url.search);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen relative">
@@ -221,6 +342,9 @@ export default function MethodologyClient({ videos }: MethodologyClientProps) {
                 product={paymentProduct}
                 onClose={() => setPaymentProduct(null)}
               />
+            )}
+            {paymentResult && (
+              <PaymentResultModal variant={paymentResult} onClose={closePaymentResult} />
             )}
           </section>
         </div>

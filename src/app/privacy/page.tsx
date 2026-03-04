@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Политика конфиденциальности | Irina Exam Prep",
-  description: "Политика конфиденциальности и обработки персональных данных на сайте Irina Exam Prep",
+  title: "Политика конфиденциальности и обработки персональных данных | Irina Exam Prep",
+  description: "Политика обработки персональных данных в соответствии с ФЗ-152. Конфиденциальность и cookie на сайте Irina Exam Prep",
 };
 
 export default function PrivacyPage() {
@@ -11,11 +11,14 @@ export default function PrivacyPage() {
     <div className="min-h-screen">
       <div className="pt-24 md:pt-28 pb-16">
         <article className="max-w-3xl mx-auto px-6 text-theme">
-          <h1 className="text-3xl md:text-4xl font-bold mb-6">
-            Политика конфиденциальности
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+            Политика конфиденциальности и обработки персональных данных
           </h1>
+          <p className="text-sm text-theme-accent mb-6 text-justify">
+            Настоящий документ является политикой обработки персональных данных в соответствии с Федеральным законом от 27.07.2006 № 152-ФЗ «О персональных данных» и определяет порядок обработки персональных данных, а также использования файлов cookie на сайте. Размещение данного документа на сайте обязательно в случаях, когда у пользователей запрашиваются персональные данные (в т.ч. e-mail, телефон, имя).
+          </p>
           <p className="text-sm text-theme-accent mb-8 text-justify">
-            Настоящая политика определяет порядок обработки персональных данных и использования файлов cookie на сайте. Обработка осуществляется в соответствии с Федеральным законом № 152-ФЗ «О персональных данных» и действующим законодательством РФ.
+            Обработка персональных данных осуществляется в соответствии с ФЗ-152 и действующим законодательством РФ.
           </p>
 
           <section className="prose prose-theme max-w-none text-theme space-y-6 [&_p]:text-justify [&_ul]:text-justify">
@@ -59,17 +62,11 @@ export default function PrivacyPage() {
             По вопросам обработки персональных данных и политики конфиденциальности обращайтесь по контактам, указанным на сайте.
           </p>
 
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Link
-              href="/offer"
-              className="text-theme-accent hover:text-theme underline transition-colors"
-            >
+          <div className="mt-10 flex flex-wrap gap-3">
+            <Link href="/offer" className="btn-secondary !px-5 !py-2.5 text-sm md:text-base no-underline">
               Публичная оферта
             </Link>
-            <Link
-              href="/"
-              className="text-theme-accent hover:text-theme underline transition-colors"
-            >
+            <Link href="/" className="btn-secondary !px-5 !py-2.5 text-sm md:text-base no-underline inline-flex items-center gap-2">
               ← Вернуться на главную
             </Link>
           </div>
