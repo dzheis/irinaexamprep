@@ -10,14 +10,15 @@ import TestimonialsSection from "@/components/sections/TestimonialsSection";
 type HomeClientProps = {
   title: string;
   description: string;
+  intro?: string;
   imageUrl?: string;
 };
 
-export default function HomeClient({ title, description, imageUrl }: HomeClientProps) {
+export default function HomeClient({ title, description, intro, imageUrl }: HomeClientProps) {
   return (
     <div className="min-h-screen relative">
       <div className="relative z-10">
-        <HeroSection title={title} description={description} imageUrl={imageUrl} />
+        <HeroSection title={title} description={description} intro={intro} imageUrl={imageUrl} />
         <CoursesMethodologySection />
         <TestimonialsSection />
         <AboutSection />
