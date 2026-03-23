@@ -7,26 +7,42 @@ import gsap from "gsap";
 import AnimatedButtonText from "@/components/ui/AnimatedButtonText";
 import { useScrollToSection, useScrollToTop } from "@/components/ui/SmoothScroll";
 import { useApplyModal } from "@/components/ui/ApplyModalContext";
+import AuthHeaderBlock from "@/components/layout/AuthHeaderBlock";
 
-const LOGO_TEXT = "Irina Petrova";
-const ALT_TEXT = "Best Practices for Learning English";
-const CHARS1 = LOGO_TEXT.split("");
-const CHARS2 = ALT_TEXT.split("");
-const LEN1 = CHARS1.length;
-const LEN2 = CHARS2.length;
+const DEFAULT_LOGO = "Irina Petrova";
+const DEFAULT_ALT = "Best Practices for Learning English";
+
+const DEFAULT_NAV_LINKS: { href: string; id?: string; label: string }[] = [
+  { href: "/#about", id: "about", label: "About me" },
+  { href: "/courses", label: "Language Courses" },
+  { href: "/methodology", label: "Methodology" },
+  { href: "/free-resources", label: "Free resources" },
+  { href: "/#cta", id: "cta", label: "Contacts" },
+];
+
 const STAGGER = 0.045;
 
 function CellChar({ char }: { char: string }) {
   return char === " " ? "\u00A0" : char;
 }
 
-const ANCHOR_LINKS = [
-  { href: "/#about", id: "about", label: "About me" },
-];
-
 const SCROLL_TO_SECTION_KEY = "scrollToSection";
 
-export default function Header() {
+type HeaderProps = {
+  logoText?: string;
+  altText?: string;
+  navLinks?: { href: string; id?: string; label: string }[];
+};
+
+export default function Header({ logoText: logoTextProp, altText: altTextProp, navLinks: navLinksProp }: HeaderProps = {}) {
+  const logoText = logoTextProp?.trim() || DEFAULT_LOGO;
+  const altText = altTextProp?.trim() || DEFAULT_ALT;
+  const navLinks = navLinksProp?.length ? navLinksProp : DEFAULT_NAV_LINKS;
+  const CHARS1 = logoText.split("");
+  const CHARS2 = altText.split("");
+  const LEN1 = CHARS1.length;
+  const LEN2 = CHARS2.length;
+
   const [scrolled, setScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -116,6 +132,7 @@ export default function Header() {
     return () => {
       if (logoAnimationRef.current) logoAnimationRef.current.kill();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- один запуск анимации лого при монтировании
   }, []);
 
   const handleLogoMouseEnter = () => {
@@ -214,55 +231,30 @@ export default function Header() {
             </span>
           </Link>
           
-          <div className="header-nav-right hidden lg:flex items-center gap-1 sm:gap-2 text-xs sm:text-sm min-w-0 flex-shrink min-[1200px]:text-base">
-            {ANCHOR_LINKS.map(({ href, id, label }) => (
+          <div className="header-nav-right hidden min-[1270px]:flex items-center gap-1 sm:gap-2 text-xs sm:text-sm min-w-0 flex-shrink min-[1200px]:text-base">
+            {navLinks.map(({ href, id, label }, index) => (
               <Link
-                key={id}
+                key={`nav-${index}-${href}-${label}`}
                 href={href}
                 className="nav-link"
                 onClick={(e) => {
-                  if (pathname === "/" && scrollToSection) {
-                    e.preventDefault();
-                    scrollToSection(id);
-                  } else if (pathname !== "/") {
-                    e.preventDefault();
-                    if (typeof window !== "undefined") {
-                      sessionStorage.setItem(SCROLL_TO_SECTION_KEY, id);
+                  if (id != null) {
+                    if (pathname === "/" && scrollToSection) {
+                      e.preventDefault();
+                      scrollToSection(id);
+                    } else if (pathname !== "/") {
+                      e.preventDefault();
+                      if (typeof window !== "undefined") {
+                        sessionStorage.setItem(SCROLL_TO_SECTION_KEY, id);
+                      }
+                      router.push("/");
                     }
-                    router.push("/");
                   }
                 }}
               >
                 <AnimatedButtonText text={label} />
               </Link>
             ))}
-            <Link href="/courses" className="nav-link">
-              <AnimatedButtonText text="Language Courses" />
-            </Link>
-            <Link href="/methodology" className="nav-link">
-              <AnimatedButtonText text="Methodology" />
-            </Link>
-            <Link href="/free-resources" className="nav-link">
-              <AnimatedButtonText text="Free resources" />
-            </Link>
-            <Link
-              href="/#cta"
-              className="nav-link"
-              onClick={(e) => {
-                if (pathname === "/" && scrollToSection) {
-                  e.preventDefault();
-                  scrollToSection("cta");
-                } else if (pathname !== "/") {
-                  e.preventDefault();
-                  if (typeof window !== "undefined") {
-                    sessionStorage.setItem(SCROLL_TO_SECTION_KEY, "cta");
-                  }
-                  router.push("/");
-                }
-              }}
-            >
-              <AnimatedButtonText text="Contacts" />
-            </Link>
             <button
               type="button"
               className="btn-secondary !px-4 !py-2 !text-sm min-[1200px]:!px-7 min-[1200px]:!py-3 min-[1200px]:!text-lg"
@@ -273,11 +265,14 @@ export default function Header() {
             >
               <AnimatedButtonText text="Apply" />
             </button>
+            <div className="flex items-center pl-4 min-w-0 flex-shrink-0">
+              <AuthHeaderBlock className="flex" variant="desktop" />
+            </div>
           </div>
 
           <button
             onClick={toggleMenu}
-            className="header-nav-right lg:hidden flex flex-col gap-1.5 p-2 text-theme"
+            className="header-nav-right min-[1270px]:hidden flex flex-col gap-1.5 p-2 text-theme"
             aria-label="Toggle menu"
           >
             <span
@@ -300,26 +295,28 @@ export default function Header() {
 
         <div 
           ref={mobileMenuRef}
-          className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          className={`min-[1270px]:hidden overflow-hidden transition-all duration-300 ease-in-out ${
             isMenuOpen ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0'
           }`}
         >
           <div className="flex flex-col gap-4 pb-4 items-center">
-            {ANCHOR_LINKS.map(({ href, id, label }) => (
+            {navLinks.map(({ href, id, label }, index) => (
               <Link
-                key={id}
+                key={`nav-mobile-${index}-${href}-${label}`}
                 href={href}
                 className="nav-link py-2"
                 onClick={(e) => {
-                  if (pathname === "/" && scrollToSection) {
-                    e.preventDefault();
-                    scrollToSection(id);
-                  } else if (pathname !== "/") {
-                    e.preventDefault();
-                    if (typeof window !== "undefined") {
-                      sessionStorage.setItem(SCROLL_TO_SECTION_KEY, id);
+                  if (id != null) {
+                    if (pathname === "/" && scrollToSection) {
+                      e.preventDefault();
+                      scrollToSection(id);
+                    } else if (pathname !== "/") {
+                      e.preventDefault();
+                      if (typeof window !== "undefined") {
+                        sessionStorage.setItem(SCROLL_TO_SECTION_KEY, id);
+                      }
+                      router.push("/");
                     }
-                    router.push("/");
                   }
                   closeMenu();
                 }}
@@ -327,34 +324,6 @@ export default function Header() {
                 <AnimatedButtonText text={label} />
               </Link>
             ))}
-            <Link href="/courses" className="nav-link py-2" onClick={closeMenu}>
-              <AnimatedButtonText text="Language Courses" />
-            </Link>
-            <Link href="/methodology" className="nav-link py-2" onClick={closeMenu}>
-              <AnimatedButtonText text="Methodology" />
-            </Link>
-            <Link href="/free-resources" className="nav-link py-2" onClick={closeMenu}>
-              <AnimatedButtonText text="Free resources" />
-            </Link>
-            <Link
-              href="/#cta"
-              className="nav-link py-2"
-              onClick={(e) => {
-                if (pathname === "/" && scrollToSection) {
-                  e.preventDefault();
-                  scrollToSection("cta");
-                } else if (pathname !== "/") {
-                  e.preventDefault();
-                  if (typeof window !== "undefined") {
-                    sessionStorage.setItem(SCROLL_TO_SECTION_KEY, "cta");
-                  }
-                  router.push("/");
-                }
-                closeMenu();
-              }}
-            >
-              <AnimatedButtonText text="Contacts" />
-            </Link>
             <button
               type="button"
               className="btn-secondary py-2"
@@ -366,6 +335,9 @@ export default function Header() {
             >
               <AnimatedButtonText text="Apply" />
             </button>
+            <div className="flex items-center justify-center w-full px-4">
+              <AuthHeaderBlock className="flex" variant="mobile" />
+            </div>
           </div>
         </div>
       </nav>

@@ -1,10 +1,11 @@
 import { Suspense } from 'react';
 import MethodologyClient from './methodology-client';
+import { getMethodologyFromStoryblok } from '@/lib/methodology-storyblok';
 
-// Страница использует useSearchParams (результат оплаты). Без dynamic при build возможен prerender-error.
 export const dynamic = 'force-dynamic';
 
-export default function Methodology() {
+export default async function Methodology() {
+  const { title: pageTitle, videos } = await getMethodologyFromStoryblok();
   return (
     <Suspense
       fallback={
@@ -13,7 +14,7 @@ export default function Methodology() {
         </div>
       }
     >
-      <MethodologyClient />
+      <MethodologyClient pageTitle={pageTitle} videos={videos.length > 0 ? videos : undefined} />
     </Suspense>
   );
 }

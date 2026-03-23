@@ -45,6 +45,7 @@ const METHODOLOGY_VIDEOS: MethodologyVideoItem[] = [
 
 type MethodologyClientProps = {
   videos?: MethodologyVideoItem[];
+  pageTitle?: string;
 };
 
 type PaymentProduct = { id: string; title: string; price: number };
@@ -297,22 +298,38 @@ function PaymentResultModal({
   );
 }
 
-export default function MethodologyClient({ videos }: MethodologyClientProps) {
+const DEFAULT_PAGE_TITLE = 'Методология';
+
+export default function MethodologyClient({ videos, pageTitle }: MethodologyClientProps) {
   const list = videos && videos.length > 0 ? videos : METHODOLOGY_VIDEOS;
+  const title = pageTitle?.trim() || DEFAULT_PAGE_TITLE;
   const [paymentProduct, setPaymentProduct] = useState<PaymentProduct | null>(null);
+  const [purchasedModuleIds, setPurchasedModuleIds] = useState<string[]>([]);
   const searchParams = useSearchParams();
   const paymentFromUrl = searchParams.get("payment") === "success" ? "success" : searchParams.get("payment") === "fail" ? "fail" : null;
   const [resultDismissed, setResultDismissed] = useState(false);
   const paymentResult = paymentFromUrl && !resultDismissed ? paymentFromUrl : null;
 
+  const fetchPurchases = useCallback(() => {
+    fetch("/api/my-purchases")
+      .then((r) => r.json())
+      .then((data) => setPurchasedModuleIds(Array.isArray(data.moduleIds) ? data.moduleIds : []))
+      .catch(() => setPurchasedModuleIds([]));
+  }, []);
+
+  useEffect(() => {
+    fetchPurchases();
+  }, [fetchPurchases, paymentFromUrl]);
+
   const closePaymentResult = useCallback(() => {
     setResultDismissed(true);
+    fetchPurchases();
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.delete("payment");
       window.history.replaceState(null, "", url.pathname + url.search);
     }
-  }, []);
+  }, [fetchPurchases]);
 
   return (
     <div className="min-h-screen relative">
@@ -320,7 +337,7 @@ export default function MethodologyClient({ videos }: MethodologyClientProps) {
         <div className="pt-24 md:pt-28">
           <section className="py-20 md:py-28 max-w-[1680px] mx-auto px-4 md:px-8">
             <h1 className="text-3xl md:text-4xl lg:text-5xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl min-[1200px]:lg:text-7xl font-bold text-center mb-14 md:mb-20 text-theme">
-              Методология
+              {title}
             </h1>
 
             <div className="flex flex-col gap-8 md:gap-10">
@@ -328,6 +345,7 @@ export default function MethodologyClient({ videos }: MethodologyClientProps) {
                 <MethodologyVideoBlock
                   key={item.id}
                   item={item}
+                  hasAccess={purchasedModuleIds.includes(item.id)}
                   onBuy={() => setPaymentProduct({ id: item.id, title: item.title ?? "Курс", price: item.price ?? DEFAULT_PRICE })}
                 />
               ))}
@@ -350,25 +368,37 @@ export default function MethodologyClient({ videos }: MethodologyClientProps) {
 
 function MethodologyVideoBlock({
   item,
+  hasAccess,
   onBuy,
 }: {
   item: MethodologyVideoItem;
+  hasAccess: boolean;
   onBuy: () => void;
 }) {
-  const embedUrl = `https://www.youtube.com/embed/${item.videoId}?rel=0`;
-
   return (
     <div className="glass rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 w-full min-w-0 transition-[transform,box-shadow] duration-300 ease-in-out hover:scale-[1.01] hover:shadow-xl md:items-center">
-      {/* Left: YouTube video. On mobile above, on desktop vertically centered. */}
-      <div className="flex-shrink-0 w-full md:min-w-0 md:w-[48%] lg:w-[50%] flex items-center">
+      {/* Left: видео через proxy (только для купивших) или заглушка */}
+      <div
+        className="flex-shrink-0 w-full md:min-w-0 md:w-[48%] lg:w-[50%] flex items-center"
+        onContextMenu={(e) => hasAccess && e.preventDefault()}
+      >
         <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-theme-secondary-accent/10">
-          <iframe
-            src={embedUrl}
-            title={item.title ?? "Видео"}
-            className="absolute inset-0 w-full h-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
+          {hasAccess ? (
+            <iframe
+              src={`/api/video-embed?module=${encodeURIComponent(item.id)}`}
+              title={item.title ?? "Видео"}
+              className="absolute inset-0 w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-theme/70">
+              <svg className="w-12 h-12 md:w-16 md:h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+              <span className="text-sm md:text-base text-center px-4">Доступ после оплаты</span>
+            </div>
+          )}
         </div>
       </div>
 

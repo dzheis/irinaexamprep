@@ -1,16 +1,12 @@
 "use client";
 
-type FreeResourceItem = {
-  id: string;
-  title: string;
-  description: string;
-  downloadUrl?: string;
-  downloadFilename?: string;
-};
+import type { FreeResourceForDisplay } from "@/lib/free-resources-storyblok";
 
 const SAMPLE_FILE_URL = "/free-resources/sample-download.txt";
 
-const FREE_RESOURCES: FreeResourceItem[] = [
+const DEFAULT_PAGE_TITLE = "Free resources";
+
+const FALLBACK_RESOURCES: FreeResourceForDisplay[] = [
   {
     id: "1",
     title: "Чек-лист подготовки к FCE",
@@ -37,9 +33,46 @@ const FREE_RESOURCES: FreeResourceItem[] = [
   },
 ];
 
-function ResourceCard({ item }: { item: FreeResourceItem }) {
-  const href = item.downloadUrl ?? "#";
-  const isDownload = href !== "#" && !href.startsWith("http");
+function getDownloadHref(item: FreeResourceForDisplay): string {
+  const url = item.downloadUrl ?? "#";
+  if (!url || url === "#") return "#";
+  if (url.startsWith("http")) {
+    const params = new URLSearchParams({ url });
+    if (item.downloadFilename) params.set("filename", item.downloadFilename);
+    return `/api/download?${params.toString()}`;
+  }
+  return url;
+}
+
+function ResourceCard({ item }: { item: FreeResourceForDisplay }) {
+  const href = getDownloadHref(item);
+  const useProxyDownload = href.startsWith("/api/download");
+
+  const handleProxyDownload = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!useProxyDownload) return;
+    e.preventDefault();
+    const link = e.currentTarget;
+    const prevText = link.textContent;
+    try {
+      link.textContent = "Скачивание…";
+      const res = await fetch(href);
+      if (!res.ok) throw new Error("Download failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = item.downloadFilename ?? "download";
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      window.open(href, "_blank");
+    } finally {
+      link.textContent = prevText;
+    }
+  };
 
   return (
     <div className="flex flex-col md:flex-row gap-4 md:gap-6 w-full min-w-0">
@@ -55,17 +88,10 @@ function ResourceCard({ item }: { item: FreeResourceItem }) {
         </div>
         <div className="mt-4 flex justify-end flex-shrink-0">
           <a
-            href={href}
+            href={useProxyDownload ? "#" : href}
             className="btn-primary text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl px-8 py-3 md:py-4 inline-flex items-center justify-center"
-            {...(isDownload
-              ? {
-                  download: item.downloadFilename ?? undefined,
-                  target: "_self",
-                }
-              : {
-                  target: href.startsWith("http") ? "_blank" : undefined,
-                  rel: href.startsWith("http") ? "noopener noreferrer" : undefined,
-                })}
+            download={!useProxyDownload ? (item.downloadFilename ?? true) : undefined}
+            onClick={handleProxyDownload}
           >
             Скачать
           </a>
@@ -75,18 +101,26 @@ function ResourceCard({ item }: { item: FreeResourceItem }) {
   );
 }
 
-export default function FreeResourcesClient() {
+type FreeResourcesClientProps = {
+  pageTitle?: string;
+  resources?: FreeResourceForDisplay[];
+};
+
+export default function FreeResourcesClient({ pageTitle, resources }: FreeResourcesClientProps) {
+  const title = pageTitle?.trim() || DEFAULT_PAGE_TITLE;
+  const list = resources && resources.length > 0 ? resources : FALLBACK_RESOURCES;
+
   return (
     <div className="min-h-screen relative">
       <div className="relative z-10">
         <div className="pt-24 md:pt-28">
           <section className="py-20 md:py-28 max-w-[1680px] mx-auto px-4 md:px-8">
             <h1 className="text-3xl md:text-4xl lg:text-5xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl min-[1200px]:lg:text-7xl font-bold text-center mb-14 md:mb-20 text-theme">
-              Free resources
+              {title}
             </h1>
 
             <div className="flex flex-col gap-8 md:gap-10">
-              {FREE_RESOURCES.map((item) => (
+              {list.map((item) => (
                 <ResourceCard key={item.id} item={item} />
               ))}
             </div>

@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { useScrollLock } from '@/components/ui/SmoothScroll';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import type { TestimonialsBlockContent } from '@/lib/storyblok-types';
 
 const BASE_DURATION_SEC = 20;
 const DECAY = 0.035;
@@ -20,7 +21,7 @@ type Testimonial = {
   certificateImage?: string;
 };
 
-const testimonials: Testimonial[] = [
+const DEFAULT_TESTIMONIALS: Testimonial[] = [
   {
     id: 1,
     name: 'Анна Смирнова',
@@ -103,7 +104,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
         <div className="flex items-start gap-4 mb-4 flex-shrink-0">
           <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-theme-secondary-accent select-none aspect-square">
             <Image
-              src={testimonial.avatar}
+              src={testimonial.avatar || '/icons/placeholder-avatar.svg'}
               alt={testimonial.name}
               fill
               className="object-cover object-center pointer-events-none"
@@ -190,7 +191,25 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   );
 }
 
-export default function TestimonialsSection() {
+type TestimonialsSectionProps = { data?: TestimonialsBlockContent | null };
+
+function testimonialsFromData(data: TestimonialsBlockContent | null | undefined): Testimonial[] {
+  const items = data?.items?.filter((i) => i.name?.trim() && i.text?.trim());
+  if (!items?.length) return DEFAULT_TESTIMONIALS;
+  return items.map((item, i) => ({
+    id: i + 1,
+    name: item.name!.trim(),
+    role: (item.role?.trim() ?? ''),
+    text: item.text!.trim(),
+    avatar: (item.avatar?.filename && item.avatar.filename.trim()) ? item.avatar.filename.trim() : '/icons/placeholder-avatar.svg',
+    certificateImage: (item.certificate_image?.filename && item.certificate_image.filename.trim()) ? item.certificate_image.filename.trim() : undefined,
+  }));
+}
+
+export default function TestimonialsSection({ data }: TestimonialsSectionProps) {
+  const testimonials = useMemo(() => testimonialsFromData(data), [data]);
+  const sectionTitle = data?.title?.trim() || 'Отзывы студентов';
+
   const trackRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
   const translateX = useRef(0);
@@ -204,6 +223,7 @@ export default function TestimonialsSection() {
   const rafId = useRef<number | null>(null);
   const lastTime = useRef(0);
 
+  // Две копии списка отзывов в strip — бесконечная прокрутка; segment = половина ширины strip, работает при любом количестве отзывов (1, 2, … N).
   const getSegmentWidth = useCallback(() => {
     if (stripRef.current) return stripRef.current.offsetWidth / 2;
     if (trackRef.current) return trackRef.current.offsetWidth;
@@ -316,7 +336,7 @@ export default function TestimonialsSection() {
     <section className="section py-16 md:py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 mb-8">
         <h2 className="text-2xl md:text-3xl min-[1200px]:text-4xl min-[1200px]:md:text-5xl font-bold text-center text-theme">
-          Отзывы студентов
+          {sectionTitle}
         </h2>
       </div>
       <div
