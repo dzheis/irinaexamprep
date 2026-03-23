@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { createServiceClient } from "@/lib/supabase/server";
 
 const ROBOKASSA_PASS2 = process.env.ROBOKASSA_PASS2;
 
-/**
- * Result URL signature: MD5(OutSum:InvId:Password2).
- * With custom Shp_* params: OutSum:InvId:Password2:Shp_1=val:Shp_2=val (alphabetical).
- * Robokassa sends GET or POST with OutSum, InvId, SignatureValue.
- * Respond with "OK<InvId>" on success; otherwise Robokassa retries.
- */
 function checkResultSignature(outSum: string, invId: string, signatureValue: string, pass2: string): boolean {
   const str = `${outSum}:${invId}:${pass2}`;
   const expected = crypto.createHash("md5").update(str, "utf8").digest("hex").toUpperCase();
@@ -34,6 +29,21 @@ async function handleResult(params: { OutSum: string | null; InvId: string | nul
     console.error("Pay result: invalid signature", { outSum, invId });
     return plainResponse("ERROR");
   }
+
+  try {
+    const supabase = createServiceClient();
+    const { data: pending } = await supabase.from("pending_payments").select("email, product_id").eq("inv_id", invId).single();
+    if (pending?.email && pending?.product_id) {
+      await supabase.from("purchases").upsert(
+        { email: pending.email, module_id: pending.product_id },
+        { onConflict: "email,module_id" }
+      );
+      await supabase.from("pending_payments").delete().eq("inv_id", invId);
+    }
+  } catch (e) {
+    console.error("Pay result: failed to record purchase", e);
+  }
+
   return plainResponse(`OK${invId}`);
 }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { createServiceClient } from "@/lib/supabase/server";
 
 const ROBOKASSA_LOGIN = process.env.ROBOKASSA_LOGIN;
 const ROBOKASSA_PASS1 = process.env.ROBOKASSA_PASS1;
@@ -38,9 +39,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Укажите корректную сумму" }, { status: 400 });
   }
 
+  const email = (body.email ?? "").trim();
+  if (!email) {
+    return NextResponse.json({ error: "Укажите email" }, { status: 400 });
+  }
+  const productId = (body.productId ?? "").trim() || "1";
+
   const outSum = amount.toFixed(2);
   const invId = String(Math.abs((Date.now() >>> 0) % 2147483647));
   const signature = buildSignature(ROBOKASSA_LOGIN, outSum, invId, ROBOKASSA_PASS1);
+
+  try {
+    const supabase = createServiceClient();
+    await supabase.from("pending_payments").insert({
+      inv_id: invId,
+      product_id: productId,
+      email,
+      out_sum: amount,
+    });
+  } catch (e) {
+    console.error("Pay: failed to save pending_payment", e);
+    return NextResponse.json({ error: "Ошибка сохранения заказа" }, { status: 500 });
+  }
 
   const origin =
     process.env.NEXT_PUBLIC_SITE_URL ||

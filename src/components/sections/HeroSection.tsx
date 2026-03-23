@@ -4,9 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import AnimatedButtonText from '@/components/ui/AnimatedButtonText';
 
-const DEFAULT_INTRO =
-  "Опытный преподаватель английского языка, специализируюсь на подготовке к экзаменам Cambridge: FCE (B2), CAE (C1), CPE (C2). Уроки простые и ориентированные на результат — помогу сдать экзамен уверенно и заговорить свободнее.";
-
+const DEFAULT_INTRO = "Курсы для студентов продвинутого уровня, которые хотят сдать FCE, CAE или CPE и уверенно использовать английский на высоком уровне. Также на сайте вы найдете материалы по методике преподавания для учителей английского."
 type HeroSectionProps = {
   title: string;
   description: string;
@@ -37,7 +35,7 @@ export default function HeroSection({ title, description, intro, imageUrl }: Her
           </div>
 
           <div className="flex-1 flex flex-col gap-6 lg:gap-8 text-left order-2 lg:order-1">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl min-[1200px]:lg:text-7xl font-bold tracking-tight leading-tight text-center lg:text-left text-theme">
+            <h1 className="w-full text-3xl md:text-4xl lg:text-5xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl min-[1200px]:lg:text-7xl font-bold tracking-tight leading-tight text-center text-theme">
               {title}
             </h1>
             <p className="text-base md:text-lg min-[1200px]:text-xl min-[1200px]:md:text-2xl font-semibold text-theme/95 text-center lg:text-justify max-w-xl">
@@ -53,7 +51,7 @@ export default function HeroSection({ title, description, intro, imageUrl }: Her
                 <AnimatedButtonText text="Начать обучение" />
               </Link>
               <Link href="/methodology" className="btn-secondary text-lg px-8 py-4 w-full min-[476px]:w-auto justify-center">
-                <AnimatedButtonText text="Узнать больше" />
+                <AnimatedButtonText text="Методика" />
               </Link>
             </div>
           </div>

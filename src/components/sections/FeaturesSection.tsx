@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import Lottie from 'lottie-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import type { FeaturesBlockContent } from '@/lib/storyblok-types';
 
 import calendarAnimation from '@/../public/lottie/calendar_default.json';
 import clockAnimation from '@/../public/lottie/clock_default.json';
@@ -21,7 +22,13 @@ type Feature = {
   animation: object;
 };
 
-const features: Feature[] = [
+const ANIMATION_MAP: Record<string, object> = {
+  calendar: calendarAnimation,
+  clock: clockAnimation,
+  consultation: consultationAnimation,
+};
+
+const DEFAULT_FEATURES: Feature[] = [
   {
     title: 'Индивидуальные планы обучения',
     description: 'Каждый ученик получает персональную программу обучения, адаптированную под его уровень и цели.',
@@ -132,7 +139,27 @@ function TiltCard({
   );
 }
 
-export default function FeaturesSection() {
+type FeaturesSectionProps = { data?: FeaturesBlockContent | null };
+
+export default function FeaturesSection({ data }: FeaturesSectionProps) {
+  const sectionTitle = data?.title?.trim() || 'Индивидуальный подход';
+  const sectionSubtitle = data?.subtitle?.trim() || 'Большой опыт преподавания и современная методика обучения.';
+
+  const features = useMemo((): Feature[] => {
+    const items = data?.items?.filter((i) => i.title?.trim());
+    if (!items?.length) return DEFAULT_FEATURES;
+    const keys = ['calendar', 'clock', 'consultation'];
+    return items.map((item, i) => {
+      const rawKey = item.animation_key?.toLowerCase()?.trim();
+      const key = rawKey && rawKey in ANIMATION_MAP ? rawKey : keys[i % 3];
+      return {
+        title: item.title!.trim(),
+        description: (item.description?.trim() ?? ''),
+        animation: ANIMATION_MAP[key] ?? calendarAnimation,
+      };
+    });
+  }, [data?.items]);
+
   const sectionRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const cardsWrapperRef = useRef<HTMLDivElement>(null);
@@ -185,10 +212,10 @@ export default function FeaturesSection() {
       <div className="max-w-7xl mx-auto">
         <div ref={headerRef} className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl font-bold mb-4 text-theme">
-            Индивидуальный подход
+            {sectionTitle}
           </h2>
           <p className="text-lg md:text-xl min-[1200px]:text-2xl min-[1200px]:md:text-3xl opacity-90 max-w-3xl mx-auto text-theme">
-            Большой опыт преподавания и современная методика обучения.
+            {sectionSubtitle}
           </p>
         </div>
         <div ref={cardsWrapperRef} className="grid grid-cols-1 lg:grid-cols-3 gap-8 perspective-1000">

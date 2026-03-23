@@ -1,19 +1,62 @@
 "use client";
 
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Lottie, { LottieRefCurrentProps } from 'lottie-react';
 import AnimatedSection from '@/components/ui/AnimatedSection';
+import type { CtaBlockContent } from '@/lib/storyblok-types';
 
 import emailAnimation from '@/../public/lottie/e-mail_default.json';
 import instagramAnimation from '@/../public/lottie/instagram_default.json';
 import telegramAnimation from '@/../public/lottie/telegram_default.json';
 
+const DEFAULT_CTA_TITLE = 'Оставайтесь в курсе новостей';
+const DEFAULT_CTA_SUBTITLE = 'Подпишитесь на советы, ресурсы и обновления, это совсем не сложно, но очень полезно';
+const DEFAULT_CONSENT_TEXT = 'Даю согласие на обработку email в соответствии с';
+const DEFAULT_TELEGRAM_URL = 'https://t.me/elt_survival_guide';
+const DEFAULT_TELEGRAM_CHANNEL_URL = 'https://t.me/Irina_Petrova_Eng';
+const DEFAULT_INSTAGRAM_URL = 'https://www.instagram.com/cambridge_exams_with_irina?igsh=MXF2Z3V2bmFxZ3BtaQ==';
+
 const MAX_TILT_DEG = 2.5;
 const TILT_SOFTEN = 0.6;
 const TILT_SMOOTH = 0.15;
 
-export default function CTASection() {
+function linkToHref(link: unknown): string {
+  if (typeof link === 'string') return link.trim();
+  if (link && typeof link === 'object') {
+    const o = link as { url?: string; cached_url?: string };
+    const u = o.url ?? o.cached_url;
+    return String(u ?? '').trim();
+  }
+  return '';
+}
+
+type SocialLink = { href: string; label: string; type: 'telegram' | 'instagram' };
+
+type CTASectionProps = { data?: CtaBlockContent | null };
+
+export default function CTASection({ data }: CTASectionProps) {
+  const title = data?.title?.trim() || DEFAULT_CTA_TITLE;
+  const subtitle = data?.subtitle?.trim() || DEFAULT_CTA_SUBTITLE;
+  const consentText = data?.privacy_consent_text?.trim() || DEFAULT_CONSENT_TEXT;
+
+  const socialLinks = useMemo((): SocialLink[] => {
+    const fromBlocks = data?.links
+      ?.map((item) => {
+        const href = linkToHref(item.url ?? (item as { link?: unknown }).link)?.trim();
+        if (!href) return null;
+        const type = (item.type?.toLowerCase() === 'instagram' ? 'instagram' : 'telegram') as 'telegram' | 'instagram';
+        return { href, label: item.label?.trim() || (type === 'instagram' ? 'Instagram' : 'Telegram'), type };
+      })
+      .filter((x): x is SocialLink => x !== null);
+    if (fromBlocks?.length) return fromBlocks;
+    return [
+      { href: data?.telegram_url?.trim() || DEFAULT_TELEGRAM_URL, label: data?.telegram_label?.trim() || 'Методика', type: 'telegram' as const },
+      { href: data?.telegram_channel_url?.trim() || DEFAULT_TELEGRAM_CHANNEL_URL, label: data?.telegram_channel_label?.trim() || 'Личный канал', type: 'telegram' as const },
+      { href: data?.instagram_url?.trim() || DEFAULT_INSTAGRAM_URL, label: data?.instagram_label?.trim() || 'Instagram', type: 'instagram' as const },
+    ];
+  }, [data?.links, data?.telegram_url, data?.telegram_label, data?.telegram_channel_url, data?.telegram_channel_label, data?.instagram_url, data?.instagram_label]);
+
   const lottieRef = useRef<LottieRefCurrentProps>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -128,10 +171,10 @@ export default function CTASection() {
           }
         >
           <h2 className="text-3xl md:text-4xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl font-bold mb-4 text-theme">
-            Оставайтесь в курсе новостей
+            {title}
           </h2>
           <p className="text-lg md:text-xl min-[1200px]:text-2xl min-[1200px]:md:text-3xl opacity-90 mb-8 text-theme">
-            Подпишитесь на советы, ресурсы и обновления, это совсем не сложно, но очень полезно
+            {subtitle}
           </p>
           <form
             className="group flex flex-col gap-4 max-w-lg mx-auto mb-4"
@@ -175,7 +218,7 @@ export default function CTASection() {
                 className="mt-1 rounded border-theme/30 text-theme-accent focus:ring-theme-accent"
               />
               <label htmlFor="cta-consent-pd" className="text-sm text-theme/90">
-                Даю согласие на обработку email в соответствии с{" "}
+                {consentText}{' '}
                 <Link href="/privacy" className="underline text-theme-accent hover:text-theme">
                   политикой конфиденциальности
                 </Link>
@@ -195,57 +238,26 @@ export default function CTASection() {
           {!isSuccess && !error && <div className="h-0 mb-6" aria-hidden />}
 
           <div className="flex items-center justify-center gap-8 flex-wrap">
-            <Link
-              href="https://t.me/elt_survival_guide"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Telegram: Методика"
-              className="group flex flex-col items-center gap-2 transition-all duration-300 hover:scale-105"
-            >
-              <div className="w-12 h-12 transition-transform duration-300 group-hover:scale-110">
-                <Lottie
-                  animationData={telegramAnimation}
-                  loop
-                  autoplay
-                  className="w-full h-full"
-                />
-              </div>
-              <span className="text-sm font-medium text-theme">Методика</span>
-            </Link>
-            <Link
-              href="https://t.me/Irina_Petrova_Eng"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Telegram: Личный канал"
-              className="group flex flex-col items-center gap-2 transition-all duration-300 hover:scale-105"
-            >
-              <div className="w-12 h-12 transition-transform duration-300 group-hover:scale-110">
-                <Lottie
-                  animationData={telegramAnimation}
-                  loop
-                  autoplay
-                  className="w-full h-full"
-                />
-              </div>
-              <span className="text-sm font-medium text-theme">Личный канал</span>
-            </Link>
-            <Link
-              href="https://www.instagram.com/cambridge_exams_with_irina?igsh=MXF2Z3V2bmFxZ3BtaQ=="
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Instagram"
-              className="group flex flex-col items-center gap-2 transition-all duration-300 hover:scale-105"
-            >
-              <div className="w-12 h-12 transition-transform duration-300 group-hover:scale-110">
-                <Lottie
-                  animationData={instagramAnimation}
-                  loop
-                  autoplay
-                  className="w-full h-full"
-                />
-              </div>
-              <span className="text-sm font-medium text-theme">Instagram</span>
-            </Link>
+            {socialLinks.map((item, i) => (
+              <Link
+                key={`${item.type}-${i}-${item.href}`}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={item.type === 'instagram' ? item.label : `Telegram: ${item.label}`}
+                className="group flex flex-col items-center gap-2 transition-all duration-300 hover:scale-105"
+              >
+                <div className="w-12 h-12 transition-transform duration-300 group-hover:scale-110">
+                  <Lottie
+                    animationData={item.type === 'instagram' ? instagramAnimation : telegramAnimation}
+                    loop
+                    autoplay
+                    className="w-full h-full"
+                  />
+                </div>
+                <span className="text-sm font-medium text-theme">{item.label}</span>
+              </Link>
+            ))}
           </div>
         </div>
       </div>

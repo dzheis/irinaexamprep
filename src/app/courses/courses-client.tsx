@@ -1,67 +1,324 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { Fragment, useEffect, useRef, useState, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { useApplyModal } from "@/components/ui/ApplyModalContext";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import type { CoursesStoryContent } from "@/lib/storyblok-types";
 
-const COURSE_CARDS = [
-  { id: 1, title: "FCE course B2", slug: "fce", imagePath: "/images/certificates/FCE B2.jpg" },
-  { id: 2, title: "CAE course C1", slug: "cae", imagePath: "/images/certificates/СAE C1.jpg" },
-  { id: 3, title: "CPE course C2", slug: "cpe", imagePath: "/images/certificates/CPE C2.jpg" },
+const DEFAULT_TITLE = "Курсы подготовки к экзаменам";
+
+const DEFAULT_COURSE_CARDS = [
+  { id: 1, title: "FCE (B2 level)", slug: "fce", imagePath: "/images/certificates/FCE B2.jpg", description: "" },
+  { id: 2, title: "CAE\n(C1 Advanced)", slug: "cae", imagePath: "/images/certificates/СAE C1.jpg", description: "" },
+  { id: 3, title: "CPE\n(C2 Proficiency)", slug: "cpe", imagePath: "/images/certificates/CPE C2.jpg", description: "" },
 ] as const;
 
 const COURSE_DESCRIPTIONS: Record<number, string> = {
-  1: `Описание курса FCE (B2)
+  1: `FCE
 
-Добро пожаловать в мир уверенного владения английским! Курс FCE (First Certificate in English) на уровне B2 предназначен для тех, кто хочет не просто говорить по-английски, а жить им — в повседневных ситуациях, на работе или в путешествиях. Этот курс поможет преодолеть языковой барьер и достичь той свободы, когда английский становится надежным союзником.
+(B2 level)
 
-Что ждет на курсе?
+🎯 Кому подойдёт этот курс?
 
-Комплексное развитие навыков: Углубление в чтение, письмо, аудирование и говорение. Участники научатся понимать нюансы текстов из реальной жизни — от новостей до художественной литературы, — писать эссе и письма с убедительной аргументацией, слушать подкасты и лекции без словаря, а также вести беседы на актуальные темы с естественной интонацией.
+• ✅ вы хотите уверенно сдать FCE и закрыть уровень B2
+• 🧠 у вас есть база, но не хватает практики и уверенности
+• 🗣️ вы все понимаете, но не уверены в speaking или writing skills
+• 📚 вам нужен первый серьёзный экзамен для работы или учебы
+• 🚀 вы хотите перейти от «учил язык» к «могу им пользоваться»
 
-Практика, вдохновленная жизнью: Уроки построены вокруг реальных сценариев — от обсуждения глобальных проблем до планирования поездок. Используются аутентичные материалы: видео с носителями языка, статьи из The Guardian и BBC, чтобы создать ощущение англоязычной среды.
+💡 Это не только подготовка к экзамену: мы доходим до уровня B2, которым вы можете пользоваться и на работе, и в жизни:
 
-Подготовка к экзамену: Шаг за шагом разбор структуры FCE, отработка типичных заданий и стратегий для сдачи на высокий балл. Регулярные mock-экзамены помогут привыкнуть к формату и повысить уверенность.
+• 🧩 формируем стабильную базу по всем навыкам
+• 🧭 учим не теряться в заданиях и понимать, что от вас хотят
+• 💬 развиваем язык, а не заучиваем ответы
+• 🧠 организовываем знания в голове и убираем «кашу»
 
-Индивидуальный подход: Маленькие группы или персональные занятия — выбор за участником. Программа адаптируется под цели: карьерный рост, эмиграция или просто любовь к языку.
+🧭 Что мы делаем на занятиях?
 
-По окончании курса участники не только получат сертификат Cambridge, признаваемый во всем мире, но и ощутят, как английский открывает новые горизонты. Готовы шагнуть на уровень выше? Запишитесь сейчас и начните преображение!`,
-  2: `Описание курса CAE (C1)
+• 🗣️ speaking: как говорить связно и без ступора
+• ✍️ writing: структура, логика, базовая аргументация
+• 📚 vocabulary: частотная лексика и коллокации уровня B2
+• ⚙️ grammar: уверенное использование основных структур
+• 🎯 понимание заданий и стратегий выполнения
+• ⏱️ работа в ограниченное время
 
-Погрузитесь в глубины английского мастерства с курсом CAE (Certificate in Advanced English) на уровне C1. Это не просто уроки — это путешествие к совершенству, где язык становится инструментом для профессионального успеха, академических достижений и культурного обогащения. Если уже есть хороший уровень английского, но стремление к нюансам и изысканности, этот курс создан именно для этого.
+👥 Как проходит обучение?
 
-Ключевые аспекты курса:
+• 👥 группы до 6 человек
+• ⏳ занятия по 90-100 минут
+• 🧠 разбор экзаменационных стратегий + практика
+• ⏱️ задания на время
+• 🤝 работа в парах и мини-группах
+• 💡 регулярная обратная связь
 
-Мастерство в коммуникации: Оттачивание навыков до блеска — от анализа сложных текстов и академических статей до создания убедительных эссе и отчетов. Участники научатся различать стили речи, использовать идиомы и фразовые глаголы естественно, как носители.
+📚 Материалы
 
-Аутентичный контент: Уроки вдохновлены реальным миром: дебаты на темы этики ИИ, обсуждения литературы Шекспира и современных авторов, прослушивание TED Talks и подкастов. Интеграция видео, статей из The New York Times и The Economist, чтобы почувствовать пульс глобального английского.
+• 🧾 Expert First + Complete First
+• 📖 Vocabulary / Grammar / Collocations in Use for B2
+• 🧠 Oxford Word Skills
+• 📝 адаптированные и аутентичные тексты
+• 🎧 видео и аудио материалы
+• 🎁 дополнительные авторские материалы
 
-Стратегии для экзамена: Подробный разбор формата CAE, включая Use of English, с фокусом на ловушки и хитрости. Практика с таймингом и обратной связью поможет набрать максимум баллов.
+🎁 Что включено?
 
-Персонализированное обучение: Учет сильных и слабых сторон, с дополнительными материалами для самостоятельной работы. Групповые дискуссии развивают навыки командной работы, а индивидуальные сессии — фокус на личных целях.
+• 📦 папка с материалами
+• 🗂️ Speaking packs
+• 🧩 Quizlet sets
+• 📝 2 mock tests + revisions
+• 📄 past papers
+• ✍️ 10 письменных работ, проверенных мной + peer observation
 
-С сертификатом CAE двери университетов, компаний и стран откроются шире. Это не просто курс — это инвестиция в будущее. Присоединяйтесь и откройте в себе настоящего мастера английского!`,
-  3: `Описание курса CPE (C2)
+🏁 По окончании курса
 
-Добро пожаловать на вершину языкового Олимпа — курс CPE (Certificate of Proficiency in English) на уровне C2. Это для тех, кто не довольствуется хорошим, а стремится к идеалу: к уровню, где английский — как родной, с тонкими нюансами, иронией и культурным подтекстом. Если готовы к вызову, этот курс превратит в настоящего эксперта.
+• ✅ сдадите не только экзамен, но и будете владеть языком на этом уровне в реальной жизни
+• 🌟 будете полностью знать формат экзамена, его стратегии и особенности
+• 🧘‍♀️ забудете, что такое нехватка идей и языковой барьер
+• 💪 улучшите самодисциплину, организованность, научитесь справляться со стрессом и непредвиденными ситуациями, которые могут возникнуть на экзамене
+• 📈 достигнете того уровня знаний и навыков, который в будущем позволит вам изучать английский самостоятельно, готовиться и готовить своих студентов к экзаменам
+• 🗣️ научитесь самостоятельно оценивать speaking and writing
+• 🤝 получите много дополнительной практики с вашими сокурсниками`,
+  2: `CAE
 
-Что делает курс особенным?
+(C1 Advanced)
 
-Глубокое погружение: Исследование сложных аспектов языка — от стилистического анализа литературы и научных текстов до создания профессиональных текстов: рецензий, предложений и речей. Освоение продвинутой грамматики, лексики и риторики для выражения мыслей с элегантностью и точностью.
+🎯 Кому подойдёт этот курс?
 
-Реальные вызовы: Уроки построены на аутентичных материалах — от классики (Диккенс, Орвелл) до современных источников (The Atlantic, научные журналы). Дебаты, ролевые игры и анализ видео помогут развить критическое мышление и fluency.
+• ✅ вы хотите сдать CAE и начать готовить студентов к экзаменам
+• 🧩 вы застряли на уровне B2–C1
+• 🧠 у вас хороший язык, но не хватает точности и глубины
+• 💼 вы хотите учиться или работать на английском
+• 🚀 вы хотите звучать уверенно и естественно
 
-Подготовка к экзамену на высшем уровне: Детальный обзор структуры CPE, с акцентом на сложные задания. Отработка стратегий для не просто сдачи, а блеска. Регулярные симуляции экзамена с детальной обратной связью.
+✨ Это переход к продвинутому и точному английскому, мы:
 
-Индивидуальная траектория: Программа адаптируется под амбиции — академическая карьера, бизнес или творчество. Малые группы обеспечивают личное внимание.
+• 🧠 развиваем сложную лексику и гибкость языка
+• 🗣️ учимся связно аргументировать и доносить свою мысль
+• 🎓 работаем с академическим английским, который пригодится для учебы, работы и сдачи экзамена
+• 🛠️ устраняем слабые места, которые мешают получить высокий балл
 
-Сертификат CPE — это знак элитного владения английским, признаваемый топ-университетами и работодателями. Это кульминация языкового пути. Готовы покорить вершину? Запишитесь и станьте частью элиты!`,
+🧩 Что мы тренируем на занятиях?
+
+• 🗣️ speaking: аргументация, гибкость, реакция в диалоге
+• ✍️ writing: essays, reports, letters and proposals на уровне C1
+• 📚 vocabulary: сложные коллокации и оттенки значений
+• ⚙️ grammar: точность и разнообразие структур
+• 🎯 стратегии выполнения всех частей экзамена
+• ⏱️ выполнение заданий на время
+
+👥 Как проходит обучение?
+
+• 👥 группы до 6 человек
+• ⏳ занятия по 90-100 минут
+• 🧠 разбор экзаменационных стратегий + практика
+• ⏱️ тайминг и симуляция экзамена
+• 🤝 парная и групповая работа
+• 📌 подробная обратная связь
+
+📚 Материалы
+
+• 🧾 Expert Advanced
+• 📖 Vocabulary / Collocations / Phrasal Verbs in Use
+• 📘 Grammar and Vocabulary for Advanced
+• 📰 Authentic articles and podcasts
+• 🧠 Oxford Wordskills
+• 📽️ On Screen
+• 🌐 Upstream
+
+🎁 Что включено?
+
+• 📦 папка с материалами
+
+• 🗂️ Speaking packs
+• 🧩 Quizlet sets
+• 📝 2 mock tests + revisions
+• 📄 past papers
+• ✍️ 10 письменных работ, проверенных мной + peer observation
+
+🏁 По окончании курса вы:
+
+• ✅ не только сдадите экзамен, но и будете владеть языком на этом уровне в реальной жизни
+• 🌟 будете полностью знать формат экзамена, его стратегии и особенности
+• 🧘 забудете, что такое нехватка идей и языковой барьер
+• 💪 улучшите самодисциплину, организованность, научитесь справляться со стрессом и непредвиденными ситуациями, которые могут возникнуть на экзамене
+• 📈 достигнете того уровня знаний и навыков, который в будущем позволит вам изучать английский самостоятельно, готовиться и готовить своих студентов к экзаменам
+• 🗣️ научитесь самостоятельно оценивать speaking and writing
+• 🤝 получите много дополнительной практики с вашими сокурсниками`,
+  3: `CPE
+
+(C2 Proficiency)
+
+🎯 Кому подойдёт этот курс?
+
+• ✅ вы хотите сдать CPE (или получить Grade A на CAE)
+• 🧠 вы уже на C1, но чувствуете плато
+• 🧩 вам не хватает точности, естественности и «глубины»
+• 🚀 вы хотите звучать как продвинутый пользователь языка
+• 💼 вам нужен английский для академической или профессиональной среды
+
+✨ Мы не только готовимся к формату экзамена, но и доходим до полноценного уровня С2 
+
+• 🛠️ устраняем fossilised errors
+• 🌿 развиваем естественность и нюансы
+• 🗣️ учимся звучать убедительно и понятно
+• 📚 работаем со всеми аспектами языка 
+
+
+🧩 Что мы тренируем на занятиях?
+
+• 🗣️ speaking: сложные идеи, абстрактные темы, точная формулировка
+• ✍️ writing: продвинутые тексты с сильной аргументацией
+• 📚 vocabulary: нюансы, оттенки, точность
+• ⚙️ grammar: гибкость и контроль
+• 🎯 стратегии выполнения всех заданий 
+• 🧠 уверенность в условиях экзамена
+
+👥 Как проходит обучение?
+
+• 👥 группы до 6 человек
+• ⏳ занятия по 90-100 минут
+• 🧠 регулярная работа с форматом CPE (стратегии + отработка)
+• ⏱️ задания на время
+• 💬 обсуждения на продвинутые темы
+• 📌 подробная обратная связь
+
+📚 Материалы
+
+• 🧾 Experr Proficiency
+• 📖 Advanced / Proficiency vocabulary resources
+• 📰 аутентичные статьи, академические тексты
+• 🎧 подкасты и лекции
+• 🌟 On Screen
+• 🌐 Upstream
+
+🎁 Что включено?
+
+• 📦 папка с материалами
+• 🗂️ Speaking packs
+• 🧩 Quizlet sets
+• 📝 2 mock tests + revisions
+• 📄 past papers
+• ✍️ 10 письменных работ, проверенных мной + peer observation
+
+🏁 Результат:
+
+• ✅ вы сдаёте CPE или выходите на полный уровень C2
+• 🌟 звучите естественно и точно
+• 💬 уверенно выражаете сложные идеи
+• 🛠️ избавляетесь от типичных продвинутых ошибок
+• 🚀 переходите на продвинутый уровень владения языком`,
 };
 
-export default function CoursesClient() {
+type CourseForDisplay = { id: number; title: string; slug: string; imagePath: string; description: string };
+
+/** Storyblok может отдавать поля блока в корне или в item.content. */
+type CourseBlock = {
+  name?: string;
+  title?: string;
+  slug?: string;
+  description?: string;
+  image?: { filename?: string };
+  content?: { name?: string; title?: string; slug?: string; description?: string; image?: { filename?: string } };
+};
+
+function getImageUrl(item: { image?: { filename?: string } }): string {
+  const url = item.image?.filename?.trim();
+  return url || "";
+}
+
+function normalizeCourseBlock(item: CourseBlock): { name?: string; title?: string; slug?: string; description?: string; image?: { filename?: string } } {
+  const c = item.content;
+  return {
+    name: item.name ?? c?.name,
+    title: item.title ?? c?.title,
+    slug: item.slug ?? c?.slug,
+    description: item.description ?? c?.description,
+    image: item.image ?? c?.image,
+  };
+}
+
+export default function CoursesClient({ data }: { data?: CoursesStoryContent | null }) {
   const [detailsModalCourseId, setDetailsModalCourseId] = useState<number | null>(null);
   const applyModal = useApplyModal();
+
+  const pageTitle = data?.title?.trim() || DEFAULT_TITLE;
+
+  const courses = useMemo((): CourseForDisplay[] => {
+    const raw = data?.courses ?? [];
+    const fromCms = raw
+      .map((c) => normalizeCourseBlock(c as CourseBlock))
+      .filter((c) => (c.name ?? c.title)?.trim());
+    if (!fromCms.length) {
+      return DEFAULT_COURSE_CARDS.map((c) => ({
+        ...c,
+        description: COURSE_DESCRIPTIONS[c.id] ?? "",
+      }));
+    }
+    const defaults = [...DEFAULT_COURSE_CARDS];
+    return fromCms.map((item, i) => {
+      const title = (item.name ?? item.title)?.trim() || (defaults[i]?.title ?? "");
+      const slug = item.slug?.trim() || (defaults[i]?.slug ?? "");
+      const imageUrl = getImageUrl(item);
+      const imagePath = imageUrl || (defaults[i]?.imagePath ?? "");
+      const description = (item.description?.trim() ?? COURSE_DESCRIPTIONS[(i + 1) as 1 | 2 | 3]) ?? "";
+      return { id: i + 1, title, slug, imagePath, description };
+    });
+  }, [data?.courses]);
+
+  const rows = useMemo(() => {
+    const r: CourseForDisplay[][] = [];
+    for (let i = 0; i < courses.length; i += 3) r.push(courses.slice(i, i + 3));
+    return r;
+  }, [courses]);
+
+  const renderCard = (course: CourseForDisplay) => (
+    <div key={course.id} className="flex justify-center perspective-1000 min-w-0">
+      <div className="course-card glass rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 w-full max-w-xl md:max-w-none min-w-0 transition-[transform,box-shadow] duration-300 ease-in-out hover:scale-[1.02] hover:shadow-xl">
+        <div className="flex flex-col items-center justify-center flex-shrink-0 md:w-[48%] min-w-0">
+          <div className="relative w-full max-h-[320px] sm:max-h-[380px] md:max-h-[360px] aspect-[3/4] rounded-3xl overflow-hidden bg-theme-secondary-accent/10 flex items-center justify-center">
+            <Image
+              src={course.imagePath || "/images/certificates/FCE B2.jpg"}
+              alt={course.title}
+              fill
+              className="object-contain object-center"
+              sizes="(max-width: 768px) 100vw, 36vw"
+            />
+          </div>
+        </div>
+        <div className="flex flex-col justify-center text-center md:text-left flex-1 min-w-0">
+          <h2 className="text-xl md:text-2xl min-[1200px]:text-3xl min-[1200px]:md:text-4xl font-bold mb-5 md:mb-6 text-theme break-words text-center">
+            {(() => {
+              const lines = course.title.split("\n");
+              if (lines.length <= 1) return course.title;
+              return (
+                <>
+                  <div>{lines[0]}</div>
+                  <div className="whitespace-nowrap">{lines[1]}</div>
+                </>
+              );
+            })()}
+          </h2>
+          <div className="flex flex-col gap-4 min-w-0">
+            <button
+              type="button"
+              onClick={() => setDetailsModalCourseId(course.id)}
+              className="btn btn-secondary w-full text-center min-w-0 text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl py-3 md:py-3.5 overflow-hidden text-ellipsis whitespace-nowrap"
+            >
+              Подробнее
+            </button>
+            <button
+              type="button"
+              onClick={() => applyModal?.openApplyModal(course.id, course.title)}
+              className="btn-primary w-full text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl px-5 py-3 md:py-4 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+            >
+              Подать заявку
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen relative">
@@ -70,53 +327,47 @@ export default function CoursesClient() {
           <section className="py-20 md:py-28 max-w-[1680px] mx-auto px-4 md:px-8">
             <div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl min-[1200px]:lg:text-7xl font-bold text-center mb-14 md:mb-20 text-theme">
-                Курсы подготовки к экзаменам
+                {pageTitle}
               </h1>
 
-              <div className="grid grid-cols-1 min-[1400px]:grid-cols-3 gap-8 md:gap-10 perspective-1000">
-              {COURSE_CARDS.map((course) => (
-                <div
-                  key={course.id}
-                  className="flex justify-center perspective-1000"
-                >
-                  <div className="course-card glass rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 w-full max-w-xl md:max-w-none min-w-0 transition-[transform,box-shadow] duration-300 ease-in-out hover:scale-[1.02] hover:shadow-xl">
-                    {/* Left column: course image */}
-                    <div className="flex flex-col items-center justify-center flex-shrink-0 md:w-[48%] min-w-0">
-                      <div className="relative w-full max-h-[320px] sm:max-h-[380px] md:max-h-[360px] aspect-[3/4] rounded-3xl overflow-hidden bg-theme-secondary-accent/10 flex items-center justify-center">
-                        <Image
-                          src={course.imagePath}
-                          alt={course.title}
-                          fill
-                          className="object-contain object-center"
-                          sizes="(max-width: 768px) 100vw, 36vw"
-                        />
-                      </div>
-                    </div>
-                    {/* Right column: title and buttons */}
-                    <div className="flex flex-col justify-center text-center md:text-left flex-1 min-w-0">
-                      <h2 className="text-xl md:text-2xl min-[1200px]:text-3xl min-[1200px]:md:text-4xl font-bold mb-5 md:mb-6 text-theme break-words">
-                        {course.title}
-                      </h2>
-                      <div className="flex flex-col gap-4 min-w-0">
-                        <button
-                          type="button"
-                          onClick={() => setDetailsModalCourseId(course.id)}
-                          className="btn btn-secondary w-full text-center min-w-0 text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl py-3 md:py-3.5 overflow-hidden text-ellipsis whitespace-nowrap"
+              <div
+                className={
+                  courses.length === 4
+                    ? "grid grid-cols-1 min-[1400px]:grid-cols-2 gap-y-8 gap-x-0 min-[1400px]:gap-8 min-[1400px]:md:gap-10 perspective-1000 min-[1400px]:max-w-[900px] min-[1400px]:mx-auto"
+                    : "grid grid-cols-1 min-[1400px]:grid-cols-3 gap-y-8 gap-x-0 min-[1400px]:gap-8 min-[1400px]:md:gap-10 perspective-1000"
+                }
+              >
+                {courses.length === 4 ? (
+                  courses.map(renderCard)
+                ) : (
+                  rows.map((row, rowIndex) => {
+                    const isLastRow = rowIndex === rows.length - 1;
+                    const n = row.length;
+                    if (n === 3) {
+                      return <Fragment key={rowIndex}>{row.map(renderCard)}</Fragment>;
+                    }
+                    if (n === 2 && isLastRow) {
+                      return (
+                        <div
+                          key={rowIndex}
+                          className="min-[1400px]:col-span-3 flex flex-col min-[1400px]:flex-row min-[1400px]:justify-center gap-y-8 gap-x-0 min-[1400px]:gap-8 min-[1400px]:md:gap-10"
                         >
-                          Подробнее
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => applyModal?.openApplyModal(course.id, course.title)}
-                          className="btn-primary w-full text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl px-5 py-3 md:py-4 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
-                        >
-                          Подать заявку
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                          <div className="flex flex-col gap-y-8 min-[1400px]:flex-none min-[1400px]:grid min-[1400px]:grid-cols-2 min-[1400px]:gap-8 min-[1400px]:md:gap-10 min-[1400px]:w-[calc(2*(100%-2*2.5rem)/3+2.5rem)]">
+                            {row.map(renderCard)}
+                          </div>
+                        </div>
+                      );
+                    }
+                    if (n === 1 && isLastRow) {
+                      return (
+                        <div key={rowIndex} className="min-[1400px]:col-start-2">
+                          {renderCard(row[0])}
+                        </div>
+                      );
+                    }
+                    return <Fragment key={rowIndex}>{row.map(renderCard)}</Fragment>;
+                  })
+                )}
               </div>
             </div>
           </section>
@@ -125,8 +376,8 @@ export default function CoursesClient() {
 
       {detailsModalCourseId !== null && (
         <DetailsModal
-          courseTitle={COURSE_CARDS.find((c) => c.id === detailsModalCourseId)?.title ?? ""}
-          description={COURSE_DESCRIPTIONS[detailsModalCourseId] ?? ""}
+          courseTitle={courses.find((c) => c.id === detailsModalCourseId)?.title ?? ""}
+          description={courses.find((c) => c.id === detailsModalCourseId)?.description ?? ""}
           onClose={() => setDetailsModalCourseId(null)}
         />
       )}
@@ -222,7 +473,33 @@ function DetailsModal({
         </div>
         <div className="mt-4 overflow-y-auto overflow-x-hidden min-h-0 max-h-[calc(85vh-8rem)] pr-1 overscroll-contain touch-auto overflow-touch">
           <div className="prose prose-theme max-w-none text-theme whitespace-pre-line leading-relaxed text-justify [&>*]:text-justify">
-            {description}
+            {(() => {
+              const lines = description.split("\n");
+              const firstIdx = lines.findIndex((l) => l.trim() !== "");
+              const secondIdx = lines.findIndex((l, idx) => idx > firstIdx && l.trim() !== "");
+
+              if (firstIdx !== -1 && secondIdx !== -1) {
+                const first = lines[firstIdx].trim();
+                const second = lines[secondIdx].trim();
+                const rest = lines.slice(secondIdx + 1).join("\n");
+
+                const isCAE = first === "CAE" && second === "(C1 Advanced)";
+                const isCPE = first === "CPE" && second === "(C2 Proficiency)";
+                const isFCE = first === "FCE" && second === "(B2 level)";
+
+                if (isCAE || isCPE || isFCE) {
+                  return (
+                    <>
+                      <div className="!text-center font-bold">{first}</div>
+                      <div className="!text-center font-bold">{second}</div>
+                      {rest}
+                    </>
+                  );
+                }
+              }
+
+              return description;
+            })()}
           </div>
         </div>
       </div>

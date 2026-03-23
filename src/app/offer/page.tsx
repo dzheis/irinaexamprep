@@ -1,21 +1,51 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { renderRichText } from "@storyblok/react";
+import { getOfferFromStoryblok } from "@/lib/offer-storyblok";
 
 export const metadata: Metadata = {
   title: "Публичная оферта | Irina Exam Prep",
   description: "Договор публичной оферты на оказание образовательных услуг по подготовке к экзаменам по английскому языку",
 };
 
-export default function OfferPage() {
+export default async function OfferPage() {
+  const offer = await getOfferFromStoryblok();
+  const contentHtml =
+    offer.contentRichText != null
+      ? (renderRichText(offer.contentRichText as unknown as Parameters<typeof renderRichText>[0]) ?? "")
+      : null;
+
   return (
     <div className="min-h-screen">
       <div className="pt-24 md:pt-28 pb-16">
         <article className="max-w-3xl mx-auto px-6 text-theme">
           <h1 className="text-3xl md:text-4xl font-bold mb-8">
-            ПУБЛИЧНАЯ ОФЕРТА о заключении договора об оказании услуг
+            {offer.title}
           </h1>
 
-          <section className="prose prose-theme max-w-none text-theme space-y-6 [&_p]:text-justify [&_ul]:pl-6">
+          {contentHtml ? (
+            <section
+              className="prose prose-theme max-w-none text-theme space-y-6 [&_p]:text-justify [&_ul]:pl-6 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-8 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2"
+              dangerouslySetInnerHTML={{ __html: contentHtml }}
+            />
+          ) : (
+            <OfferStaticContent />
+          )}
+
+          <div className="mt-10 flex flex-wrap gap-3">
+            <Link href="/" className="btn-secondary !px-5 !py-2.5 text-sm md:text-base no-underline inline-flex items-center gap-2">
+              ← Вернуться на главную
+            </Link>
+          </div>
+        </article>
+      </div>
+    </div>
+  );
+}
+
+function OfferStaticContent() {
+  return (
+    <section className="prose prose-theme max-w-none text-theme space-y-6 [&_p]:text-justify [&_ul]:pl-6">
             <h2 className="text-xl font-bold mt-8 mb-2">1. Общие положения</h2>
             <p>
               В настоящей Публичной оферте содержатся условия заключения Договора об оказании услуг (далее по тексту — «Договор об оказании услуг» и/или «Договор»). Настоящей офертой признается предложение, адресованное одному или нескольким конкретным лицам, которое достаточно определено и выражает намерение лица, сделавшего предложение, считать себя заключившим Договор с адресатом, которым будет принято предложение.
@@ -116,18 +146,6 @@ export default function OfferPage() {
               Контактный телефон: +7 989 228-77-09<br />
               Контактный e-mail: irene.petrova77@gmail.com
             </p>
-          </section>
-
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Link href="/payment-refund" className="btn-secondary !px-5 !py-2.5 text-sm md:text-base no-underline">
-              Оплата и возврат
-            </Link>
-            <Link href="/" className="btn-secondary !px-5 !py-2.5 text-sm md:text-base no-underline inline-flex items-center gap-2">
-              ← Вернуться на главную
-            </Link>
-          </div>
-        </article>
-      </div>
-    </div>
+    </section>
   );
 }

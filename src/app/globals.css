@@ -194,6 +194,33 @@ footer.nav {
       inset 0 3px 8px rgba(0, 0, 0, 0.12);
   }
 
+  .footer-legal-link {
+    @apply btn inline-flex border rounded-full no-underline;
+    background: transparent;
+    border-color: transparent;
+    color: var(--color-text);
+    opacity: 0.85;
+    box-shadow: none;
+    transform: scale(1);
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, background 0.3s ease-in-out, border-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  }
+
+  .footer-legal-link:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: var(--color-light-bg);
+    color: #000000;
+    transform: scale(1.04);
+    box-shadow:
+      0 4px 14px color-mix(in srgb, var(--color-cta-button) 28%, transparent),
+      0 2px 6px color-mix(in srgb, var(--color-cta-button) 18%, transparent),
+      inset 0 2px 4px rgba(0, 0, 0, 0.08);
+    opacity: 1;
+  }
+
+  .footer-legal-link:active {
+    transform: scale(0.98);
+  }
+
   .badge {
     @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 ease-in-out;
     background: rgba(255, 255, 255, 0.5);

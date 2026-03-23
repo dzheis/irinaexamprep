@@ -1,9 +1,10 @@
 "use client";
 
 import Link from 'next/link';
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import type { CoursesSectionBlockContent } from '@/lib/storyblok-types';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,10 +14,59 @@ const HOVER_EASE = 'power2.out';
 const CARD_SHADOW_DEFAULT = '0 8px 32px rgba(47, 52, 64, 0.1)';
 const CARD_SHADOW_HOVER = '0 20px 40px rgba(47, 52, 64, 0.12)';
 
-const LOREM_TEXT =
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.';
+const DEFAULT_LANGUAGE_COURSES_DESCRIPTION =
+  'Курсы, которые помогут вам перейти с уровня B2 на C1 или с C1 на C2 в процессе подготовки к экзаменам Cambridge.\nВы развиваете все ключевые навыки, осваиваете стратегии выполнения заданий и выходите на уровень, необходимый для успешной сдачи экзамена.';
 
-export default function CoursesMethodologySection() {
+const DEFAULT_METHODOLOGY_DESCRIPTION =
+  'Практические вебинары для преподавателей английского, направленные на повышение эффективности занятий. Вы научитесь выстраивать уроки, развивать speaking, грамотно использовать ресурсы и применять принципы усвоения языка на практике.';
+
+const DEFAULT_FREE_RESOURCES_DESCRIPTION =
+  'Подборка бесплатных материалов для студентов и преподавателей уровней B2–C2. Практика speaking, работа со сложной грамматикой и развитие более точного, естественного и продвинутого английского.';
+
+const DEFAULT_CARDS = [
+  { title: 'Language Courses', link: '/courses', description: DEFAULT_LANGUAGE_COURSES_DESCRIPTION },
+  { title: 'Methodology', link: '/methodology', description: DEFAULT_METHODOLOGY_DESCRIPTION },
+  { title: 'Free resources', link: '/free-resources', description: DEFAULT_FREE_RESOURCES_DESCRIPTION, wide: true },
+];
+
+type CoursesMethodologySectionProps = { data?: CoursesSectionBlockContent | null };
+
+/** Storyblok Link поле может быть строкой или объектом { url?, cached_url? }. */
+function linkToHref(link: unknown): string {
+  if (typeof link === 'string') return link.trim();
+  if (link && typeof link === 'object' && 'url' in link && typeof (link as { url?: string }).url === 'string') return (link as { url: string }).url;
+  if (link && typeof link === 'object' && 'cached_url' in link && typeof (link as { cached_url?: string }).cached_url === 'string') return (link as { cached_url: string }).cached_url;
+  return '';
+}
+
+export default function CoursesMethodologySection({ data }: CoursesMethodologySectionProps) {
+  const cards = useMemo(() => {
+    const items = data?.cards?.filter((c) => c.title?.trim());
+    if (!items || items.length < 3) return DEFAULT_CARDS;
+    return [
+      {
+        title: items[0].title!.trim(),
+        link: linkToHref(items[0].link) || '/courses',
+        description:
+          (typeof items[0].description === 'string' ? items[0].description : '').trim() ||
+          DEFAULT_LANGUAGE_COURSES_DESCRIPTION,
+      },
+      {
+        title: items[1].title!.trim(),
+        link: linkToHref(items[1].link) || '/methodology',
+        description:
+          (typeof items[1].description === 'string' ? items[1].description : '').trim() || DEFAULT_METHODOLOGY_DESCRIPTION,
+      },
+      {
+        title: items[2].title!.trim(),
+        link: linkToHref(items[2].link) || '/free-resources',
+        description:
+          (typeof items[2].description === 'string' ? items[2].description : '').trim() ||
+          DEFAULT_FREE_RESOURCES_DESCRIPTION,
+        wide: true,
+      },
+    ];
+  }, [data?.cards]);
   const sectionRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const cardsWrapperRef = useRef<HTMLDivElement>(null);
@@ -200,10 +250,10 @@ export default function CoursesMethodologySection() {
               onMouseLeave={() => onCardMouseLeave(coursesCardRef.current)}
             >
               <h2 className="text-2xl md:text-3xl min-[1200px]:text-4xl min-[1200px]:md:text-5xl font-bold mb-6 text-theme">
-                Language Courses
+                {cards[0].title}
               </h2>
               <Link
-                href="/courses"
+                href={cards[0].link}
                 className="inline-block mb-6 text-base min-[1200px]:text-xl font-semibold transition-colors duration-300 hover:opacity-80 text-theme-accent"
                 onMouseEnter={onLinkMouseEnter}
                 onMouseLeave={onLinkMouseLeave}
@@ -211,7 +261,7 @@ export default function CoursesMethodologySection() {
                 Подробнее →
               </Link>
               <p className="text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl leading-relaxed text-justify text-theme">
-                {LOREM_TEXT}
+                {cards[0].description}
               </p>
             </div>
 
@@ -222,10 +272,10 @@ export default function CoursesMethodologySection() {
               onMouseLeave={() => onCardMouseLeave(methodologyCardRef.current)}
             >
               <h2 className="text-2xl md:text-3xl min-[1200px]:text-4xl min-[1200px]:md:text-5xl font-bold mb-6 text-theme">
-                Methodology
+                {cards[1].title}
               </h2>
               <Link
-                href="/methodology"
+                href={cards[1].link}
                 className="inline-block mb-6 text-base min-[1200px]:text-xl font-semibold transition-colors duration-300 hover:opacity-80 text-theme-accent"
                 onMouseEnter={onLinkMouseEnter}
                 onMouseLeave={onLinkMouseLeave}
@@ -233,7 +283,7 @@ export default function CoursesMethodologySection() {
                 Подробнее →
               </Link>
               <p className="text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl leading-relaxed text-justify text-theme">
-                {LOREM_TEXT}
+                {cards[1].description}
               </p>
             </div>
 
@@ -244,10 +294,10 @@ export default function CoursesMethodologySection() {
               onMouseLeave={() => onCardMouseLeave(freeResourcesCardRef.current)}
             >
               <h2 className="text-2xl md:text-3xl min-[1200px]:text-4xl min-[1200px]:md:text-5xl font-bold mb-6 text-theme">
-                Free resources
+                {cards[2].title}
               </h2>
               <Link
-                href="/free-resources"
+                href={cards[2].link}
                 className="inline-block mb-6 text-base min-[1200px]:text-xl font-semibold transition-colors duration-300 hover:opacity-80 text-theme-accent"
                 onMouseEnter={onLinkMouseEnter}
                 onMouseLeave={onLinkMouseLeave}
@@ -255,7 +305,7 @@ export default function CoursesMethodologySection() {
                 Подробнее →
               </Link>
               <p className="text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl leading-relaxed text-justify text-theme">
-                {LOREM_TEXT}
+                {cards[2].description}
               </p>
             </div>
           </div>
