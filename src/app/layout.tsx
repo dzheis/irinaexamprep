@@ -8,6 +8,7 @@ import PageTransition from '@/components/ui/PageTransition';
 import BackgroundSvg from '@/components/ui/BackgroundSvg';
 import { ApplyModalProvider } from '@/components/ui/ApplyModalContext';
 import { CookieConsentProvider } from '@/components/ui/CookieConsentContext';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { getConfig, fetchStory } from '@/lib/storyblok';
 
 const sourceSans = Source_Sans_3({
@@ -91,6 +92,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <Footer creditText={footerCreditText} />
               </PageTransition>
             </CookieConsentProvider>
+            <SpeedInsights />
           </ApplyModalProvider>
         </SmoothScroll>
       </body>

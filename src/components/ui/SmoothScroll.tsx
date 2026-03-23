@@ -89,6 +89,10 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
   useEffect(() => {
     if (pathname !== '/') {
       isInitialLoadRef.current = false;
+      // На переходах с главной высоты/трансформы могут меняться (PageTransition/gsap),
+      // поэтому важно синхронизировать Lenis и ScrollTrigger.
+      lenisRef.current?.resize();
+      ScrollTrigger.refresh();
       return;
     }
     const storedId =
@@ -129,6 +133,15 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         lenis.resize();
         ScrollTrigger.refresh();
         lenis.scrollTo(el, { offset: -80, duration: 0 });
+        // Даём DOM/анимациям догрузиться и один раз пересчитываем высоты.
+        requestAnimationFrame(() => {
+          lenis.resize();
+          ScrollTrigger.refresh();
+        });
+        setTimeout(() => {
+          lenis.resize();
+          ScrollTrigger.refresh();
+        }, 250);
         return;
       }
       attempt += 1;
