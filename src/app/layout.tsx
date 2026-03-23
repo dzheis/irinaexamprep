@@ -9,6 +9,7 @@ import BackgroundSvg from '@/components/ui/BackgroundSvg';
 import { ApplyModalProvider } from '@/components/ui/ApplyModalContext';
 import { CookieConsentProvider } from '@/components/ui/CookieConsentContext';
 import { getConfig, fetchStory } from '@/lib/storyblok';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const sourceSans = Source_Sans_3({
   subsets: ['latin', 'cyrillic'],
@@ -93,6 +94,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </CookieConsentProvider>
           </ApplyModalProvider>
         </SmoothScroll>
+        <SpeedInsights />
       </body>
     </html>
   );
