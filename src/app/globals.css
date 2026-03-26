@@ -19,7 +19,7 @@ html.lenis, html.lenis body {
   overflow: hidden;
 }
 
-/* Compensate scrollbar width: ширина хедера от левого края, без правой зоны скроллбара — не прыгает при открытии модалки */
+/* Compensate scrollbar width: header width from the left edge only (avoid jumping when a modal opens). */
 html.scroll-locked header.nav {
   width: calc(100vw - var(--scrollbar-width, 0px));
   max-width: calc(100vw - var(--scrollbar-width, 0px));

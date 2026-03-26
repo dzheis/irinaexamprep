@@ -1,8 +1,6 @@
-/** Список модулей методики: id и video_id для проверки доступа и embed. */
+/** Methodology modules list: `id` and `videoId` for access checks and embedding. */
 export const METHODOLOGY_MODULES: { id: string; videoId: string }[] = [
-  { id: '1', videoId: 'dQw4w9WgXcQ' },
-  { id: '2', videoId: 'dQw4w9WgXcQ' },
-  { id: '3', videoId: 'dQw4w9WgXcQ' },
+  { id: '1', videoId: '66AD0i00RXs' },
 ];
 
 export function getVideoIdByModuleId(moduleId: string): string | null {

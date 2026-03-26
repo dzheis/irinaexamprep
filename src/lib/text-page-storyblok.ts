@@ -3,7 +3,9 @@ import { fetchStory } from '@/lib/storyblok';
 export type TextPageFromStoryblok = {
   title: string;
   contentRichText: Record<string, unknown> | null;
-  /** Дополнительные строковые поля из Storyblok (subtitle, subtitle_1, footer_title и т.д.) — рендерятся как подзаголовки. */
+  /** Additional string fields from Storyblok (subtitle, subtitle_1, footer_title, etc.).
+   *  Rendered as subtitles.
+   */
   customFields: Record<string, string>;
 };
 
@@ -32,8 +34,9 @@ function getDocFromBlock(block: Record<string, unknown> | null): Record<string, 
 }
 
 /**
- * Загружает текстовую страницу из Storyblok по slug: title + Rich text (content/body/richtext).
- * Используется для payment-refund, privacy и других страниц с заголовком и одним полем Rich text.
+ * Loads a text page from Storyblok by slug:
+ * title + rich text (content/body/richtext).
+ * Used for `payment-refund`, `privacy`, and other pages with a title and a single rich-text field.
  */
 export async function getTextPageFromStoryblok(
   slug: string,

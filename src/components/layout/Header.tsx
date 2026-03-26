@@ -132,7 +132,7 @@ export default function Header({ logoText: logoTextProp, altText: altTextProp, n
     return () => {
       if (logoAnimationRef.current) logoAnimationRef.current.kill();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- один запуск анимации лого при монтировании
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- run logo animation once on mount
   }, []);
 
   const handleLogoMouseEnter = () => {

@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 
 /**
- * Webhook для Storyblok: при публикации контента Storyblok вызывает этот URL,
- * мы инвалидируем кэш страниц — при следующем заходе данные подтянутся заново.
+ * Storyblok webhook: when content is published, Storyblok calls this URL.
+ * We invalidate page cache so data is fetched again on the next visit.
  *
- * В Storyblok: Settings → Webhooks → Add webhook
- * URL: https://ваш-домен.vercel.app/api/revalidate
- * Trigger: "Story published" (и при желании "Story unpublished")
- * Secret: задайте пароль и добавьте его в Vercel env как REVALIDATE_SECRET
+ * In Storyblok: Settings → Webhooks → Add webhook
+ * URL: https://your-domain.vercel.app/api/revalidate
+ * Trigger: "Story published" (and optionally "Story unpublished")
+ * Secret: set a password and add it to Vercel env as REVALIDATE_SECRET
  */
 
 const REVALIDATE_SECRET = process.env.REVALIDATE_SECRET;

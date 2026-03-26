@@ -212,7 +212,7 @@ const COURSE_DESCRIPTIONS: Record<number, string> = {
 
 type CourseForDisplay = { id: number; title: string; slug: string; imagePath: string; description: string };
 
-/** Storyblok может отдавать поля блока в корне или в item.content. */
+/** Storyblok can provide block fields either at the root or inside `item.content`. */
 type CourseBlock = {
   name?: string;
   title?: string;

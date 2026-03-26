@@ -32,8 +32,21 @@ async function handleResult(params: { OutSum: string | null; InvId: string | nul
 
   try {
     const supabase = createServiceClient();
-    const { data: pending } = await supabase.from("pending_payments").select("email, product_id").eq("inv_id", invId).single();
+    const { data: pending } = await supabase
+      .from("pending_payments")
+      .select("email, product_id, out_sum")
+      .eq("inv_id", invId)
+      .single();
     if (pending?.email && pending?.product_id) {
+      const outSumNumber = Number(outSum);
+      const pendingOutSumNumber = Number(pending.out_sum);
+      const isOutSumMatch = Number.isFinite(outSumNumber) && Number.isFinite(pendingOutSumNumber) && Math.abs(outSumNumber - pendingOutSumNumber) <= 0.01;
+
+      if (!isOutSumMatch) {
+        console.error("Pay result: out_sum mismatch", { outSum: outSumNumber, pendingOutSum: pendingOutSumNumber, invId });
+        return plainResponse(`OK${invId}`);
+      }
+
       await supabase.from("purchases").upsert(
         { email: pending.email, module_id: pending.product_id },
         { onConflict: "email,module_id" }

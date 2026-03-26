@@ -89,8 +89,8 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
   useEffect(() => {
     if (pathname !== '/') {
       isInitialLoadRef.current = false;
-      // На переходах с главной высоты/трансформы могут меняться (PageTransition/gsap),
-      // поэтому важно синхронизировать Lenis и ScrollTrigger.
+      // On transitions away from the home page, layout/transform values may change
+      // (PageTransition/GSAP), so it's important to sync Lenis with ScrollTrigger.
       lenisRef.current?.resize();
       ScrollTrigger.refresh();
       return;
@@ -133,7 +133,7 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         lenis.resize();
         ScrollTrigger.refresh();
         lenis.scrollTo(el, { offset: -80, duration: 0 });
-        // Даём DOM/анимациям догрузиться и один раз пересчитываем высоты.
+        // Let the DOM/animations settle, then recalculate positions once.
         requestAnimationFrame(() => {
           lenis.resize();
           ScrollTrigger.refresh();

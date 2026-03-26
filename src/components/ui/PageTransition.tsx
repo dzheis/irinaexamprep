@@ -13,7 +13,7 @@ const EXIT_SCALE = 0.95;
 
 const PIN_BREAKPOINT = "(min-width: 1280px)";
 
-/** На главной на десктопе есть пин-секция — там анимация отключена. */
+/** On the desktop home page there is a pinned section where page-transition animation is disabled. */
 function useHasPinSection() {
   const pathname = usePathname();
   const [isDesktop, setIsDesktop] = useState(false);
@@ -49,7 +49,7 @@ export default function PageTransition({ children }: { children: ReactNode }) {
 
   const useTransition = !hasPinSection;
 
-  // Enter: zoom + fade in (только когда нет пин-секции)
+  // Enter: zoom + fade in (only when there is no pinned section).
   useEffect(() => {
     if (!useTransition) return;
     const content = contentRef.current;
@@ -74,7 +74,8 @@ export default function PageTransition({ children }: { children: ReactNode }) {
     });
   }, [pathname, useTransition]);
 
-  // Перехват кликов: exit затем переход (только когда используем анимацию и цель — не главная с пином)
+  // Click interception: exit animation first, then navigate
+  // (only when we use transitions and the target isn't the pinned home section).
   useEffect(() => {
     if (!useTransition) return;
     function handleClick(e: MouseEvent) {

@@ -31,14 +31,14 @@ function linkToHref(link: unknown): string {
   return '';
 }
 
-/** Убирает слэш и решётку из id якоря: "/about" и "#about" → "about" для getElementById. */
+/** Normalizes anchor `id` by removing leading slash/hash: `"/about"` and `"#about"` -> `"about"` for `getElementById`. */
 function normalizeAnchorId(id: string | undefined): string | undefined {
   const s = id?.trim();
   if (!s) return undefined;
   return s.replace(/^#+/, '').replace(/^\/+/, '') || undefined;
 }
 
-/** Нормализует nav_links из config: Storyblok может отдавать Blocks с полями href/link, id, label. */
+/** Normalizes `nav_links` from Storyblok config: Storyblok can return Blocks with fields `href/link`, `id`, `label`. */
 function normalizeNavLinks(
   raw: { href?: unknown; link?: unknown; id?: string; label?: string }[] | undefined
 ): { href: string; id?: string; label: string }[] {
@@ -55,7 +55,7 @@ function normalizeNavLinks(
   return result as { href: string; id?: string; label: string }[];
 }
 
-/** Текст футера: из config или из блока footer в Body главной (Главная → Body → Footer или «Подвал»). */
+/** Footer credit text: from config or from a footer block inside the home story body. */
 async function getFooterCreditText(config: Awaited<ReturnType<typeof getConfig>>): Promise<string | undefined> {
   const fromConfig = config?.footer?.credit_text?.trim();
   if (fromConfig) return fromConfig;
