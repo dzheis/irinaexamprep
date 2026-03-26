@@ -31,7 +31,7 @@ const DEFAULT_CARDS = [
 
 type CoursesMethodologySectionProps = { data?: CoursesSectionBlockContent | null };
 
-/** Storyblok Link поле может быть строкой или объектом { url?, cached_url? }. */
+/** Storyblok link field can be either a string or an object: `{ url?, cached_url? }`. */
 function linkToHref(link: unknown): string {
   if (typeof link === 'string') return link.trim();
   if (link && typeof link === 'object' && 'url' in link && typeof (link as { url?: string }).url === 'string') return (link as { url: string }).url;
@@ -42,30 +42,23 @@ function linkToHref(link: unknown): string {
 export default function CoursesMethodologySection({ data }: CoursesMethodologySectionProps) {
   const cards = useMemo(() => {
     const items = data?.cards?.filter((c) => c.title?.trim());
-    if (!items || items.length < 3) return DEFAULT_CARDS;
-    return [
-      {
-        title: items[0].title!.trim(),
-        link: linkToHref(items[0].link) || '/courses',
-        description:
-          (typeof items[0].description === 'string' ? items[0].description : '').trim() ||
-          DEFAULT_LANGUAGE_COURSES_DESCRIPTION,
-      },
-      {
-        title: items[1].title!.trim(),
-        link: linkToHref(items[1].link) || '/methodology',
-        description:
-          (typeof items[1].description === 'string' ? items[1].description : '').trim() || DEFAULT_METHODOLOGY_DESCRIPTION,
-      },
-      {
-        title: items[2].title!.trim(),
-        link: linkToHref(items[2].link) || '/free-resources',
-        description:
-          (typeof items[2].description === 'string' ? items[2].description : '').trim() ||
-          DEFAULT_FREE_RESOURCES_DESCRIPTION,
-        wide: true,
-      },
-    ];
+    if (!items || items.length === 0) return DEFAULT_CARDS;
+
+    // Storyblok has priority: use its cards when present, but fill missing ones from defaults.
+    return DEFAULT_CARDS.map((baseCard, idx) => {
+      const item = items[idx];
+      if (!item) return baseCard;
+
+      const description =
+        (typeof item.description === "string" ? item.description : "").trim() || baseCard.description;
+
+      return {
+        ...baseCard,
+        title: item.title!.trim(),
+        link: linkToHref(item.link) || baseCard.link,
+        description,
+      };
+    });
   }, [data?.cards]);
   const sectionRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);

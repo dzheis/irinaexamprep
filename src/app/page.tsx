@@ -13,7 +13,9 @@ import type {
 const FALLBACK_TITLE = 'Подготовка к экзаменам Cambridge (B2–C2)';
 const FALLBACK_DESCRIPTION = '';
 
-/** Имена блоков в Storyblok: понятные, привязаны к секциям. Первое имя — рекомендуемое, остальные — для обратной совместимости. */
+/** Storyblok block names: readable section mappings.
+ * The first name is recommended; the rest are for backward compatibility.
+ */
 export const HOME_BLOCK_NAMES = {
   hero: ['section_hero', 'hero'],
   about: ['section_about', 'about'],

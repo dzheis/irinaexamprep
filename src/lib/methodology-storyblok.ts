@@ -50,13 +50,11 @@ export function rawModuleToVideoItem(m: RawModule): MethodologyVideoItem | null 
   const c = m.content as RawModule | undefined;
   const id = (m.id ?? m.ID ?? c?.id ?? c?.ID)?.toString()?.trim();
   if (!id) return null;
-  const videoId = (m.video_id ?? m.videoId ?? m.VideoId ?? c?.video_id ?? c?.videoId ?? c?.VideoId)?.toString()?.trim();
   const title = (m.title ?? m.Title ?? c?.title ?? c?.Title)?.toString()?.trim();
   const description = (m.description ?? m.Description ?? c?.description ?? c?.Description)?.toString()?.trim() ?? '';
   const price = parsePrice(m.price ?? m.Price ?? c?.price ?? c?.Price);
   return {
     id,
-    videoId: videoId || getVideoIdByModuleId(id) || '',
     title: title || undefined,
     description,
     price,
@@ -78,7 +76,7 @@ export async function getMethodologyFromStoryblok(): Promise<{
   const videos = list
     .map((m) => rawModuleToVideoItem(m))
     .filter((v): v is MethodologyVideoItem => !!v && !!v.id);
-  return { title, videos };
+  return { title, videos: videos.slice(0, 1) };
 }
 
 export async function getVideoIdByModuleIdFromStoryblok(moduleId: string): Promise<string | null> {
@@ -90,6 +88,9 @@ export async function getVideoIdByModuleIdFromStoryblok(moduleId: string): Promi
     if (first) list.push(...getModulesFromRaw(first as Record<string, unknown>));
   }
   const id = moduleId.trim();
+  // The methodology page currently displays only 1 video, so we pin it on the server.
+  // This removes any possible temporary mismatches with Storyblok until content is updated.
+  if (id === '1') return '66AD0i00RXs';
   const mod = list.find((m) => (m.id ?? m.ID ?? (m.content as RawModule)?.id ?? (m.content as RawModule)?.ID)?.toString()?.trim() === id);
   const rawMod = mod?.content as RawModule | undefined;
   const videoId = (mod?.video_id ?? mod?.videoId ?? mod?.VideoId ?? rawMod?.video_id ?? rawMod?.videoId ?? rawMod?.VideoId)?.toString()?.trim();

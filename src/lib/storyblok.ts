@@ -4,8 +4,8 @@ import type { ConfigStoryContent } from "./storyblok-types";
 const token = process.env.NEXT_PUBLIC_STORYBLOK_ACCESS_TOKEN;
 
 /**
- * Временно отключить Storyblok: сайт берёт контент из кода (fallback на страницах).
- * В `.env.local`: DISABLE_STORYBLOK=1 (или true / yes)
+ * Temporarily disable Storyblok: the site uses code-based content (fallbacks on pages).
+ * In `.env.local`: DISABLE_STORYBLOK=1 (or true / yes)
  */
 export function isStoryblokDisabled(): boolean {
   const v = process.env.DISABLE_STORYBLOK?.trim().toLowerCase();
@@ -27,7 +27,7 @@ export type StoryblokStory<T = Record<string, unknown>> = {
   id: number;
 };
 
-/** Загружает историю по slug. Если токена нет или запрос неудачен — возвращает null. */
+/** Loads a story by slug. If token is missing or the request fails, returns null. */
 export async function fetchStory<T = Record<string, unknown>>(
   slug: string,
   options?: { version?: "draft" | "published" }
@@ -45,7 +45,7 @@ export async function fetchStory<T = Record<string, unknown>>(
   }
 }
 
-/** Нормализует контент истории config: Storyblok может отдавать header/footer как плоские поля или как блоки внутри body[]. */
+/** Normalizes config story content: Storyblok can return header/footer either as flat fields or inside body[]. */
 function normalizeConfigContent(raw: Record<string, unknown> | null): ConfigStoryContent | null {
   if (!raw || typeof raw !== 'object') return null;
 
@@ -66,7 +66,7 @@ function normalizeConfigContent(raw: Record<string, unknown> | null): ConfigStor
   return { header: header ?? undefined, footer: footer ?? undefined };
 }
 
-/** Загружает глобальный конфиг (шапка, подвал). Slug в Storyblok: **config**. */
+/** Loads the global config (header, footer). Slug in Storyblok: **config**. */
 export async function getConfig(): Promise<ConfigStoryContent | null> {
   const story = await fetchStory<Record<string, unknown>>('config');
   const raw = story?.content ?? null;

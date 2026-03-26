@@ -1,4 +1,4 @@
-/** Поля блока Hero (из Body или напрямую hero) */
+/** Hero section fields (from `body` or directly as `hero`) */
 export type HeroContent = {
   title?: string;
   description?: string;
@@ -6,15 +6,19 @@ export type HeroContent = {
   image?: { filename?: string };
 };
 
-/** Блок в Body: component = тип блока, остальные ключи — поля */
+/** Block inside Storyblok `body`: `component` is the block type, other keys are fields */
 export type StoryblokBlock = { component: string; [key: string]: unknown };
 
-/** Блок About (секция «Обо мне»). paragraphs в Storyblok приходят как Bloks с полем text; certificates — как блоки с image (Asset) и alt. */
+/** About block ("About me" section).
+ * `paragraphs` come as blocks with a `text` field; `certificates` come as blocks with `image` (Asset) and `alt`.
+ */
 export type AboutBlockContent = {
   title?: string;
-  /** В Storyblok: массив блоков с полем text (Textarea). Код принимает и string[], и { text?: string }[]. */
+  /** In Storyblok: array of blocks with `text` (Textarea). Code accepts both `string[]` and `{ text?: string }[]`. */
   paragraphs?: (string | { text?: string; content?: string })[];
-  /** В Storyblok: массив блоков с полями image (Asset) и alt (Text). Может приходить с обёрткой content или image строкой. */
+  /** In Storyblok: array of blocks with `image` (Asset) and `alt` (Text).
+   * May arrive wrapped into `content` or with `image` as a string.
+   */
   certificates?: {
     filename?: string;
     alt?: string;
@@ -24,7 +28,10 @@ export type AboutBlockContent = {
   image?: { filename?: string };
 };
 
-/** Одна ссылка в блоке CTA (Telegram или Instagram). В Storyblok: Blocks, component section_cta_link. Поле ссылки может быть url или link (Link type). */
+/** One CTA link item (Telegram or Instagram).
+ * In Storyblok: `Blocks`, component `section_cta_link`.
+ * The link field can be either `url` or `link` (Link type).
+ */
 export type CtaLinkItemContent = {
   url?: string | { url?: string; cached_url?: string };
   link?: string | { url?: string; cached_url?: string };
@@ -32,13 +39,13 @@ export type CtaLinkItemContent = {
   type?: 'telegram' | 'instagram';
 };
 
-/** Блок CTA (призыв подписаться + соцсети). Если задан массив links — он используется; иначе — старые поля telegram_*, instagram_*. */
+/** CTA block (subscribe call + social networks). If `links` is provided, it is used; otherwise, old `telegram_*` / `instagram_*` fields are used. */
 export type CtaBlockContent = {
   title?: string;
   subtitle?: string;
-  /** Текст согласия с политикой конфиденциальности (рядом с чекбоксом). Если пусто — используется текст по умолчанию из кода. */
+  /** Privacy policy consent text (next to the checkbox). If empty, code default text is used. */
   privacy_consent_text?: string;
-  /** Список ссылок (ТГ, Instagram). Добавление/удаление/порядок — в Storyblok. */
+  /** List of links (Telegram, Instagram). Add/remove/reorder in Storyblok. */
   links?: CtaLinkItemContent[];
   telegram_label?: string;
   telegram_url?: string;
@@ -48,21 +55,21 @@ export type CtaBlockContent = {
   instagram_url?: string;
 };
 
-/** Один пункт блока Features */
+/** One item inside Features */
 export type FeatureItemContent = {
   title?: string;
   description?: string;
-  animation_key?: string; // calendar | clock | consultation — маппинг на Lottie
+  animation_key?: string; // calendar | clock | consultation — mapped to Lottie
 };
 
-/** Блок Features (преимущества) */
+/** Features block (benefits) */
 export type FeaturesBlockContent = {
   title?: string;
   subtitle?: string;
   items?: FeatureItemContent[];
 };
 
-/** Один отзыв */
+/** One testimonial */
 export type TestimonialItemContent = {
   name?: string;
   role?: string;
@@ -71,38 +78,38 @@ export type TestimonialItemContent = {
   certificate_image?: { filename?: string };
 };
 
-/** Блок Testimonials */
+/** Testimonials block */
 export type TestimonialsBlockContent = {
   title?: string;
   items?: TestimonialItemContent[];
 };
 
-/** Одна карточка секции курсов/методики/ресурсов */
+/** One card in the Courses/Methodology/Resources sections */
 export type HomeCardItemContent = {
   title?: string;
   link?: string;
   description?: string;
 };
 
-/** Блок секции карточек на главной (Language Courses, Methodology, Free resources) */
+/** Home cards section block (Language Courses, Methodology, Free resources) */
 export type CoursesSectionBlockContent = {
-  cards?: HomeCardItemContent[]; // 3 карточки: курсы, методика, ресурсы
+  cards?: HomeCardItemContent[]; // 3 cards: courses, methodology, free resources
 };
 
-/** Поля контента истории «Главная» (home) в Storyblok */
+/** Home story content fields (Storyblok slug: `home`) */
 export type HomeStoryContent = {
   hero?: HeroContent;
   body?: StoryblokBlock[];
 };
 
-/** Пункт меню для шапки/подвала */
+/** Menu item for the header/footer */
 export type NavLink = {
   href?: string;
   id?: string;
   label?: string;
 };
 
-/** Поля контента истории «Глобальный конфиг» (config) в Storyblok */
+/** Global config story content fields (Storyblok slug: `config`) */
 export type ConfigStoryContent = {
   header?: {
     logo_text?: string;
@@ -114,7 +121,7 @@ export type ConfigStoryContent = {
   };
 };
 
-/** Один курс для страницы /courses (заготовка под следующую интеграцию) */
+/** One course item for `/courses` (placeholder for the next integration) */
 export type CourseItem = {
   name?: string;
   slug?: string;
@@ -122,7 +129,7 @@ export type CourseItem = {
   image?: { filename?: string };
 };
 
-/** Поля контента истории «Курсы» (courses) в Storyblok */
+/** Courses story content fields (Storyblok slug: `courses`) */
 export type CoursesStoryContent = {
   title?: string;
   courses?: CourseItem[];

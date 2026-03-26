@@ -11,7 +11,7 @@ type TooltipProps = {
 
 const FADE_MS = 220;
 
-/** Подсказка при наведении: рендер в body, поверх всего, плавное появление и затухание. */
+/** Tooltip on hover: render in `body`, above everything, with fade-in/out. */
 export default function Tooltip({ label, children, className = '' }: TooltipProps) {
   const triggerRef = useRef<HTMLSpanElement>(null);
   const [mounted, setMounted] = useState(false);

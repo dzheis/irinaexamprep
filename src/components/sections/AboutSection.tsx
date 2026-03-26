@@ -44,7 +44,9 @@ function paragraphsFromData(rows: AboutBlockContent['paragraphs']): string[] {
 
 type CertItem = NonNullable<AboutBlockContent['certificates']>[number];
 
-/** Достаёт URL картинки из элемента сертификата (Storyblok может отдавать image как объект, строку или в content). */
+/** Extracts an image URL from a certificate item.
+ * Storyblok can return `image` as an object, a string, or nested under `content`.
+ */
 function getCertImageUrl(c: CertItem): string {
   if (!c) return '';
   const img = c.image ?? (c as { content?: { image?: unknown } }).content?.image;
@@ -189,7 +191,9 @@ export default function AboutSection({ data }: AboutSectionProps) {
         </div>
       </div>
 
-      {/* Desktop (≥768px): single card with background photo. overflow-x-hidden чтобы фон не вылезал; overflow-y-visible чтобы сертификаты внизу не обрезались. */}
+      {/* Desktop (≥768px): single card with background photo.
+          `overflow-x-hidden` prevents the background from spilling out,
+          `overflow-y-visible` keeps bottom certificates from being clipped. */}
       <div className="hidden md:block card relative overflow-x-hidden overflow-y-visible transition-[transform,box-shadow] duration-300 ease-in-out shadow-[0_8px_16px_rgba(47,52,64,0.08),0_20px_40px_rgba(47,52,64,0.08),0_24px_60px_rgba(47,52,64,0.06)] hover:shadow-[0_12px_24px_rgba(47,52,64,0.1),0_28px_56px_rgba(47,52,64,0.1),0_32px_72px_rgba(47,52,64,0.08)] hover:scale-[1.01]">
         <div className="absolute inset-0 z-0 rounded-3xl overflow-hidden">
           <Image

@@ -1,8 +1,16 @@
 import { Suspense } from 'react';
 import MethodologyClient from './methodology-client';
 import { getMethodologyFromStoryblok } from '@/lib/methodology-storyblok';
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function Methodology() {
   const { title: pageTitle, videos } = await getMethodologyFromStoryblok();

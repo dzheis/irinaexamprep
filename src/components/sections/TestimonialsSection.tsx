@@ -223,7 +223,8 @@ export default function TestimonialsSection({ data }: TestimonialsSectionProps) 
   const rafId = useRef<number | null>(null);
   const lastTime = useRef(0);
 
-  // Две копии списка отзывов в strip — бесконечная прокрутка; segment = половина ширины strip, работает при любом количестве отзывов (1, 2, … N).
+  // Two copies of the testimonials list inside the strip create an infinite loop.
+  // `segment` equals half of the strip width and works for any number of testimonials (1, 2, ... N).
   const getSegmentWidth = useCallback(() => {
     if (stripRef.current) return stripRef.current.offsetWidth / 2;
     if (trackRef.current) return trackRef.current.offsetWidth;

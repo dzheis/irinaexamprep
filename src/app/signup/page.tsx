@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import PasswordInput from '@/components/ui/PasswordInput';
 import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from '@/lib/auth-form-constants';
@@ -15,6 +16,7 @@ export default function SignupPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,17 +48,38 @@ export default function SignupPage() {
         },
       });
       if (err) {
-        if (err.message === 'User already registered') {
-          setEmailError('Этот email уже зарегистрирован');
+        // Map Supabase auth error messages to user-friendly UI.
+        const msg = (err.message ?? '').trim();
+        const lower = msg.toLowerCase();
+
+        if (lower.includes('already registered') || lower.includes('already') && lower.includes('registered')) {
+          setEmailError('Этот email уже зарегистрирован. Войдите или запросите восстановление.');
+        } else if (lower.includes('password') && (lower.includes('at least') || lower.includes('minimum') || lower.includes('6'))) {
+          setPasswordError('Пароль не соответствует требованиям (минимум 6 символов).');
+        } else if (lower.includes('rate') || lower.includes('too many') || lower.includes('limit')) {
+          setError('Слишком много попыток. Подождите несколько минут и попробуйте снова.');
         } else {
-          setError(err.message);
+          // Keep a generic message visible to the user; log the technical error for debugging.
+          console.error('Signup error:', err);
+          setError('Не удалось зарегистрироваться. Попробуйте позже.');
         }
         return;
       }
-      if (!data.user?.identities?.length) {
-        setEmailError('Этот email уже зарегистрирован');
+
+      // Supabase returns the created user even when email confirmation is required.
+      // `identities` may be missing depending on config, so don't rely on it to infer "already registered".
+      if (!data.user) {
+        setError('Не удалось завершить регистрацию. Попробуйте позже.');
         return;
       }
+
+      // If a session exists (rare with email confirmation), redirect immediately.
+      if (data.session) {
+        router.push('/methodology');
+        router.refresh();
+        return;
+      }
+
       setEmailSent(true);
     } catch {
       setError('Ошибка регистрации. Попробуйте позже.');

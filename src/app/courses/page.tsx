@@ -2,7 +2,7 @@ import CoursesClient from './courses-client';
 import { fetchStory } from '@/lib/storyblok';
 import type { CoursesStoryContent } from '@/lib/storyblok-types';
 
-/** Storyblok может отдавать title и courses в корне, в body[0] или под другими именами полей. */
+/** Storyblok can provide `title` and `courses` at the root, inside `body[0]`, or under alternative field names. */
 function normalizeCoursesContent(raw: Record<string, unknown> | null): CoursesStoryContent | null {
   if (!raw || typeof raw !== 'object') return null;
   const getTitle = (r: Record<string, unknown>) =>

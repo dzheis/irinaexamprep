@@ -2,7 +2,7 @@ import { fetchStory } from '@/lib/storyblok';
 
 export type OfferFromStoryblok = {
   title: string;
-  /** Rich text document (type: "doc") из Storyblok — рендерим через renderRichText. */
+  /** Rich text document (type: "doc") from Storyblok — rendered via `renderRichText`. */
   contentRichText: Record<string, unknown> | null;
 };
 

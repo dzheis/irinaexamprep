@@ -30,7 +30,9 @@ export async function GET(req: NextRequest) {
     if (!videoId) {
       return new NextResponse('Not found', { status: 404 });
     }
-    const embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0`;
+    // Try to minimize YouTube branding/UI inside the iframe.
+    // Some UI elements (e.g. "Watch on YouTube") are controlled by YouTube itself and can't be fully disabled.
+    const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`;
     return NextResponse.redirect(embedUrl, 302);
   } catch {
     return new NextResponse('Error', { status: 500 });
