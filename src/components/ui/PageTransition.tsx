@@ -86,6 +86,21 @@ export default function PageTransition({ children }: { children: ReactNode }) {
       const pathOnly = href.replace(/#.*/, "") || "/";
       if (pathOnly === window.location.pathname) return;
 
+      // Home section navigation like "/#about" or "/#cta":
+      // On some environments (e.g. Vercel) applying the hash directly conflicts with
+      // pinned sections (ScrollTrigger pin), which leads to layout/scroll desync.
+      // Instead, switch to "/" and let `SmoothScroll` handle scrolling via sessionStorage.
+      const hashMatch = href.match(/^\/#([^?]+)$/);
+      if (pathOnly === '/' && hashMatch?.[1]) {
+        const anchorId = hashMatch[1];
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('scrollToSection', anchorId);
+        }
+        e.preventDefault();
+        router.push('/');
+        return;
+      }
+
       if (pathOnly === "/" && isDesktopForPin) {
         e.preventDefault();
         router.push(href);
