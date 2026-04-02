@@ -122,11 +122,20 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     }
 
     const lenis = lenisRef.current;
+    const pinSectionEl =
+      typeof window !== 'undefined' ? document.getElementById('courses-methodology') : null;
+    const shouldWaitForPin =
+      typeof window !== 'undefined' && pinSectionEl
+        ? window.matchMedia('(min-width: 1280px)').matches
+        : false;
     let attempt = 0;
     const maxAttempts = 40;
     const interval = 80;
-    const scrollDelay = 250;
+    const scrollDelay = shouldWaitForPin ? 0 : 250;
     let id: ReturnType<typeof setTimeout> | null = null;
+    let pinPollId: ReturnType<typeof setTimeout> | null = null;
+    let cancelled = false;
+
     const tryScroll = () => {
       const el = document.getElementById(targetId);
       if (el) {
@@ -141,6 +150,9 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         setTimeout(() => {
           lenis.resize();
           ScrollTrigger.refresh();
+          // Pin spacers / layout changes may land slightly after the first jump.
+          // Re-apply the scroll once to ensure the final position is correct.
+          lenis.scrollTo(el, { offset: -80, duration: 0 });
         }, 250);
         return;
       }
@@ -149,13 +161,41 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         id = setTimeout(tryScroll, interval);
       }
     };
-    id = setTimeout(() => {
+
+    const waitForPinTrigger = (timeoutMs: number) =>
+      new Promise<boolean>((resolve) => {
+        const start = performance.now();
+        const poll = () => {
+          if (cancelled) return resolve(false);
+          if (
+            ScrollTrigger.getAll().some((st) => st.trigger === pinSectionEl)
+          ) {
+            return resolve(true);
+          }
+          if (performance.now() - start >= timeoutMs) return resolve(false);
+          pinPollId = setTimeout(poll, 60);
+        };
+        poll();
+      });
+
+    const startScroll = () => {
       lenis.resize();
       ScrollTrigger.refresh();
       tryScroll();
-    }, scrollDelay);
+    };
+
+    if (shouldWaitForPin && pinSectionEl) {
+      waitForPinTrigger(2500).then(() => {
+        if (cancelled) return;
+        id = setTimeout(startScroll, scrollDelay);
+      });
+    } else {
+      id = setTimeout(startScroll, scrollDelay);
+    }
     return () => {
+      cancelled = true;
       if (id) clearTimeout(id);
+      if (pinPollId) clearTimeout(pinPollId);
     };
   }, [pathname]);
 

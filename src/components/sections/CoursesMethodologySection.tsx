@@ -67,7 +67,10 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
   const methodologyCardRef = useRef<HTMLDivElement>(null);
   const freeResourcesCardRef = useRef<HTMLDivElement>(null);
 
-  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
+  const [isDesktop, setIsDesktop] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(min-width: 1280px)').matches;
+  });
 
   const onCardMouseEnter = useCallback((el: HTMLDivElement | null) => {
     if (!el || !sectionRef.current?.classList.contains('section-cards-hover-ready')) return;
@@ -129,8 +132,6 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
   }, []);
 
   useEffect(() => {
-    if (isDesktop === null) return;
-
     const section = sectionRef.current;
     const container = containerRef.current;
     const coursesCard = coursesCardRef.current;
