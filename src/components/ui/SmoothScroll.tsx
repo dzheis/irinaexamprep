@@ -122,12 +122,9 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     }
 
     const lenis = lenisRef.current;
-    const pinSectionEl =
-      typeof window !== 'undefined' ? document.getElementById('courses-methodology') : null;
+    const pinSectionId = 'courses-methodology';
     const shouldWaitForPin =
-      typeof window !== 'undefined' && pinSectionEl
-        ? window.matchMedia('(min-width: 1280px)').matches
-        : false;
+      typeof window !== 'undefined' ? window.matchMedia('(min-width: 1280px)').matches : false;
     let attempt = 0;
     const maxAttempts = 40;
     const interval = 80;
@@ -167,8 +164,10 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         const start = performance.now();
         const poll = () => {
           if (cancelled) return resolve(false);
+          const pinSectionEl =
+            typeof window !== 'undefined' ? document.getElementById(pinSectionId) : null;
           if (
-            ScrollTrigger.getAll().some((st) => st.trigger === pinSectionEl)
+            pinSectionEl && ScrollTrigger.getAll().some((st) => st.trigger === pinSectionEl)
           ) {
             return resolve(true);
           }
@@ -184,7 +183,7 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       tryScroll();
     };
 
-    if (shouldWaitForPin && pinSectionEl) {
+    if (shouldWaitForPin) {
       waitForPinTrigger(2500).then(() => {
         if (cancelled) return;
         id = setTimeout(startScroll, scrollDelay);
