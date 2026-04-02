@@ -132,6 +132,7 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     let id: ReturnType<typeof setTimeout> | null = null;
     let pinPollId: ReturnType<typeof setTimeout> | null = null;
     let cancelled = false;
+    const isFromHeaderNavigation = typeof window !== 'undefined' && !!storedId;
 
     const tryScroll = () => {
       const el = document.getElementById(targetId);
@@ -177,20 +178,76 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         poll();
       });
 
+    const waitForAssetsToSettle = (timeoutMs: number) =>
+      new Promise<void>((resolve) => {
+        const start = performance.now();
+
+        const settle = () => {
+          // Give React/Gsap a couple frames to apply transforms and layout.
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+        };
+
+        const root =
+          typeof window !== 'undefined'
+            ? document.getElementById('page-content') ?? document.body
+            : null;
+        if (!root) return resolve();
+
+        const imgs = Array.from(root.querySelectorAll('img'));
+        const pending = imgs.filter((img) => !img.complete);
+        if (pending.length === 0) {
+          // Fonts can still affect layout even when images are complete.
+          const fonts = (document as unknown as { fonts?: FontFaceSet }).fonts;
+          if (fonts?.ready) {
+            fonts.ready
+              .catch(() => undefined)
+              .finally(() => {
+                if (cancelled) return;
+                if (performance.now() - start >= timeoutMs) return resolve();
+                settle();
+              });
+          } else {
+            settle();
+          }
+          return;
+        }
+
+        const onDone = () => {
+          if (cancelled) return resolve();
+          if (performance.now() - start >= timeoutMs) return resolve();
+          settle();
+        };
+
+        let doneCount = 0;
+        const total = pending.length;
+        const onOne = () => {
+          doneCount += 1;
+          if (doneCount >= total) onDone();
+        };
+
+        pending.forEach((img) => {
+          img.addEventListener('load', onOne, { once: true });
+          img.addEventListener('error', onOne, { once: true });
+        });
+
+        setTimeout(() => resolve(), timeoutMs);
+      });
+
     const startScroll = () => {
       lenis.resize();
       ScrollTrigger.refresh();
       tryScroll();
     };
 
-    if (shouldWaitForPin) {
-      waitForPinTrigger(2500).then(() => {
-        if (cancelled) return;
-        id = setTimeout(startScroll, scrollDelay);
-      });
-    } else {
+    const begin = async () => {
+      if (shouldWaitForPin) await waitForPinTrigger(2500);
+      if (isFromHeaderNavigation) await waitForAssetsToSettle(2000);
+      if (cancelled) return;
       id = setTimeout(startScroll, scrollDelay);
-    }
+    };
+
+    void begin();
+
     return () => {
       cancelled = true;
       if (id) clearTimeout(id);
