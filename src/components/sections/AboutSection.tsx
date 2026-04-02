@@ -12,12 +12,13 @@ const CERT_BUTTON_CLASS =
   'relative rounded-md overflow-hidden transition-[filter] duration-200 hover:brightness-105 active:brightness-100 cursor-zoom-in select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50';
 
 const LOCAL_CERTIFICATE_IMAGES: { src: string; alt: string }[] = [
-  { src: '/Irina Petrova Certificates/1.jpeg', alt: 'Сертификат 1' },
-  { src: '/Irina Petrova Certificates/2.jpeg', alt: 'Сертификат 2' },
-  { src: '/Irina Petrova Certificates/3.jpeg', alt: 'Сертификат 3' },
-  { src: '/Irina Petrova Certificates/4.jpeg', alt: 'Сертификат 4' },
-  { src: '/Irina Petrova Certificates/5.jpeg', alt: 'Сертификат 5' },
-  { src: '/Irina Petrova Certificates/6.jpeg', alt: 'Сертификат 6' },
+  // URL-encode spaces to avoid prod-only issues with static asset resolution.
+  { src: '/Irina%20Petrova%20Certificates/1.jpeg', alt: 'Сертификат 1' },
+  { src: '/Irina%20Petrova%20Certificates/2.jpeg', alt: 'Сертификат 2' },
+  { src: '/Irina%20Petrova%20Certificates/3.jpeg', alt: 'Сертификат 3' },
+  { src: '/Irina%20Petrova%20Certificates/4.jpeg', alt: 'Сертификат 4' },
+  { src: '/Irina%20Petrova%20Certificates/5.jpeg', alt: 'Сертификат 5' },
+  { src: '/Irina%20Petrova%20Certificates/6.jpeg', alt: 'Сертификат 6' },
 ];
 
 const ABOUT_PARAGRAPHS = [
@@ -164,6 +165,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
                     src={cert.src}
                     alt={cert.alt}
                     fill
+                    unoptimized
                     className="object-contain object-center"
                   />
                 </div>
@@ -182,6 +184,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
                     src={cert.src}
                     alt={cert.alt}
                     fill
+                    unoptimized
                     className="object-contain object-center"
                   />
                 </div>
@@ -240,6 +243,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
                       src={cert.src}
                       alt={cert.alt}
                       fill
+                      unoptimized
                       className="object-contain object-center"
                     />
                   </div>
@@ -264,6 +268,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
                     src={cert.src}
                     alt={cert.alt}
                     fill
+                    unoptimized
                     className="object-contain object-center"
                   />
                 </div>
@@ -282,6 +287,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
                     src={cert.src}
                     alt={cert.alt}
                     fill
+                    unoptimized
                     className="object-contain object-center"
                   />
                 </div>
@@ -323,6 +329,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
                   src={modalImage.src}
                   alt={`${modalImage.alt} — полный размер`}
                   fill
+                  unoptimized
                   className="object-contain"
                   sizes="80vw"
                 />
