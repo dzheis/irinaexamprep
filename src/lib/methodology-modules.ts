@@ -1,6 +1,5 @@
-/** Methodology modules list: `id` and `videoId` for access checks and embedding. */
 export const METHODOLOGY_MODULES: { id: string; videoId: string }[] = [
-  { id: '1', videoId: '66AD0i00RXs' },
+  { id: "1", videoId: "66AD0i00RXs" },
 ];
 
 export function getVideoIdByModuleId(moduleId: string): string | null {

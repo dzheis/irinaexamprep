@@ -1,42 +1,62 @@
 "use client";
 
-import Link from 'next/link';
-import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import type { CoursesSectionBlockContent } from '@/lib/storyblok-types';
+import Link from "next/link";
+import { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import type { CoursesSectionBlockContent } from "@/lib/storyblok-types";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const PIN_SCROLL_END = '+=150%';
+const PIN_SCROLL_END = "+=150%";
 const HOVER_DURATION = 0.3;
-const HOVER_EASE = 'power2.out';
-const CARD_SHADOW_DEFAULT = '0 8px 32px rgba(47, 52, 64, 0.1)';
-const CARD_SHADOW_HOVER = '0 20px 40px rgba(47, 52, 64, 0.12)';
+const HOVER_EASE = "power2.out";
+const CARD_SHADOW_DEFAULT = "0 8px 32px rgba(47, 52, 64, 0.1)";
+const CARD_SHADOW_HOVER = "0 20px 40px rgba(47, 52, 64, 0.12)";
 
 const DEFAULT_LANGUAGE_COURSES_DESCRIPTION =
-  'Курсы, которые помогут вам перейти с уровня B2 на C1 или с C1 на C2 в процессе подготовки к экзаменам Cambridge.\nВы развиваете все ключевые навыки, осваиваете стратегии выполнения заданий и выходите на уровень, необходимый для успешной сдачи экзамена.';
+  "Курсы, которые помогут вам перейти с уровня B2 на C1 или с C1 на C2 в процессе подготовки к экзаменам Cambridge.\nВы развиваете все ключевые навыки, осваиваете стратегии выполнения заданий и выходите на уровень, необходимый для успешной сдачи экзамена.";
 
 const DEFAULT_METHODOLOGY_DESCRIPTION =
-  'Практические вебинары для преподавателей английского, направленные на повышение эффективности занятий. Вы научитесь выстраивать уроки, развивать speaking, грамотно использовать ресурсы и применять принципы усвоения языка на практике.';
+  "Практические вебинары для преподавателей английского, направленные на повышение эффективности занятий. Вы научитесь выстраивать уроки, развивать speaking, грамотно использовать ресурсы и применять принципы усвоения языка на практике.";
 
 const DEFAULT_FREE_RESOURCES_DESCRIPTION =
-  'Подборка бесплатных материалов для студентов и преподавателей уровней B2–C2. Практика speaking, работа со сложной грамматикой и развитие более точного, естественного и продвинутого английского.';
+  "Подборка бесплатных материалов для студентов и преподавателей уровней B2–C2. Практика speaking, работа со сложной грамматикой и развитие более точного, естественного и продвинутого английского.";
 
 const DEFAULT_CARDS = [
-  { title: 'Language Courses', link: '/courses', description: DEFAULT_LANGUAGE_COURSES_DESCRIPTION },
-  { title: 'Methodology', link: '/methodology', description: DEFAULT_METHODOLOGY_DESCRIPTION },
-  { title: 'Free resources', link: '/free-resources', description: DEFAULT_FREE_RESOURCES_DESCRIPTION, wide: true },
+  {
+    title: "Language Courses",
+    link: "/courses",
+    description: DEFAULT_LANGUAGE_COURSES_DESCRIPTION,
+  },
+  { title: "Methodology", link: "/methodology", description: DEFAULT_METHODOLOGY_DESCRIPTION },
+  {
+    title: "Free resources",
+    link: "/free-resources",
+    description: DEFAULT_FREE_RESOURCES_DESCRIPTION,
+    wide: true,
+  },
 ];
 
 type CoursesMethodologySectionProps = { data?: CoursesSectionBlockContent | null };
 
-/** Storyblok link field can be either a string or an object: `{ url?, cached_url? }`. */
 function linkToHref(link: unknown): string {
-  if (typeof link === 'string') return link.trim();
-  if (link && typeof link === 'object' && 'url' in link && typeof (link as { url?: string }).url === 'string') return (link as { url: string }).url;
-  if (link && typeof link === 'object' && 'cached_url' in link && typeof (link as { cached_url?: string }).cached_url === 'string') return (link as { cached_url: string }).cached_url;
-  return '';
+  if (typeof link === "string") return link.trim();
+  if (
+    link &&
+    typeof link === "object" &&
+    "url" in link &&
+    typeof (link as { url?: string }).url === "string"
+  )
+    return (link as { url: string }).url;
+  if (
+    link &&
+    typeof link === "object" &&
+    "cached_url" in link &&
+    typeof (link as { cached_url?: string }).cached_url === "string"
+  )
+    return (link as { cached_url: string }).cached_url;
+  return "";
 }
 
 export default function CoursesMethodologySection({ data }: CoursesMethodologySectionProps) {
@@ -44,13 +64,13 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
     const items = data?.cards?.filter((c) => c.title?.trim());
     if (!items || items.length === 0) return DEFAULT_CARDS;
 
-    // Storyblok has priority: use its cards when present, but fill missing ones from defaults.
     return DEFAULT_CARDS.map((baseCard, idx) => {
       const item = items[idx];
       if (!item) return baseCard;
 
       const description =
-        (typeof item.description === "string" ? item.description : "").trim() || baseCard.description;
+        (typeof item.description === "string" ? item.description : "").trim() ||
+        baseCard.description;
 
       return {
         ...baseCard,
@@ -68,12 +88,12 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
   const freeResourcesCardRef = useRef<HTMLDivElement>(null);
 
   const [isDesktop, setIsDesktop] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return window.matchMedia('(min-width: 1280px)').matches;
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(min-width: 1280px)").matches;
   });
 
   const onCardMouseEnter = useCallback((el: HTMLDivElement | null) => {
-    if (!el || !sectionRef.current?.classList.contains('section-cards-hover-ready')) return;
+    if (!el || !sectionRef.current?.classList.contains("section-cards-hover-ready")) return;
     gsap.to(el, {
       scale: 1.02,
       boxShadow: CARD_SHADOW_HOVER,
@@ -97,7 +117,7 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
   const onLinkMouseEnter = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
     gsap.to(e.currentTarget, {
       scale: 1.08,
-      transformOrigin: 'left center',
+      transformOrigin: "left center",
       duration: 0.25,
       ease: HOVER_EASE,
       overwrite: true,
@@ -124,11 +144,11 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
   }, []);
 
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1280px)');
+    const mq = window.matchMedia("(min-width: 1280px)");
     const update = () => setIsDesktop(mq.matches);
     update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
   }, []);
 
   useEffect(() => {
@@ -145,7 +165,7 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
         gsap.set(coursesCard, { opacity: 0, x: -80 });
         gsap.set(methodologyCard, { opacity: 0, x: 80 });
         gsap.set(freeResourcesCard, { opacity: 0, y: 60 });
-        section.classList.add('section-cards-hover-ready');
+        section.classList.add("section-cards-hover-ready");
 
         gsap.fromTo(
           coursesCard,
@@ -154,9 +174,9 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
             opacity: 1,
             x: 0,
             duration: 0.8,
-            ease: 'power2.out',
-            scrollTrigger: { trigger: coursesCard, start: 'top 88%', end: 'top 50%', scrub: 0.8 },
-          }
+            ease: "power2.out",
+            scrollTrigger: { trigger: coursesCard, start: "top 88%", end: "top 50%", scrub: 0.8 },
+          },
         );
         gsap.fromTo(
           methodologyCard,
@@ -165,9 +185,14 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
             opacity: 1,
             x: 0,
             duration: 0.8,
-            ease: 'power2.out',
-            scrollTrigger: { trigger: methodologyCard, start: 'top 88%', end: 'top 50%', scrub: 0.8 },
-          }
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: methodologyCard,
+              start: "top 88%",
+              end: "top 50%",
+              scrub: 0.8,
+            },
+          },
         );
         gsap.fromTo(
           freeResourcesCard,
@@ -176,9 +201,14 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
             opacity: 1,
             y: 0,
             duration: 0.8,
-            ease: 'power2.out',
-            scrollTrigger: { trigger: freeResourcesCard, start: 'top 88%', end: 'top 50%', scrub: 0.8 },
-          }
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: freeResourcesCard,
+              start: "top 88%",
+              end: "top 50%",
+              scrub: 0.8,
+            },
+          },
         );
         return;
       }
@@ -217,11 +247,11 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
           });
 
           if (p >= 0.95) {
-            section.classList.add('section-cards-hover-ready');
+            section.classList.add("section-cards-hover-ready");
           } else {
-            section.classList.remove('section-cards-hover-ready');
+            section.classList.remove("section-cards-hover-ready");
           }
-        }
+        },
       });
     }, section);
 

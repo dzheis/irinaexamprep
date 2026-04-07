@@ -1,37 +1,39 @@
 "use client";
 
-import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
-import Link from 'next/link';
-import Lottie, { LottieRefCurrentProps } from 'lottie-react';
-import AnimatedSection from '@/components/ui/AnimatedSection';
-import type { CtaBlockContent } from '@/lib/storyblok-types';
+import { useRef, useState, useCallback, useEffect, useMemo } from "react";
+import Link from "next/link";
+import Lottie, { LottieRefCurrentProps } from "lottie-react";
+import AnimatedSection from "@/components/ui/AnimatedSection";
+import type { CtaBlockContent } from "@/lib/storyblok-types";
 
-import emailAnimation from '@/../public/lottie/e-mail_default.json';
-import instagramAnimation from '@/../public/lottie/instagram_default.json';
-import telegramAnimation from '@/../public/lottie/telegram_default.json';
+import emailAnimation from "@/../public/lottie/e-mail_default.json";
+import instagramAnimation from "@/../public/lottie/instagram_default.json";
+import telegramAnimation from "@/../public/lottie/telegram_default.json";
 
-const DEFAULT_CTA_TITLE = 'Оставайтесь в курсе новостей';
-const DEFAULT_CTA_SUBTITLE = 'Подпишитесь на советы, ресурсы и обновления, это совсем не сложно, но очень полезно';
-const DEFAULT_CONSENT_TEXT = 'Даю согласие на обработку email в соответствии с';
-const DEFAULT_TELEGRAM_URL = 'https://t.me/elt_survival_guide';
-const DEFAULT_TELEGRAM_CHANNEL_URL = 'https://t.me/Irina_Petrova_Eng';
-const DEFAULT_INSTAGRAM_URL = 'https://www.instagram.com/cambridge_exams_with_irina?igsh=MXF2Z3V2bmFxZ3BtaQ==';
+const DEFAULT_CTA_TITLE = "Оставайтесь в курсе новостей";
+const DEFAULT_CTA_SUBTITLE =
+  "Подпишитесь на советы, ресурсы и обновления, это совсем не сложно, но очень полезно";
+const DEFAULT_CONSENT_TEXT = "Даю согласие на обработку email в соответствии с";
+const DEFAULT_TELEGRAM_URL = "https://t.me/elt_survival_guide";
+const DEFAULT_TELEGRAM_CHANNEL_URL = "https://t.me/Irina_Petrova_Eng";
+const DEFAULT_INSTAGRAM_URL =
+  "https://www.instagram.com/cambridge_exams_with_irina?igsh=MXF2Z3V2bmFxZ3BtaQ==";
 
 const MAX_TILT_DEG = 2.5;
 const TILT_SOFTEN = 0.6;
 const TILT_SMOOTH = 0.15;
 
 function linkToHref(link: unknown): string {
-  if (typeof link === 'string') return link.trim();
-  if (link && typeof link === 'object') {
+  if (typeof link === "string") return link.trim();
+  if (link && typeof link === "object") {
     const o = link as { url?: string; cached_url?: string };
     const u = o.url ?? o.cached_url;
-    return String(u ?? '').trim();
+    return String(u ?? "").trim();
   }
-  return '';
+  return "";
 }
 
-type SocialLink = { href: string; label: string; type: 'telegram' | 'instagram' };
+type SocialLink = { href: string; label: string; type: "telegram" | "instagram" };
 
 type CTASectionProps = { data?: CtaBlockContent | null };
 
@@ -45,23 +47,49 @@ export default function CTASection({ data }: CTASectionProps) {
       ?.map((item) => {
         const href = linkToHref(item.url ?? (item as { link?: unknown }).link)?.trim();
         if (!href) return null;
-        const type = (item.type?.toLowerCase() === 'instagram' ? 'instagram' : 'telegram') as 'telegram' | 'instagram';
-        return { href, label: item.label?.trim() || (type === 'instagram' ? 'Instagram' : 'Telegram'), type };
+        const type = (item.type?.toLowerCase() === "instagram" ? "instagram" : "telegram") as
+          | "telegram"
+          | "instagram";
+        return {
+          href,
+          label: item.label?.trim() || (type === "instagram" ? "Instagram" : "Telegram"),
+          type,
+        };
       })
       .filter((x): x is SocialLink => x !== null);
     if (fromBlocks?.length) return fromBlocks;
     return [
-      { href: data?.telegram_url?.trim() || DEFAULT_TELEGRAM_URL, label: data?.telegram_label?.trim() || 'Методика', type: 'telegram' as const },
-      { href: data?.telegram_channel_url?.trim() || DEFAULT_TELEGRAM_CHANNEL_URL, label: data?.telegram_channel_label?.trim() || 'Личный канал', type: 'telegram' as const },
-      { href: data?.instagram_url?.trim() || DEFAULT_INSTAGRAM_URL, label: data?.instagram_label?.trim() || 'Instagram', type: 'instagram' as const },
+      {
+        href: data?.telegram_url?.trim() || DEFAULT_TELEGRAM_URL,
+        label: data?.telegram_label?.trim() || "Методика",
+        type: "telegram" as const,
+      },
+      {
+        href: data?.telegram_channel_url?.trim() || DEFAULT_TELEGRAM_CHANNEL_URL,
+        label: data?.telegram_channel_label?.trim() || "Личный канал",
+        type: "telegram" as const,
+      },
+      {
+        href: data?.instagram_url?.trim() || DEFAULT_INSTAGRAM_URL,
+        label: data?.instagram_label?.trim() || "Instagram",
+        type: "instagram" as const,
+      },
     ];
-  }, [data?.links, data?.telegram_url, data?.telegram_label, data?.telegram_channel_url, data?.telegram_channel_label, data?.instagram_url, data?.instagram_label]);
+  }, [
+    data?.links,
+    data?.telegram_url,
+    data?.telegram_label,
+    data?.telegram_channel_url,
+    data?.telegram_channel_label,
+    data?.instagram_url,
+    data?.instagram_label,
+  ]);
 
   const lottieRef = useRef<LottieRefCurrentProps>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [consentSubscribe, setConsentSubscribe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -120,37 +148,40 @@ export default function CTASection({ data }: CTASectionProps) {
     return () => cancelAnimationFrame(rafId);
   }, []);
 
-  const handleSubscribe = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    if (!email.trim()) {
-      setError('Введите email');
-      return;
-    }
-    if (!consentSubscribe) {
-      setError('Необходимо дать согласие на обработку данных для рассылки');
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const res = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || 'Не удалось подписаться');
+  const handleSubscribe = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setError(null);
+      if (!email.trim()) {
+        setError("Введите email");
         return;
       }
-      setIsSuccess(true);
-      setEmail('');
-    } catch {
-      setError('Ошибка соединения. Попробуйте позже.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [email, consentSubscribe]);
+      if (!consentSubscribe) {
+        setError("Необходимо дать согласие на обработку данных для рассылки");
+        return;
+      }
+      setIsLoading(true);
+      try {
+        const res = await fetch("/api/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim() }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || "Не удалось подписаться");
+          return;
+        }
+        setIsSuccess(true);
+        setEmail("");
+      } catch {
+        setError("Ошибка соединения. Попробуйте позже.");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [email, consentSubscribe],
+  );
 
   return (
     <AnimatedSection id="cta" animationDirection="left" containerClassName="max-w-7xl mx-auto">
@@ -161,12 +192,12 @@ export default function CTASection({ data }: CTASectionProps) {
       >
         <div
           ref={cardRef}
-          className={`tilt-card-inner card text-center transition-[transform,box-shadow] preserve-3d ${isHovering ? 'duration-[150ms]' : 'duration-500 ease-in-out'} ${isHovering ? 'shadow-xl' : ''}`}
+          className={`tilt-card-inner card text-center transition-[transform,box-shadow] preserve-3d ${isHovering ? "duration-[150ms]" : "duration-500 ease-in-out"} ${isHovering ? "shadow-xl" : ""}`}
           style={
             {
-              '--tilt-x': `${tilt.x}deg`,
-              '--tilt-y': `${tilt.y}deg`,
-              '--scale': isHovering ? 1.02 : 1,
+              "--tilt-x": `${tilt.x}deg`,
+              "--tilt-y": `${tilt.y}deg`,
+              "--scale": isHovering ? 1.02 : 1,
             } as React.CSSProperties
           }
         >
@@ -206,7 +237,7 @@ export default function CTASection({ data }: CTASectionProps) {
                 disabled={isLoading}
                 className="px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 shadow-lg btn-cta-subscribe disabled:opacity-70 disabled:cursor-not-allowed w-full sm:w-auto"
               >
-                {isLoading ? 'Отправка…' : 'Подписаться'}
+                {isLoading ? "Отправка…" : "Подписаться"}
               </button>
             </div>
             <div className="flex items-start gap-2">
@@ -218,7 +249,7 @@ export default function CTASection({ data }: CTASectionProps) {
                 className="mt-1 rounded border-theme/30 text-theme-accent focus:ring-theme-accent"
               />
               <label htmlFor="cta-consent-pd" className="text-sm text-theme/90">
-                {consentText}{' '}
+                {consentText}{" "}
                 <Link href="/privacy" className="underline text-theme-accent hover:text-theme">
                   политикой конфиденциальности
                 </Link>
@@ -226,7 +257,10 @@ export default function CTASection({ data }: CTASectionProps) {
             </div>
           </form>
           {isSuccess && (
-            <p className="text-sm font-medium text-green-600 dark:text-green-400 mb-6" role="status">
+            <p
+              className="text-sm font-medium text-green-600 dark:text-green-400 mb-6"
+              role="status"
+            >
               Спасибо! Проверьте почту — мы отправили вам письмо с полезными ссылками.
             </p>
           )}
@@ -244,12 +278,14 @@ export default function CTASection({ data }: CTASectionProps) {
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={item.type === 'instagram' ? item.label : `Telegram: ${item.label}`}
+                aria-label={item.type === "instagram" ? item.label : `Telegram: ${item.label}`}
                 className="group flex flex-col items-center gap-2 transition-all duration-300 hover:scale-105"
               >
                 <div className="w-12 h-12 transition-transform duration-300 group-hover:scale-110">
                   <Lottie
-                    animationData={item.type === 'instagram' ? instagramAnimation : telegramAnimation}
+                    animationData={
+                      item.type === "instagram" ? instagramAnimation : telegramAnimation
+                    }
                     loop
                     autoplay
                     className="w-full h-full"

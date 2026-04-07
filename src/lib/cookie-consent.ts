@@ -1,14 +1,8 @@
-/**
- * Cookie consent storage and categories for GDPR-compliant banner.
- * Non-essential cookies must not load until the user has consented to the relevant category.
- */
-
 export const COOKIE_CONSENT_STORAGE_KEY = "cookie-consent";
 
 export type CookieCategory = "necessary" | "analytics" | "marketing" | "functional";
 
 export type CookieConsentState = {
-  /** Whether the user has made a choice (accept all, reject all, or customize). */
   choiceMade: boolean;
   necessary: boolean;
   analytics: boolean;
@@ -48,12 +42,10 @@ export function saveConsent(state: CookieConsentState): void {
   } catch {}
 }
 
-/** Returns true if the user has made a choice (banner can be hidden). */
 export function hasConsentChoice(): boolean {
   return getStoredConsent().choiceMade;
 }
 
-/** Check if a category is allowed. Necessary is always true. */
 export function isCategoryAllowed(category: CookieCategory): boolean {
   const s = getStoredConsent();
   if (category === "necessary") return true;

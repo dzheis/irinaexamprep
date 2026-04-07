@@ -4,17 +4,29 @@ import { createServiceClient } from "@/lib/supabase/server";
 
 const ROBOKASSA_PASS2 = process.env.ROBOKASSA_PASS2;
 
-function checkResultSignature(outSum: string, invId: string, signatureValue: string, pass2: string): boolean {
+function checkResultSignature(
+  outSum: string,
+  invId: string,
+  signatureValue: string,
+  pass2: string,
+): boolean {
   const str = `${outSum}:${invId}:${pass2}`;
   const expected = crypto.createHash("md5").update(str, "utf8").digest("hex").toUpperCase();
   return expected === (signatureValue ?? "").toUpperCase();
 }
 
 function plainResponse(text: string) {
-  return new NextResponse(text, { status: 200, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+  return new NextResponse(text, {
+    status: 200,
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
 }
 
-async function handleResult(params: { OutSum: string | null; InvId: string | null; SignatureValue: string | null }) {
+async function handleResult(params: {
+  OutSum: string | null;
+  InvId: string | null;
+  SignatureValue: string | null;
+}) {
   if (!ROBOKASSA_PASS2) {
     console.error("Pay result: ROBOKASSA_PASS2 not set");
     return plainResponse("ERROR");
@@ -40,17 +52,26 @@ async function handleResult(params: { OutSum: string | null; InvId: string | nul
     if (pending?.email && pending?.product_id) {
       const outSumNumber = Number(outSum);
       const pendingOutSumNumber = Number(pending.out_sum);
-      const isOutSumMatch = Number.isFinite(outSumNumber) && Number.isFinite(pendingOutSumNumber) && Math.abs(outSumNumber - pendingOutSumNumber) <= 0.01;
+      const isOutSumMatch =
+        Number.isFinite(outSumNumber) &&
+        Number.isFinite(pendingOutSumNumber) &&
+        Math.abs(outSumNumber - pendingOutSumNumber) <= 0.01;
 
       if (!isOutSumMatch) {
-        console.error("Pay result: out_sum mismatch", { outSum: outSumNumber, pendingOutSum: pendingOutSumNumber, invId });
+        console.error("Pay result: out_sum mismatch", {
+          outSum: outSumNumber,
+          pendingOutSum: pendingOutSumNumber,
+          invId,
+        });
         return plainResponse(`OK${invId}`);
       }
 
-      await supabase.from("purchases").upsert(
-        { email: pending.email, module_id: pending.product_id },
-        { onConflict: "email,module_id" }
-      );
+      await supabase
+        .from("purchases")
+        .upsert(
+          { email: pending.email, module_id: pending.product_id },
+          { onConflict: "email,module_id" },
+        );
       await supabase.from("pending_payments").delete().eq("inv_id", invId);
     }
   } catch (e) {

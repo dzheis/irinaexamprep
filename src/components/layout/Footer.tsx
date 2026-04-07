@@ -1,12 +1,13 @@
-import Link from 'next/link';
-import { memo } from 'react';
-import FooterCredit from './FooterCredit';
-import FooterCookieLink from './FooterCookieLink';
+import Link from "next/link";
+import { memo } from "react";
+import FooterCredit from "./FooterCredit";
+import FooterCookieLink from "./FooterCookieLink";
 
 const FOOTER_LEGAL_CLASS =
-  'footer-legal-link text-xs md:text-sm min-[1200px]:text-base !px-3 !py-1.5 max-[500px]:!px-1.5 max-[500px]:!py-0.5 min-[1200px]:!px-5 min-[1200px]:!py-2.5';
+  "footer-legal-link text-xs md:text-sm min-[1200px]:text-base !px-3 !py-1.5 max-[500px]:!px-1.5 max-[500px]:!py-0.5 min-[1200px]:!px-5 min-[1200px]:!py-2.5";
 
-const DEFAULT_CREDIT_TEXT = 'ИП Петрова Ирина Сергеевна, ИНН 910219486600, ОГРНИП 319911200092610. Симферополь.';
+const DEFAULT_CREDIT_TEXT =
+  "ИП Петрова Ирина Сергеевна, ИНН 910219486600, ОГРНИП 319911200092610. Симферополь.";
 
 type FooterProps = { creditText?: string | null };
 
@@ -25,14 +26,15 @@ function Footer({ creditText }: FooterProps) {
               <Link href="/payment-refund" className={FOOTER_LEGAL_CLASS}>
                 Оплата и возврат
               </Link>
-              <Link href="/privacy" className={`${FOOTER_LEGAL_CLASS} max-[500px]:col-span-2 max-[500px]:justify-self-center`}>
+              <Link
+                href="/privacy"
+                className={`${FOOTER_LEGAL_CLASS} max-[500px]:col-span-2 max-[500px]:justify-self-center`}
+              >
                 Политика конфиденциальности
               </Link>
               <FooterCookieLink />
             </div>
-            <p className="text-xs text-theme/80 text-center w-0 min-w-full">
-              {legalLine}
-            </p>
+            <p className="text-xs text-theme/80 text-center w-0 min-w-full">{legalLine}</p>
           </div>
         </div>
         <div className="w-full flex justify-center items-center min-[1280px]:w-auto min-[1280px]:justify-end">

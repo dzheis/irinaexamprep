@@ -31,11 +31,11 @@ export default function FooterCredit() {
     });
 
     refs.forEach((el, i) => {
-      tl.to(
+      tl.to(el, { y: Y_OFF, duration: BOUNCE_UP, ease: "power2.out" }, i * STAGGER).to(
         el,
-        { y: Y_OFF, duration: BOUNCE_UP, ease: "power2.out" },
-        i * STAGGER
-      ).to(el, { y: 0, duration: BOUNCE_DOWN, ease: "power2.in" }, i * STAGGER + BOUNCE_UP);
+        { y: 0, duration: BOUNCE_DOWN, ease: "power2.in" },
+        i * STAGGER + BOUNCE_UP,
+      );
     });
 
     timelineRef.current = tl;

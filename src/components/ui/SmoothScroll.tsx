@@ -1,10 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useMemo, createContext, useContext, ReactNode } from 'react';
-import { usePathname } from 'next/navigation';
-import Lenis from 'lenis';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import {
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  createContext,
+  useContext,
+  ReactNode,
+} from "react";
+import { usePathname } from "next/navigation";
+import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -70,8 +78,7 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
 
     lenisRef.current = lenis;
 
-    // Sync Lenis with GSAP ScrollTrigger
-    lenis.on('scroll', ScrollTrigger.update);
+    lenis.on("scroll", ScrollTrigger.update);
 
     const tick = (time: number) => {
       lenis.raf(time * 1000);
@@ -87,26 +94,23 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
   }, []);
 
   useEffect(() => {
-    if (pathname !== '/') {
+    if (pathname !== "/") {
       isInitialLoadRef.current = false;
-      // On transitions away from the home page, layout/transform values may change
-      // (PageTransition/GSAP), so it's important to sync Lenis with ScrollTrigger.
       lenisRef.current?.resize();
       ScrollTrigger.refresh();
       return;
     }
     const storedId =
-      typeof window !== 'undefined' ? sessionStorage.getItem('scrollToSection') : null;
-    const hash =
-      typeof window !== 'undefined' ? window.location.hash.slice(1) : '';
-    const targetId = storedId || hash || '';
+      typeof window !== "undefined" ? sessionStorage.getItem("scrollToSection") : null;
+    const hash = typeof window !== "undefined" ? window.location.hash.slice(1) : "";
+    const targetId = storedId || hash || "";
 
     if (isInitialLoadRef.current && !storedId) {
       isInitialLoadRef.current = false;
       const t = setTimeout(() => {
         lenisRef.current?.scrollTo(0, { duration: 0 });
-        if (typeof window !== 'undefined' && window.location.hash) {
-          window.history.replaceState(null, '', window.location.pathname);
+        if (typeof window !== "undefined" && window.location.hash) {
+          window.history.replaceState(null, "", window.location.pathname);
         }
       }, 0);
       return () => clearTimeout(t);
@@ -117,14 +121,14 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
 
     if (!targetId || !lenisRef.current) return;
 
-    if (typeof window !== 'undefined' && storedId) {
-      sessionStorage.removeItem('scrollToSection');
+    if (typeof window !== "undefined" && storedId) {
+      sessionStorage.removeItem("scrollToSection");
     }
 
     const lenis = lenisRef.current;
-    const pinSectionId = 'courses-methodology';
+    const pinSectionId = "courses-methodology";
     const shouldWaitForPin =
-      typeof window !== 'undefined' ? window.matchMedia('(min-width: 1280px)').matches : false;
+      typeof window !== "undefined" ? window.matchMedia("(min-width: 1280px)").matches : false;
     let attempt = 0;
     const maxAttempts = 40;
     const interval = 80;
@@ -132,7 +136,7 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     let id: ReturnType<typeof setTimeout> | null = null;
     let pinPollId: ReturnType<typeof setTimeout> | null = null;
     let cancelled = false;
-    const isFromHeaderNavigation = typeof window !== 'undefined' && !!storedId;
+    const isFromHeaderNavigation = typeof window !== "undefined" && !!storedId;
 
     const tryScroll = () => {
       const el = document.getElementById(targetId);
@@ -140,7 +144,6 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         lenis.resize();
         ScrollTrigger.refresh();
         lenis.scrollTo(el, { offset: -80, duration: 0 });
-        // Let the DOM/animations settle, then recalculate positions once.
         requestAnimationFrame(() => {
           lenis.resize();
           ScrollTrigger.refresh();
@@ -148,8 +151,6 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         setTimeout(() => {
           lenis.resize();
           ScrollTrigger.refresh();
-          // Pin spacers / layout changes may land slightly after the first jump.
-          // Re-apply the scroll once to ensure the final position is correct.
           lenis.scrollTo(el, { offset: -80, duration: 0 });
         }, 250);
         return;
@@ -166,10 +167,8 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         const poll = () => {
           if (cancelled) return resolve(false);
           const pinSectionEl =
-            typeof window !== 'undefined' ? document.getElementById(pinSectionId) : null;
-          if (
-            pinSectionEl && ScrollTrigger.getAll().some((st) => st.trigger === pinSectionEl)
-          ) {
+            typeof window !== "undefined" ? document.getElementById(pinSectionId) : null;
+          if (pinSectionEl && ScrollTrigger.getAll().some((st) => st.trigger === pinSectionEl)) {
             return resolve(true);
           }
           if (performance.now() - start >= timeoutMs) return resolve(false);
@@ -183,20 +182,18 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         const start = performance.now();
 
         const settle = () => {
-          // Give React/Gsap a couple frames to apply transforms and layout.
           requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
         };
 
         const root =
-          typeof window !== 'undefined'
-            ? document.getElementById('page-content') ?? document.body
+          typeof window !== "undefined"
+            ? (document.getElementById("page-content") ?? document.body)
             : null;
         if (!root) return resolve();
 
-        const imgs = Array.from(root.querySelectorAll('img'));
+        const imgs = Array.from(root.querySelectorAll("img"));
         const pending = imgs.filter((img) => !img.complete);
         if (pending.length === 0) {
-          // Fonts can still affect layout even when images are complete.
           const fonts = (document as unknown as { fonts?: FontFaceSet }).fonts;
           if (fonts?.ready) {
             fonts.ready
@@ -226,8 +223,8 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         };
 
         pending.forEach((img) => {
-          img.addEventListener('load', onOne, { once: true });
-          img.addEventListener('error', onOne, { once: true });
+          img.addEventListener("load", onOne, { once: true });
+          img.addEventListener("error", onOne, { once: true });
         });
 
         setTimeout(() => resolve(), timeoutMs);
@@ -260,9 +257,5 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     [lockScroll, unlockScroll, scrollToSection, scrollToTop],
   );
 
-  return (
-    <ScrollContext.Provider value={contextValue}>
-      {children}
-    </ScrollContext.Provider>
-  );
+  return <ScrollContext.Provider value={contextValue}>{children}</ScrollContext.Provider>;
 }

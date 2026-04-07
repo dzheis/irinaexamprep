@@ -28,13 +28,24 @@ function CellChar({ char }: { char: string }) {
 
 const SCROLL_TO_SECTION_KEY = "scrollToSection";
 
+function isNavLinkActive(href: string, pathname: string): boolean {
+  const path = href.split("#")[0]?.split("?")[0] ?? "";
+  if (href.includes("#") && (path === "/" || path === "")) return false;
+  if (!path || path === "/") return false;
+  return pathname === path || pathname.startsWith(`${path}/`);
+}
+
 type HeaderProps = {
   logoText?: string;
   altText?: string;
   navLinks?: { href: string; id?: string; label: string }[];
 };
 
-export default function Header({ logoText: logoTextProp, altText: altTextProp, navLinks: navLinksProp }: HeaderProps = {}) {
+export default function Header({
+  logoText: logoTextProp,
+  altText: altTextProp,
+  navLinks: navLinksProp,
+}: HeaderProps = {}) {
   const logoText = logoTextProp?.trim() || DEFAULT_LOGO;
   const altText = altTextProp?.trim() || DEFAULT_ALT;
   const navLinks = navLinksProp?.length ? navLinksProp : DEFAULT_NAV_LINKS;
@@ -97,7 +108,7 @@ export default function Header({ logoText: logoTextProp, altText: altTextProp, n
           stagger: STAGGER,
           ease: "power2.out",
         },
-        "<"
+        "<",
       )
       .add(() => {
         isShowingAltRef.current = true;
@@ -132,7 +143,7 @@ export default function Header({ logoText: logoTextProp, altText: altTextProp, n
     return () => {
       if (logoAnimationRef.current) logoAnimationRef.current.kill();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- run logo animation once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run logo animation once on mount
   }, []);
 
   const handleLogoMouseEnter = () => {
@@ -163,7 +174,7 @@ export default function Header({ logoText: logoTextProp, altText: altTextProp, n
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 nav overflow-x-hidden ${
+      className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 nav overflow-x-visible ${
         scrolled ? "shadow-md" : ""
       }`}
     >
@@ -180,17 +191,13 @@ export default function Header({ logoText: logoTextProp, altText: altTextProp, n
               }
             }}
           >
-            {/* Row 2: alternate text for width and display */}
             <span className="inline-flex flex-nowrap">
               {CHARS2.map((_, i) => (
                 <span
                   key={`2-${i}`}
                   className={`relative inline-block align-baseline overflow-hidden ${CHARS2[i] === " " ? "char-space" : ""}`}
                 >
-                  <span
-                    className="invisible select-none font-inherit"
-                    aria-hidden
-                  >
+                  <span className="invisible select-none font-inherit" aria-hidden>
                     <CellChar char={CHARS2[i]} />
                   </span>
                   <span
@@ -205,17 +212,13 @@ export default function Header({ logoText: logoTextProp, altText: altTextProp, n
                 </span>
               ))}
             </span>
-            {/* Row 1: primary text, same cell structure as CHARS1 */}
             <span className="absolute left-0 top-0 inline-flex flex-nowrap">
               {CHARS1.map((_, i) => (
                 <span
                   key={`1-${i}`}
                   className={`relative inline-block align-baseline overflow-hidden ${CHARS1[i] === " " ? "char-space" : ""}`}
                 >
-                  <span
-                    className="invisible select-none font-inherit"
-                    aria-hidden
-                  >
+                  <span className="invisible select-none font-inherit" aria-hidden>
                     <CellChar char={CHARS1[i]} />
                   </span>
                   <span
@@ -230,42 +233,44 @@ export default function Header({ logoText: logoTextProp, altText: altTextProp, n
               ))}
             </span>
           </Link>
-          
-          <div className="header-nav-right hidden min-[1270px]:flex items-center gap-1 sm:gap-2 text-xs sm:text-sm min-w-0 flex-shrink min-[1200px]:text-base">
-            {navLinks.map(({ href, id, label }, index) => (
-              <Link
-                key={`nav-${index}-${href}-${label}`}
-                href={href}
-                className="nav-link"
-                onClick={(e) => {
-                  if (id != null) {
-                    if (pathname === "/" && scrollToSection) {
-                      e.preventDefault();
-                      scrollToSection(id);
-                    } else if (pathname !== "/") {
-                      e.preventDefault();
-                      if (typeof window !== "undefined") {
-                        sessionStorage.setItem(SCROLL_TO_SECTION_KEY, id);
+
+          <div className="header-nav-right hidden min-[1270px]:flex items-center gap-2 sm:gap-3 min-w-0 flex-1 justify-end text-xs sm:text-sm min-[1200px]:text-base">
+            <div className="flex items-center gap-1 sm:gap-2 min-w-0 overflow-visible py-2">
+              {navLinks.map(({ href, id, label }, index) => (
+                <Link
+                  key={`nav-${index}-${href}-${label}`}
+                  href={href}
+                  className={`nav-link flex-shrink-0${isNavLinkActive(href, pathname) ? " nav-link--active" : ""}`}
+                  onClick={(e) => {
+                    if (id != null) {
+                      if (pathname === "/" && scrollToSection) {
+                        e.preventDefault();
+                        scrollToSection(id);
+                      } else if (pathname !== "/") {
+                        e.preventDefault();
+                        if (typeof window !== "undefined") {
+                          sessionStorage.setItem(SCROLL_TO_SECTION_KEY, id);
+                        }
+                        router.push("/");
                       }
-                      router.push("/");
                     }
-                  }
+                  }}
+                >
+                  <AnimatedButtonText text={label} />
+                </Link>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 pl-1 sm:pl-2">
+              <button
+                type="button"
+                className="btn-secondary !px-4 !py-2 !text-sm min-[1200px]:!px-7 min-[1200px]:!py-3 min-[1200px]:!text-lg flex-shrink-0"
+                aria-label="Apply"
+                onClick={() => {
+                  applyModal?.openApplyModal(0, "Заявка");
                 }}
               >
-                <AnimatedButtonText text={label} />
-              </Link>
-            ))}
-            <button
-              type="button"
-              className="btn-secondary !px-4 !py-2 !text-sm min-[1200px]:!px-7 min-[1200px]:!py-3 min-[1200px]:!text-lg"
-              aria-label="Apply"
-              onClick={() => {
-                applyModal?.openApplyModal(0, "Заявка");
-              }}
-            >
-              <AnimatedButtonText text="Apply" />
-            </button>
-            <div className="flex items-center pl-4 min-w-0 flex-shrink-0">
+                <AnimatedButtonText text="Apply" />
+              </button>
               <AuthHeaderBlock className="flex" variant="desktop" />
             </div>
           </div>
@@ -277,26 +282,26 @@ export default function Header({ logoText: logoTextProp, altText: altTextProp, n
           >
             <span
               className={`block h-0.5 w-6 transition-all duration-300 bg-current ${
-                isMenuOpen ? 'rotate-45 translate-y-2' : ''
+                isMenuOpen ? "rotate-45 translate-y-2" : ""
               }`}
             />
             <span
               className={`block h-0.5 w-6 transition-all duration-300 bg-current ${
-                isMenuOpen ? 'opacity-0' : ''
+                isMenuOpen ? "opacity-0" : ""
               }`}
             />
             <span
               className={`block h-0.5 w-6 transition-all duration-300 bg-current ${
-                isMenuOpen ? '-rotate-45 -translate-y-2' : ''
+                isMenuOpen ? "-rotate-45 -translate-y-2" : ""
               }`}
             />
           </button>
         </div>
 
-        <div 
+        <div
           ref={mobileMenuRef}
           className={`min-[1270px]:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-            isMenuOpen ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0'
+            isMenuOpen ? "max-h-96 opacity-100 mt-4" : "max-h-0 opacity-0"
           }`}
         >
           <div className="flex flex-col gap-4 pb-4 items-center">
@@ -304,7 +309,7 @@ export default function Header({ logoText: logoTextProp, altText: altTextProp, n
               <Link
                 key={`nav-mobile-${index}-${href}-${label}`}
                 href={href}
-                className="nav-link py-2"
+                className={`nav-link py-2${isNavLinkActive(href, pathname) ? " nav-link--active" : ""}`}
                 onClick={(e) => {
                   if (id != null) {
                     if (pathname === "/" && scrollToSection) {

@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import PasswordInput from '@/components/ui/PasswordInput';
-import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from '@/lib/auth-form-constants';
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import PasswordInput from "@/components/ui/PasswordInput";
+import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from "@/lib/auth-form-constants";
 
 export default function SignupPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -25,21 +25,21 @@ export default function SignupPage() {
     setPasswordError(null);
     const trimmedEmail = email.trim();
     if (!EMAIL_REGEX.test(trimmedEmail)) {
-      setEmailError('Введите корректный email');
+      setEmailError("Введите корректный email");
       return;
     }
     if (password.length < 6) {
-      setPasswordError('Пароль не менее 6 символов');
+      setPasswordError("Пароль не менее 6 символов");
       return;
     }
     if (password !== confirmPassword) {
-      setPasswordError('Пароли не совпадают');
+      setPasswordError("Пароли не совпадают");
       return;
     }
     setLoading(true);
     try {
       const supabase = createClient();
-      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
       const { data, error: err } = await supabase.auth.signUp({
         email: trimmedEmail,
         password,
@@ -48,41 +48,46 @@ export default function SignupPage() {
         },
       });
       if (err) {
-        // Map Supabase auth error messages to user-friendly UI.
-        const msg = (err.message ?? '').trim();
+        const msg = (err.message ?? "").trim();
         const lower = msg.toLowerCase();
 
-        if (lower.includes('already registered') || lower.includes('already') && lower.includes('registered')) {
-          setEmailError('Этот email уже зарегистрирован. Войдите или запросите восстановление.');
-        } else if (lower.includes('password') && (lower.includes('at least') || lower.includes('minimum') || lower.includes('6'))) {
-          setPasswordError('Пароль не соответствует требованиям (минимум 6 символов).');
-        } else if (lower.includes('rate') || lower.includes('too many') || lower.includes('limit')) {
-          setError('Слишком много попыток. Подождите несколько минут и попробуйте снова.');
+        if (
+          lower.includes("already registered") ||
+          (lower.includes("already") && lower.includes("registered"))
+        ) {
+          setEmailError("Этот email уже зарегистрирован. Войдите или запросите восстановление.");
+        } else if (
+          lower.includes("password") &&
+          (lower.includes("at least") || lower.includes("minimum") || lower.includes("6"))
+        ) {
+          setPasswordError("Пароль не соответствует требованиям (минимум 6 символов).");
+        } else if (
+          lower.includes("rate") ||
+          lower.includes("too many") ||
+          lower.includes("limit")
+        ) {
+          setError("Слишком много попыток. Подождите несколько минут и попробуйте снова.");
         } else {
-          // Keep a generic message visible to the user; log the technical error for debugging.
-          console.error('Signup error:', err);
-          setError('Не удалось зарегистрироваться. Попробуйте позже.');
+          console.error("Signup error:", err);
+          setError("Не удалось зарегистрироваться. Попробуйте позже.");
         }
         return;
       }
 
-      // Supabase returns the created user even when email confirmation is required.
-      // `identities` may be missing depending on config, so don't rely on it to infer "already registered".
       if (!data.user) {
-        setError('Не удалось завершить регистрацию. Попробуйте позже.');
+        setError("Не удалось завершить регистрацию. Попробуйте позже.");
         return;
       }
 
-      // If a session exists (rare with email confirmation), redirect immediately.
       if (data.session) {
-        router.push('/methodology');
+        router.push("/methodology");
         router.refresh();
         return;
       }
 
       setEmailSent(true);
     } catch {
-      setError('Ошибка регистрации. Попробуйте позже.');
+      setError("Ошибка регистрации. Попробуйте позже.");
     } finally {
       setLoading(false);
     }
@@ -94,7 +99,8 @@ export default function SignupPage() {
         <div className="w-full max-w-md text-center">
           <h1 className="text-2xl md:text-3xl font-bold text-theme mb-6">Проверьте почту</h1>
           <p className="text-theme/90 mb-6">
-            На <strong>{email.trim()}</strong> отправлена ссылка для подтверждения. Перейдите по ней, чтобы активировать аккаунт и получить доступ ко всем возможностям.
+            На <strong>{email.trim()}</strong> отправлена ссылка для подтверждения. Перейдите по
+            ней, чтобы активировать аккаунт и получить доступ ко всем возможностям.
           </p>
           <Link href="/login" className="btn-primary inline-block py-3 px-8">
             Перейти к входу
@@ -120,7 +126,7 @@ export default function SignupPage() {
                 setEmail(e.target.value);
                 setEmailError(null);
               }}
-              className={`${INPUT_BASE_CLASS} ${emailError ? INPUT_ERROR_CLASS : ''}`}
+              className={`${INPUT_BASE_CLASS} ${emailError ? INPUT_ERROR_CLASS : ""}`}
               autoComplete="email"
               disabled={loading}
             />
@@ -160,11 +166,11 @@ export default function SignupPage() {
           </div>
           {error && <p className="text-sm text-red-500">{error}</p>}
           <button type="submit" className="btn-primary w-full py-3" disabled={loading}>
-            {loading ? 'Регистрация…' : 'Зарегистрироваться'}
+            {loading ? "Регистрация…" : "Зарегистрироваться"}
           </button>
         </form>
         <p className="text-center text-theme/80 text-sm mt-4">
-          Уже есть аккаунт?{' '}
+          Уже есть аккаунт?{" "}
           <Link href="/login" className="text-theme-accent hover:underline">
             Войти
           </Link>

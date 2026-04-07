@@ -2,10 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-/**
- * Renders background.svg as <img> so the browser keeps it vector (no rasterization).
- * Tiles vertically to cover the full page; scrolls with content.
- */
 export default function BackgroundSvg() {
   const [tileCount, setTileCount] = useState(3);
 
@@ -30,13 +26,10 @@ export default function BackgroundSvg() {
   }, []);
 
   return (
-    <div
-      className="absolute inset-0 z-[-1] pointer-events-none min-h-full"
-      aria-hidden
-    >
+    <div className="absolute inset-0 z-[-1] pointer-events-none min-h-full" aria-hidden>
       <div className="flex flex-col w-full min-h-full">
         {Array.from({ length: tileCount }).map((_, i) => (
-          // eslint-disable-next-line @next/next/no-img-element -- vector SVG via <img> by design
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             key={i}
             src="/background.svg"

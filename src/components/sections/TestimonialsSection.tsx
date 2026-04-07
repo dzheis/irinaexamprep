@@ -1,11 +1,11 @@
 "use client";
 
-import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
-import { createPortal } from 'react-dom';
-import Image from 'next/image';
-import { useScrollLock } from '@/components/ui/SmoothScroll';
-import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
-import type { TestimonialsBlockContent } from '@/lib/storyblok-types';
+import { useRef, useEffect, useCallback, useState, useMemo } from "react";
+import { createPortal } from "react-dom";
+import Image from "next/image";
+import { useScrollLock } from "@/components/ui/SmoothScroll";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import type { TestimonialsBlockContent } from "@/lib/storyblok-types";
 
 const BASE_DURATION_SEC = 20;
 const DECAY = 0.035;
@@ -24,35 +24,35 @@ type Testimonial = {
 const DEFAULT_TESTIMONIALS: Testimonial[] = [
   {
     id: 1,
-    name: 'Анна Смирнова',
-    role: 'Студентка МГУ',
-    text: 'Просто лучший преподаватель!',
-    avatar: '/icons/placeholder-avatar.svg',
-    certificateImage: '/icons/placeholder-certificate.svg',
+    name: "Анна Смирнова",
+    role: "Студентка МГУ",
+    text: "Просто лучший преподаватель!",
+    avatar: "/icons/placeholder-avatar.svg",
+    certificateImage: "/icons/placeholder-certificate.svg",
   },
   {
     id: 2,
-    name: 'Михаил Петров',
-    role: 'Выпускник 2024',
-    text: 'Отличный преподаватель! За полгода подготовки мой уровень вырос с B1 до C1. Рекомендую всем, кто хочет реальных результатов.',
-    avatar: '/icons/placeholder-avatar.svg',
-    certificateImage: '/icons/placeholder-certificate.svg',
+    name: "Михаил Петров",
+    role: "Выпускник 2024",
+    text: "Отличный преподаватель! За полгода подготовки мой уровень вырос с B1 до C1. Рекомендую всем, кто хочет реальных результатов.",
+    avatar: "/icons/placeholder-avatar.svg",
+    certificateImage: "/icons/placeholder-certificate.svg",
   },
   {
     id: 3,
-    name: 'Елена Козлова',
-    role: 'Студентка ВШЭ',
-    text: 'Ирина помогла мне не только подготовиться к экзамену, но и полюбить английский язык. Уроки всегда интересные и продуктивные!',
-    avatar: '/icons/placeholder-avatar.svg',
-    certificateImage: '/icons/placeholder-certificate.svg',
+    name: "Елена Козлова",
+    role: "Студентка ВШЭ",
+    text: "Ирина помогла мне не только подготовиться к экзамену, но и полюбить английский язык. Уроки всегда интересные и продуктивные!",
+    avatar: "/icons/placeholder-avatar.svg",
+    certificateImage: "/icons/placeholder-certificate.svg",
   },
   {
     id: 4,
-    name: 'Дмитрий Волков',
-    role: 'Выпускник 2023',
-    text: 'Сдал IELTS на 7.5 после курса подготовки. Очень благодарен за индивидуальный подход и постоянную поддержку!',
-    avatar: '/icons/placeholder-avatar.svg',
-    certificateImage: '/icons/placeholder-certificate.svg',
+    name: "Дмитрий Волков",
+    role: "Выпускник 2023",
+    text: "Сдал IELTS на 7.5 после курса подготовки. Очень благодарен за индивидуальный подход и постоянную поддержку!",
+    avatar: "/icons/placeholder-avatar.svg",
+    certificateImage: "/icons/placeholder-certificate.svg",
   },
 ];
 
@@ -87,24 +87,22 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
 
   const handleTransitionEnd = useCallback(
     (e: React.TransitionEvent) => {
-      if (e.propertyName === 'opacity' && modalClosing) {
+      if (e.propertyName === "opacity" && modalClosing) {
         setCertModalOpen(false);
         setModalClosing(false);
         setModalVisible(false);
       }
     },
-    [modalClosing]
+    [modalClosing],
   );
 
   return (
     <>
-      <div
-        className="glass rounded-2xl p-6 flex-shrink-0 flex flex-col min-h-0 transition-shadow duration-300 ease-in-out hover:shadow-xl testimonial-card"
-      >
+      <div className="glass rounded-2xl p-6 flex-shrink-0 flex flex-col min-h-0 transition-shadow duration-300 ease-in-out hover:shadow-xl testimonial-card">
         <div className="flex items-start gap-4 mb-4 flex-shrink-0">
           <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-theme-secondary-accent select-none aspect-square">
             <Image
-              src={testimonial.avatar || '/icons/placeholder-avatar.svg'}
+              src={testimonial.avatar || "/icons/placeholder-avatar.svg"}
               alt={testimonial.name}
               fill
               className="object-cover object-center pointer-events-none"
@@ -129,7 +127,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
               role="button"
               tabIndex={0}
               onClick={() => setCertModalOpen(true)}
-              onKeyDown={(e) => e.key === 'Enter' && setCertModalOpen(true)}
+              onKeyDown={(e) => e.key === "Enter" && setCertModalOpen(true)}
               aria-label="Открыть сертификат в полном размере"
             >
               <Image
@@ -150,11 +148,11 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
 
       {certModalOpen &&
         testimonial.certificateImage &&
-        typeof document !== 'undefined' &&
+        typeof document !== "undefined" &&
         createPortal(
           <div
             className={`fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 transition-opacity duration-500 ease-out ${
-              modalVisible && !modalClosing ? 'opacity-100' : 'opacity-0'
+              modalVisible && !modalClosing ? "opacity-100" : "opacity-0"
             }`}
             onClick={handleCloseModal}
             onTransitionEnd={handleTransitionEnd}
@@ -172,7 +170,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
             >
               <div
                 className={`relative w-full h-full max-w-[80vw] max-h-[80vh] origin-center transition-transform duration-500 ease-out ${
-                  modalVisible && !modalClosing ? 'scale-100' : 'scale-[0.85]'
+                  modalVisible && !modalClosing ? "scale-100" : "scale-[0.85]"
                 }`}
               >
                 <Image
@@ -185,7 +183,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
               </div>
             </div>
           </div>,
-          document.body
+          document.body,
         )}
     </>
   );
@@ -199,16 +197,20 @@ function testimonialsFromData(data: TestimonialsBlockContent | null | undefined)
   return items.map((item, i) => ({
     id: i + 1,
     name: item.name!.trim(),
-    role: (item.role?.trim() ?? ''),
+    role: item.role?.trim() ?? "",
     text: item.text!.trim(),
-    avatar: (item.avatar?.filename && item.avatar.filename.trim()) ? item.avatar.filename.trim() : '/icons/placeholder-avatar.svg',
-    certificateImage: (item.certificate_image?.filename && item.certificate_image.filename.trim()) ? item.certificate_image.filename.trim() : undefined,
+    avatar: item.avatar?.filename?.trim()
+      ? item.avatar.filename.trim()
+      : "/icons/placeholder-avatar.svg",
+    certificateImage: item.certificate_image?.filename?.trim()
+      ? item.certificate_image.filename.trim()
+      : undefined,
   }));
 }
 
 export default function TestimonialsSection({ data }: TestimonialsSectionProps) {
   const testimonials = useMemo(() => testimonialsFromData(data), [data]);
-  const sectionTitle = data?.title?.trim() || 'Отзывы студентов';
+  const sectionTitle = data?.title?.trim() || "Отзывы студентов";
 
   const trackRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
@@ -223,8 +225,6 @@ export default function TestimonialsSection({ data }: TestimonialsSectionProps) 
   const rafId = useRef<number | null>(null);
   const lastTime = useRef(0);
 
-  // Two copies of the testimonials list inside the strip create an infinite loop.
-  // `segment` equals half of the strip width and works for any number of testimonials (1, 2, ... N).
   const getSegmentWidth = useCallback(() => {
     if (stripRef.current) return stripRef.current.offsetWidth / 2;
     if (trackRef.current) return trackRef.current.offsetWidth;
@@ -249,7 +249,7 @@ export default function TestimonialsSection({ data }: TestimonialsSectionProps) 
           while (translateX.current < -seg) translateX.current += seg;
         }
         velocity.current += (baseSpeed.current - velocity.current) * DECAY;
-        if (strip) strip.style.setProperty('--strip-tx', `${translateX.current}px`);
+        if (strip) strip.style.setProperty("--strip-tx", `${translateX.current}px`);
       }
 
       rafId.current = requestAnimationFrame(tick);
@@ -303,7 +303,7 @@ export default function TestimonialsSection({ data }: TestimonialsSectionProps) 
       if (isDragging.current && trackRef.current && stripRef.current) {
         const dx = e.clientX - startX.current;
         translateX.current = startTranslateX.current + dx;
-        stripRef.current.style.setProperty('--strip-tx', `${translateX.current}px`);
+        stripRef.current.style.setProperty("--strip-tx", `${translateX.current}px`);
         pushMove(e.clientX);
       }
     },

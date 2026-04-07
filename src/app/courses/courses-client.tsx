@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { Fragment, useEffect, useRef, useState, useCallback, useMemo, type ReactNode } from "react";
 import Image from "next/image";
 import { useApplyModal } from "@/components/ui/ApplyModalContext";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
@@ -9,9 +9,27 @@ import type { CoursesStoryContent } from "@/lib/storyblok-types";
 const DEFAULT_TITLE = "Курсы подготовки к экзаменам";
 
 const DEFAULT_COURSE_CARDS = [
-  { id: 1, title: "FCE (B2 level)", slug: "fce", imagePath: "/images/certificates/FCE B2.jpg", description: "" },
-  { id: 2, title: "CAE\n(C1 Advanced)", slug: "cae", imagePath: "/images/certificates/СAE C1.jpg", description: "" },
-  { id: 3, title: "CPE\n(C2 Proficiency)", slug: "cpe", imagePath: "/images/certificates/CPE C2.jpg", description: "" },
+  {
+    id: 1,
+    title: "FCE (B2 level)",
+    slug: "fce",
+    imagePath: "/images/certificates/FCE B2.jpg",
+    description: "",
+  },
+  {
+    id: 2,
+    title: "CAE\n(C1 Advanced)",
+    slug: "cae",
+    imagePath: "/images/certificates/СAE C1.jpg",
+    description: "",
+  },
+  {
+    id: 3,
+    title: "CPE\n(C2 Proficiency)",
+    slug: "cpe",
+    imagePath: "/images/certificates/CPE C2.jpg",
+    description: "",
+  },
 ] as const;
 
 const COURSE_DESCRIPTIONS: Record<number, string> = {
@@ -210,16 +228,27 @@ const COURSE_DESCRIPTIONS: Record<number, string> = {
 • 🚀 переходите на продвинутый уровень владения языком`,
 };
 
-type CourseForDisplay = { id: number; title: string; slug: string; imagePath: string; description: string };
+type CourseForDisplay = {
+  id: number;
+  title: string;
+  slug: string;
+  imagePath: string;
+  description: string;
+};
 
-/** Storyblok can provide block fields either at the root or inside `item.content`. */
 type CourseBlock = {
   name?: string;
   title?: string;
   slug?: string;
   description?: string;
   image?: { filename?: string };
-  content?: { name?: string; title?: string; slug?: string; description?: string; image?: { filename?: string } };
+  content?: {
+    name?: string;
+    title?: string;
+    slug?: string;
+    description?: string;
+    image?: { filename?: string };
+  };
 };
 
 function getImageUrl(item: { image?: { filename?: string } }): string {
@@ -227,7 +256,13 @@ function getImageUrl(item: { image?: { filename?: string } }): string {
   return url || "";
 }
 
-function normalizeCourseBlock(item: CourseBlock): { name?: string; title?: string; slug?: string; description?: string; image?: { filename?: string } } {
+function normalizeCourseBlock(item: CourseBlock): {
+  name?: string;
+  title?: string;
+  slug?: string;
+  description?: string;
+  image?: { filename?: string };
+} {
   const c = item.content;
   return {
     name: item.name ?? c?.name,
@@ -236,6 +271,35 @@ function normalizeCourseBlock(item: CourseBlock): { name?: string; title?: strin
     description: item.description ?? c?.description,
     image: item.image ?? c?.image,
   };
+}
+
+const CAE_CPE_SINGLE_LINE = /^(CAE|CPE)\s+(\([^)]+\))$/;
+
+function renderCourseCardTitle(title: string): ReactNode {
+  const normalized = title.replace(/\r\n/g, "\n").trim();
+  const lines = normalized
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+  if (lines.length >= 2) {
+    return (
+      <>
+        <div>{lines[0]}</div>
+        <div className="whitespace-nowrap">{lines.slice(1).join(" ")}</div>
+      </>
+    );
+  }
+  const single = lines[0] ?? normalized;
+  const m = single.match(CAE_CPE_SINGLE_LINE);
+  if (m) {
+    return (
+      <>
+        <div>{m[1]}</div>
+        <div className="whitespace-nowrap">{m[2]}</div>
+      </>
+    );
+  }
+  return single;
 }
 
 export default function CoursesClient({ data }: { data?: CoursesStoryContent | null }) {
@@ -261,7 +325,8 @@ export default function CoursesClient({ data }: { data?: CoursesStoryContent | n
       const slug = item.slug?.trim() || (defaults[i]?.slug ?? "");
       const imageUrl = getImageUrl(item);
       const imagePath = imageUrl || (defaults[i]?.imagePath ?? "");
-      const description = (item.description?.trim() ?? COURSE_DESCRIPTIONS[(i + 1) as 1 | 2 | 3]) ?? "";
+      const description =
+        item.description?.trim() ?? COURSE_DESCRIPTIONS[(i + 1) as 1 | 2 | 3] ?? "";
       return { id: i + 1, title, slug, imagePath, description };
     });
   }, [data?.courses]);
@@ -288,16 +353,7 @@ export default function CoursesClient({ data }: { data?: CoursesStoryContent | n
         </div>
         <div className="flex flex-col justify-center text-center md:text-left flex-1 min-w-0">
           <h2 className="text-xl md:text-2xl min-[1200px]:text-3xl min-[1200px]:md:text-4xl font-bold mb-5 md:mb-6 text-theme break-words text-center">
-            {(() => {
-              const lines = course.title.split("\n");
-              if (lines.length <= 1) return course.title;
-              return (
-                <>
-                  <div>{lines[0]}</div>
-                  <div className="whitespace-nowrap">{lines[1]}</div>
-                </>
-              );
-            })()}
+            {renderCourseCardTitle(course.title)}
           </h2>
           <div className="flex flex-col gap-4 min-w-0">
             <button
@@ -337,37 +393,35 @@ export default function CoursesClient({ data }: { data?: CoursesStoryContent | n
                     : "grid grid-cols-1 min-[1400px]:grid-cols-3 gap-y-8 gap-x-0 min-[1400px]:gap-8 min-[1400px]:md:gap-10 perspective-1000"
                 }
               >
-                {courses.length === 4 ? (
-                  courses.map(renderCard)
-                ) : (
-                  rows.map((row, rowIndex) => {
-                    const isLastRow = rowIndex === rows.length - 1;
-                    const n = row.length;
-                    if (n === 3) {
-                      return <Fragment key={rowIndex}>{row.map(renderCard)}</Fragment>;
-                    }
-                    if (n === 2 && isLastRow) {
-                      return (
-                        <div
-                          key={rowIndex}
-                          className="min-[1400px]:col-span-3 flex flex-col min-[1400px]:flex-row min-[1400px]:justify-center gap-y-8 gap-x-0 min-[1400px]:gap-8 min-[1400px]:md:gap-10"
-                        >
-                          <div className="flex flex-col gap-y-8 min-[1400px]:flex-none min-[1400px]:grid min-[1400px]:grid-cols-2 min-[1400px]:gap-8 min-[1400px]:md:gap-10 min-[1400px]:w-[calc(2*(100%-2*2.5rem)/3+2.5rem)]">
-                            {row.map(renderCard)}
+                {courses.length === 4
+                  ? courses.map(renderCard)
+                  : rows.map((row, rowIndex) => {
+                      const isLastRow = rowIndex === rows.length - 1;
+                      const n = row.length;
+                      if (n === 3) {
+                        return <Fragment key={rowIndex}>{row.map(renderCard)}</Fragment>;
+                      }
+                      if (n === 2 && isLastRow) {
+                        return (
+                          <div
+                            key={rowIndex}
+                            className="min-[1400px]:col-span-3 flex flex-col min-[1400px]:flex-row min-[1400px]:justify-center gap-y-8 gap-x-0 min-[1400px]:gap-8 min-[1400px]:md:gap-10"
+                          >
+                            <div className="flex flex-col gap-y-8 min-[1400px]:flex-none min-[1400px]:grid min-[1400px]:grid-cols-2 min-[1400px]:gap-8 min-[1400px]:md:gap-10 min-[1400px]:w-[calc(2*(100%-2*2.5rem)/3+2.5rem)]">
+                              {row.map(renderCard)}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    }
-                    if (n === 1 && isLastRow) {
-                      return (
-                        <div key={rowIndex} className="min-[1400px]:col-start-2">
-                          {renderCard(row[0])}
-                        </div>
-                      );
-                    }
-                    return <Fragment key={rowIndex}>{row.map(renderCard)}</Fragment>;
-                  })
-                )}
+                        );
+                      }
+                      if (n === 1 && isLastRow) {
+                        return (
+                          <div key={rowIndex} className="min-[1400px]:col-start-2">
+                            {renderCard(row[0])}
+                          </div>
+                        );
+                      }
+                      return <Fragment key={rowIndex}>{row.map(renderCard)}</Fragment>;
+                    })}
               </div>
             </div>
           </section>
@@ -506,4 +560,3 @@ function DetailsModal({
     </div>
   );
 }
-

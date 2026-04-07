@@ -165,8 +165,7 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
                 <input
                   {...register("firstName", {
                     required: "Обязательное поле",
-                    validate: (v) =>
-                      !v.trim() || TEXT_ONLY_PATTERN.test(v) || TEXT_ONLY_MSG,
+                    validate: (v) => !v.trim() || TEXT_ONLY_PATTERN.test(v) || TEXT_ONLY_MSG,
                   })}
                   placeholder="Имя"
                   className={`${INPUT_BASE_CLASS} ${errors.firstName ? INPUT_ERROR_CLASS : ""}`}
@@ -186,8 +185,7 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
                 <input
                   {...register("lastName", {
                     required: "Обязательное поле",
-                    validate: (v) =>
-                      !v.trim() || TEXT_ONLY_PATTERN.test(v) || TEXT_ONLY_MSG,
+                    validate: (v) => !v.trim() || TEXT_ONLY_PATTERN.test(v) || TEXT_ONLY_MSG,
                   })}
                   placeholder="Фамилия"
                   className={`${INPUT_BASE_CLASS} ${errors.lastName ? INPUT_ERROR_CLASS : ""}`}
@@ -204,8 +202,7 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
                 <label className="block text-sm font-medium text-theme mb-1">Отчество</label>
                 <input
                   {...register("middleName", {
-                    validate: (v) =>
-                      !v?.trim() || TEXT_ONLY_PATTERN.test(v) || TEXT_ONLY_MSG,
+                    validate: (v) => !v?.trim() || TEXT_ONLY_PATTERN.test(v) || TEXT_ONLY_MSG,
                   })}
                   placeholder="Отчество"
                   className={`${INPUT_BASE_CLASS} ${errors.middleName ? INPUT_ERROR_CLASS : ""}`}
@@ -241,13 +238,21 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
               </div>
               <div>
                 <label className="block text-sm font-medium text-theme mb-1">Никнейм в TG</label>
-                <input {...register("telegram")} placeholder="@username" className={INPUT_BASE_CLASS} />
+                <input
+                  {...register("telegram")}
+                  placeholder="@username"
+                  className={INPUT_BASE_CLASS}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-theme mb-1">
                   Никнейм в Instagram
                 </label>
-                <input {...register("instagram")} placeholder="@username" className={INPUT_BASE_CLASS} />
+                <input
+                  {...register("instagram")}
+                  placeholder="@username"
+                  className={INPUT_BASE_CLASS}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-theme mb-1">WhatsApp</label>
@@ -268,7 +273,12 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
                 />
                 <label htmlFor="apply-consent-pd" className="text-sm text-theme/90">
                   Даю согласие на обработку персональных данных в соответствии с{" "}
-                  <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline text-theme-accent hover:text-theme">
+                  <a
+                    href="/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline text-theme-accent hover:text-theme"
+                  >
                     политикой конфиденциальности
                   </a>
                   .
@@ -277,14 +287,18 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
               {errors.consentPersonalData && (
                 <p className="text-sm text-red-500">{errors.consentPersonalData.message}</p>
               )}
-              {submitError && (
-                <p className="text-sm text-red-500">{submitError}</p>
-              )}
+              {submitError && <p className="text-sm text-red-500">{submitError}</p>}
               <p className="text-xs text-theme/80 mb-3">
                 Отправляя заявку, вы также соглашаетесь с{" "}
-                <a href="/offer" target="_blank" rel="noopener noreferrer" className="underline text-theme-accent hover:text-theme">
+                <a
+                  href="/offer"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline text-theme-accent hover:text-theme"
+                >
                   договором оферты
-                </a>.
+                </a>
+                .
               </p>
               <button
                 type="submit"
@@ -318,10 +332,7 @@ export function ApplyModalProvider({ children }: { children: ReactNode }) {
     setModal(null);
   }, []);
 
-  const contextValue = useMemo(
-    () => ({ openApplyModal }),
-    [openApplyModal],
-  );
+  const contextValue = useMemo(() => ({ openApplyModal }), [openApplyModal]);
 
   return (
     <ApplyModalContext.Provider value={contextValue}>

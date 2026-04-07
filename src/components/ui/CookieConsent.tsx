@@ -18,19 +18,34 @@ const BTN_SECONDARY_CLASS =
 const BTN_LINK_CLASS =
   "px-4 py-2 rounded-full text-sm font-semibold border border-[#2F3440]/55 text-[#1f2329] bg-white/60 hover:opacity-90 transition-opacity";
 
-const CATEGORIES: { key: CookieCategory; label: string; description: string; disabled?: boolean }[] = [
-  { key: "necessary", label: "Необходимые", description: "Нужны для работы сайта. Нельзя отключить.", disabled: true },
+const CATEGORIES: {
+  key: CookieCategory;
+  label: string;
+  description: string;
+  disabled?: boolean;
+}[] = [
+  {
+    key: "necessary",
+    label: "Необходимые",
+    description: "Нужны для работы сайта. Нельзя отключить.",
+    disabled: true,
+  },
   { key: "analytics", label: "Аналитика", description: "Помогают понимать, как используют сайт." },
-  { key: "marketing", label: "Маркетинг", description: "Используются для рекламы и персонализации." },
-  { key: "functional", label: "Функциональные", description: "Запоминают настройки и улучшают опыт." },
+  {
+    key: "marketing",
+    label: "Маркетинг",
+    description: "Используются для рекламы и персонализации.",
+  },
+  {
+    key: "functional",
+    label: "Функциональные",
+    description: "Запоминают настройки и улучшают опыт.",
+  },
 ];
 
 export type CookieConsentRef = { openPreferences: () => void };
 
-function CookieConsentInner(
-  _: unknown,
-  ref: React.Ref<CookieConsentRef>
-) {
+function CookieConsentInner(_: unknown, ref: React.Ref<CookieConsentRef>) {
   const [consent, setConsent] = useState<CookieConsentState>(() => getStoredConsent());
   const [hiding, setHiding] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -110,7 +125,6 @@ function CookieConsentInner(
 
   return (
     <>
-      {/* Banner */}
       {!consent.choiceMade && (
         <div
           className={`${BANNER_BASE_CLASS} ${hiding ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0"}`}
@@ -119,35 +133,24 @@ function CookieConsentInner(
         >
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <p className="text-sm text-justify sm:text-left text-[#2F3440]">
-              Мы используем файлы cookie и аналогичные технологии для работы сайта и анализа посещаемости. Вы можете принять все, отклонить все или настроить выбор. Подробнее — в{" "}
+              Мы используем файлы cookie и аналогичные технологии для работы сайта и анализа
+              посещаемости. Вы можете принять все, отклонить все или настроить выбор. Подробнее — в{" "}
               <Link href="/privacy" className="underline hover:opacity-90">
                 политике конфиденциальности
               </Link>
               .
             </p>
             <div className="flex items-center justify-center sm:justify-start gap-2 flex-shrink-0 w-full sm:w-auto flex-wrap">
-              <button
-                type="button"
-                onClick={handleRejectAll}
-                className={BTN_SECONDARY_CLASS}
-              >
+              <button type="button" onClick={handleRejectAll} className={BTN_SECONDARY_CLASS}>
                 Отклонить все
               </button>
-              <button
-                type="button"
-                onClick={handleCustomize}
-                className={BTN_SECONDARY_CLASS}
-              >
+              <button type="button" onClick={handleCustomize} className={BTN_SECONDARY_CLASS}>
                 Настроить
               </button>
               <Link href="/privacy" className={BTN_LINK_CLASS}>
                 Подробнее
               </Link>
-              <button
-                type="button"
-                onClick={handleAcceptAll}
-                className={BTN_PRIMARY_CLASS}
-              >
+              <button type="button" onClick={handleAcceptAll} className={BTN_PRIMARY_CLASS}>
                 Принять все
               </button>
             </div>
@@ -155,7 +158,6 @@ function CookieConsentInner(
         </div>
       )}
 
-      {/* Preferences modal */}
       {showModal && (
         <div
           className={`fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-hidden transition-opacity duration-300 ${
@@ -186,7 +188,8 @@ function CookieConsentInner(
               </button>
             </div>
             <p className="text-sm text-theme/80 mb-4">
-              Выберите категории cookie, которые разрешаете использовать. Необходимые cookie всегда активны.
+              Выберите категории cookie, которые разрешаете использовать. Необходимые cookie всегда
+              активны.
             </p>
             <ul className="space-y-4 mb-6">
               {CATEGORIES.map(({ key, label, description, disabled }) => (
@@ -219,11 +222,7 @@ function CookieConsentInner(
               ))}
             </ul>
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={handleSavePreferences}
-                className={BTN_PRIMARY_CLASS}
-              >
+              <button type="button" onClick={handleSavePreferences} className={BTN_PRIMARY_CLASS}>
                 Сохранить
               </button>
               <button type="button" onClick={closeModal} className={BTN_SECONDARY_CLASS}>

@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import PasswordInput from '@/components/ui/PasswordInput';
-import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from '@/lib/auth-form-constants';
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import PasswordInput from "@/components/ui/PasswordInput";
+import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from "@/lib/auth-form-constants";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -21,31 +21,34 @@ export default function LoginPage() {
     setEmailError(null);
     const trimmedEmail = email.trim();
     if (!EMAIL_REGEX.test(trimmedEmail)) {
-      setEmailError('Введите корректный email');
+      setEmailError("Введите корректный email");
       return;
     }
     if (!password.trim()) {
-      setError('Введите пароль');
+      setError("Введите пароль");
       return;
     }
     setLoading(true);
     try {
       const supabase = createClient();
-      const { error: err } = await supabase.auth.signInWithPassword({ email: trimmedEmail, password });
+      const { error: err } = await supabase.auth.signInWithPassword({
+        email: trimmedEmail,
+        password,
+      });
       if (err) {
-        if (err.message === 'Invalid login credentials') {
-          setError('Неверный email или пароль');
-        } else if (err.message.includes('Email not confirmed')) {
-          setError('Подтвердите email по ссылке из письма');
+        if (err.message === "Invalid login credentials") {
+          setError("Неверный email или пароль");
+        } else if (err.message.includes("Email not confirmed")) {
+          setError("Подтвердите email по ссылке из письма");
         } else {
           setError(err.message);
         }
         return;
       }
-      router.push('/methodology');
+      router.push("/methodology");
       router.refresh();
     } catch {
-      setError('Ошибка входа. Попробуйте позже.');
+      setError("Ошибка входа. Попробуйте позже.");
     } finally {
       setLoading(false);
     }
@@ -67,7 +70,7 @@ export default function LoginPage() {
                 setEmail(e.target.value);
                 setEmailError(null);
               }}
-              className={`${INPUT_BASE_CLASS} ${emailError ? INPUT_ERROR_CLASS : ''}`}
+              className={`${INPUT_BASE_CLASS} ${emailError ? INPUT_ERROR_CLASS : ""}`}
               autoComplete="email"
               disabled={loading}
             />
@@ -91,11 +94,11 @@ export default function LoginPage() {
           </p>
           {error && <p className="text-sm text-red-500">{error}</p>}
           <button type="submit" className="btn-primary w-full py-3" disabled={loading}>
-            {loading ? 'Вход…' : 'Войти'}
+            {loading ? "Вход…" : "Войти"}
           </button>
         </form>
         <p className="text-center text-theme/80 text-sm mt-4">
-          Нет аккаунта?{' '}
+          Нет аккаунта?{" "}
           <Link href="/signup" className="text-theme-accent hover:underline">
             Зарегистрироваться
           </Link>
