@@ -4,11 +4,6 @@ import { useEffect } from "react";
 
 const SCROLL_LOCK_CLASS = "scroll-locked";
 
-/**
- * Locks body scroll and compensates scrollbar width so layout doesn't jump.
- * Sets --scrollbar-width on html and adds scroll-locked; CSS applies
- * padding-right to .header-nav-right (nav links block) so the right edge stays fixed.
- */
 export function useBodyScrollLock(locked: boolean) {
   useEffect(() => {
     if (!locked) return;

@@ -1,10 +1,11 @@
 "use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
-import AnimatedButtonText from '@/components/ui/AnimatedButtonText';
+import Link from "next/link";
+import Image from "next/image";
+import AnimatedButtonText from "@/components/ui/AnimatedButtonText";
 
-const DEFAULT_INTRO = "Курсы для студентов продвинутого уровня, которые хотят сдать FCE, CAE или CPE и уверенно использовать английский на высоком уровне. Также на сайте вы найдете материалы по методике преподавания для учителей английского."
+const DEFAULT_INTRO =
+  "Курсы для студентов продвинутого уровня, которые хотят сдать FCE, CAE или CPE и уверенно использовать английский на высоком уровне. Также на сайте вы найдете материалы по методике преподавания для учителей английского.";
 type HeroSectionProps = {
   title: string;
   description: string;
@@ -23,7 +24,7 @@ export default function HeroSection({ title, description, intro, imageUrl }: Her
             <div className="relative w-full max-w-lg lg:max-w-xl">
               <div className="relative w-full h-full rounded-3xl overflow-hidden">
                 <Image
-                  src={imageUrl || '/images/photos/irina_petrova.JPG'}
+                  src={imageUrl || "/images/photos/irina_petrova.JPG"}
                   alt="Irina Petrova"
                   width={600}
                   height={800}
@@ -47,10 +48,16 @@ export default function HeroSection({ title, description, intro, imageUrl }: Her
               </p>
             ) : null}
             <div className="flex flex-col min-[476px]:flex-row flex-wrap items-center justify-center gap-4 mt-2">
-              <Link href="/courses" className="btn-primary text-lg px-8 py-4 w-full min-[476px]:w-auto justify-center">
+              <Link
+                href="/courses"
+                className="btn-primary text-lg px-8 py-4 w-full min-[476px]:w-auto justify-center"
+              >
                 <AnimatedButtonText text="Начать обучение" />
               </Link>
-              <Link href="/methodology" className="btn-secondary text-lg px-8 py-4 w-full min-[476px]:w-auto justify-center">
+              <Link
+                href="/methodology"
+                className="btn-secondary text-lg px-8 py-4 w-full min-[476px]:w-auto justify-center"
+              >
                 <AnimatedButtonText text="Методика" />
               </Link>
             </div>

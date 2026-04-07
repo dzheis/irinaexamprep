@@ -1,14 +1,14 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
-import Lottie from 'lottie-react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import type { FeaturesBlockContent } from '@/lib/storyblok-types';
+import { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import Lottie from "lottie-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import type { FeaturesBlockContent } from "@/lib/storyblok-types";
 
-import calendarAnimation from '@/../public/lottie/calendar_default.json';
-import clockAnimation from '@/../public/lottie/clock_default.json';
-import consultationAnimation from '@/../public/lottie/consultation_default.json';
+import calendarAnimation from "@/../public/lottie/calendar_default.json";
+import clockAnimation from "@/../public/lottie/clock_default.json";
+import consultationAnimation from "@/../public/lottie/consultation_default.json";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -30,18 +30,21 @@ const ANIMATION_MAP: Record<string, object> = {
 
 const DEFAULT_FEATURES: Feature[] = [
   {
-    title: 'Индивидуальные планы обучения',
-    description: 'Каждый ученик получает персональную программу обучения, адаптированную под его уровень и цели.',
+    title: "Индивидуальные планы обучения",
+    description:
+      "Каждый ученик получает персональную программу обучения, адаптированную под его уровень и цели.",
     animation: calendarAnimation,
   },
   {
-    title: 'Эффективное управление временем',
-    description: 'Вы научитесь правильно распределять время и готовиться к экзаменам максимально эффективно.',
+    title: "Эффективное управление временем",
+    description:
+      "Вы научитесь правильно распределять время и готовиться к экзаменам максимально эффективно.",
     animation: clockAnimation,
   },
   {
-    title: 'Экспертная подготовка к экзаменам',
-    description: 'Опытные преподаватель с многолетним опытом подготовки к экзаменам различного уровня.',
+    title: "Экспертная подготовка к экзаменам",
+    description:
+      "Опытные преподаватель с многолетним опытом подготовки к экзаменам различного уровня.",
     animation: consultationAnimation,
   },
 ];
@@ -111,12 +114,12 @@ function TiltCard({
     >
       <div
         ref={innerRef}
-        className={`tilt-card-inner glass rounded-2xl p-8 flex flex-col items-center text-center h-full transition-[transform,box-shadow] preserve-3d ${isHovering ? 'duration-25' : 'duration-500 ease-in-out'} ${isHovering ? 'shadow-xl' : ''}`}
+        className={`tilt-card-inner glass rounded-2xl p-8 flex flex-col items-center text-center h-full transition-[transform,box-shadow] preserve-3d ${isHovering ? "duration-25" : "duration-500 ease-in-out"} ${isHovering ? "shadow-xl" : ""}`}
         style={
           {
-            '--tilt-x': `${tilt.x}deg`,
-            '--tilt-y': `${tilt.y}deg`,
-            '--scale': isHovering ? 1.02 : 1,
+            "--tilt-x": `${tilt.x}deg`,
+            "--tilt-y": `${tilt.y}deg`,
+            "--scale": isHovering ? 1.02 : 1,
           } as React.CSSProperties
         }
       >
@@ -142,19 +145,20 @@ function TiltCard({
 type FeaturesSectionProps = { data?: FeaturesBlockContent | null };
 
 export default function FeaturesSection({ data }: FeaturesSectionProps) {
-  const sectionTitle = data?.title?.trim() || 'Индивидуальный подход';
-  const sectionSubtitle = data?.subtitle?.trim() || 'Большой опыт преподавания и современная методика обучения.';
+  const sectionTitle = data?.title?.trim() || "Индивидуальный подход";
+  const sectionSubtitle =
+    data?.subtitle?.trim() || "Большой опыт преподавания и современная методика обучения.";
 
   const features = useMemo((): Feature[] => {
     const items = data?.items?.filter((i) => i.title?.trim());
     if (!items?.length) return DEFAULT_FEATURES;
-    const keys = ['calendar', 'clock', 'consultation'];
+    const keys = ["calendar", "clock", "consultation"];
     return items.map((item, i) => {
       const rawKey = item.animation_key?.toLowerCase()?.trim();
       const key = rawKey && rawKey in ANIMATION_MAP ? rawKey : keys[i % 3];
       return {
         title: item.title!.trim(),
-        description: (item.description?.trim() ?? ''),
+        description: item.description?.trim() ?? "",
         animation: ANIMATION_MAP[key] ?? calendarAnimation,
       };
     });
@@ -181,7 +185,7 @@ export default function FeaturesSection({ data }: FeaturesSectionProps) {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: cardsWrapper,
-            start: 'top 90%',
+            start: "top 90%",
             once: true,
           },
         });
@@ -190,13 +194,13 @@ export default function FeaturesSection({ data }: FeaturesSectionProps) {
           opacity: 1,
           x: 0,
           duration: 0.8,
-          ease: 'power2.out',
+          ease: "power2.out",
         }).to(cards, {
           opacity: 1,
           x: 0,
           duration: 0.7,
           stagger: 0.2,
-          ease: 'power2.out',
+          ease: "power2.out",
         });
       }, section);
     });
@@ -218,7 +222,10 @@ export default function FeaturesSection({ data }: FeaturesSectionProps) {
             {sectionSubtitle}
           </p>
         </div>
-        <div ref={cardsWrapperRef} className="grid grid-cols-1 lg:grid-cols-3 gap-8 perspective-1000">
+        <div
+          ref={cardsWrapperRef}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-8 perspective-1000"
+        >
           {features.map((feature, i) => (
             <TiltCard
               key={feature.title}

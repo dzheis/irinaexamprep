@@ -1,9 +1,9 @@
-import { Suspense } from 'react';
-import MethodologyClient from './methodology-client';
-import { getMethodologyFromStoryblok } from '@/lib/methodology-storyblok';
-import type { Metadata } from 'next';
+import { Suspense } from "react";
+import MethodologyClient from "./methodology-client";
+import { getMethodologyFromStoryblok } from "@/lib/methodology-storyblok";
+import type { Metadata } from "next";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   robots: {

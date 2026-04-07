@@ -1,27 +1,27 @@
 "use client";
 
-import { useRef, useEffect, ReactNode } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useRef, useEffect, ReactNode } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const DURATION = 0.8;
-const EASE = 'power2.out';
+const EASE = "power2.out";
 
 type AnimatedSectionProps = {
   children: ReactNode;
-  animationDirection?: 'up' | 'down' | 'left' | 'right';
+  animationDirection?: "up" | "down" | "left" | "right";
   className?: string;
   containerClassName?: string;
   id?: string;
 };
 
-export default function AnimatedSection({ 
-  children, 
-  animationDirection = 'up',
-  className = '',
-  containerClassName = 'max-w-7xl mx-auto',
+export default function AnimatedSection({
+  children,
+  animationDirection = "up",
+  className = "",
+  containerClassName = "max-w-7xl mx-auto",
   id,
 }: AnimatedSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
@@ -34,13 +34,13 @@ export default function AnimatedSection({
 
     const getInitialState = () => {
       switch (animationDirection) {
-        case 'up':
+        case "up":
           return { opacity: 0, y: 60 };
-        case 'down':
+        case "down":
           return { opacity: 0, y: -60 };
-        case 'left':
+        case "left":
           return { opacity: 0, x: -60 };
-        case 'right':
+        case "right":
           return { opacity: 0, x: 60 };
         default:
           return { opacity: 0, y: 60 };
@@ -59,23 +59,25 @@ export default function AnimatedSection({
         trigger: section,
         start: "top 80%",
         once: true,
-      }
+      },
     });
 
     return () => {
       animation.kill();
-      ScrollTrigger.getAll().forEach(t => {
+      ScrollTrigger.getAll().forEach((t) => {
         if (t.trigger === section) t.kill();
       });
     };
   }, [animationDirection]);
 
   return (
-    <section id={id} className={`section py-16 md:py-24 ${className} ${id ? 'scroll-mt-20' : ''}`} ref={sectionRef}>
+    <section
+      id={id}
+      className={`section py-16 md:py-24 ${className} ${id ? "scroll-mt-20" : ""}`}
+      ref={sectionRef}
+    >
       <div className={containerClassName}>
-        <div ref={contentRef}>
-          {children}
-        </div>
+        <div ref={contentRef}>{children}</div>
       </div>
     </section>
   );

@@ -13,7 +13,6 @@ const EXIT_SCALE = 0.95;
 
 const PIN_BREAKPOINT = "(min-width: 1280px)";
 
-/** On the desktop home page there is a pinned section where page-transition animation is disabled. */
 function useHasPinSection() {
   const pathname = usePathname();
   const [isDesktop, setIsDesktop] = useState(false);
@@ -49,7 +48,6 @@ export default function PageTransition({ children }: { children: ReactNode }) {
 
   const useTransition = !hasPinSection;
 
-  // Enter: zoom + fade in (only when there is no pinned section).
   useEffect(() => {
     if (!useTransition) return;
     const content = contentRef.current;
@@ -74,30 +72,29 @@ export default function PageTransition({ children }: { children: ReactNode }) {
     });
   }, [pathname, useTransition]);
 
-  // Click interception: exit animation first, then navigate
-  // (only when we use transitions and the target isn't the pinned home section).
   useEffect(() => {
     if (!useTransition) return;
     function handleClick(e: MouseEvent) {
       const target = (e.target as HTMLElement).closest("a");
-      if (!target || target.target === "_blank" || target.getAttribute("rel") === "noopener noreferrer") return;
+      if (
+        !target ||
+        target.target === "_blank" ||
+        target.getAttribute("rel") === "noopener noreferrer"
+      )
+        return;
       const href = target.getAttribute("href");
       if (!href || !href.startsWith("/") || href.startsWith("//")) return;
       const pathOnly = href.replace(/#.*/, "") || "/";
       if (pathOnly === window.location.pathname) return;
 
-      // Home section navigation like "/#about" or "/#cta":
-      // On some environments (e.g. Vercel) applying the hash directly conflicts with
-      // pinned sections (ScrollTrigger pin), which leads to layout/scroll desync.
-      // Instead, switch to "/" and let `SmoothScroll` handle scrolling via sessionStorage.
       const hashMatch = href.match(/^\/#([^?]+)$/);
-      if (pathOnly === '/' && hashMatch?.[1]) {
+      if (pathOnly === "/" && hashMatch?.[1]) {
         const anchorId = hashMatch[1];
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('scrollToSection', anchorId);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("scrollToSection", anchorId);
         }
         e.preventDefault();
-        router.push('/');
+        router.push("/");
         return;
       }
 

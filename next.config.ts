@@ -4,20 +4,21 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'a.storyblok.com',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "a.storyblok.com",
+        pathname: "/**",
       },
     ],
   },
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: "/:path*",
         headers: [
           {
-            key: 'Permissions-Policy',
-            value: 'picture-in-picture=(self "https://www.youtube.com" "https://www.youtube-nocookie.com")',
+            key: "Permissions-Policy",
+            value:
+              'picture-in-picture=(self "https://www.youtube.com" "https://www.youtube-nocookie.com")',
           },
         ],
       },

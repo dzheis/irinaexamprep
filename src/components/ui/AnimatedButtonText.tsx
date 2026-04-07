@@ -42,19 +42,13 @@ export default function AnimatedButtonText({ text, className = "" }: Props) {
   }, []);
 
   return (
-    <span
-      className={`inline-flex flex-nowrap ${className}`}
-      onMouseEnter={runAnimation}
-    >
+    <span className={`inline-flex flex-nowrap ${className}`} onMouseEnter={runAnimation}>
       {chars.map((char, i) => (
         <span
           key={`${i}-${char}`}
           className={`relative inline-block align-baseline overflow-hidden ${char === " " ? "char-space" : ""}`}
         >
-          <span
-            className="invisible select-none font-inherit"
-            aria-hidden
-          >
+          <span className="invisible select-none font-inherit" aria-hidden>
             {cellChar(char)}
           </span>
           <span

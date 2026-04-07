@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import PasswordInput from '@/components/ui/PasswordInput';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import PasswordInput from "@/components/ui/PasswordInput";
 
 export default function ResetPasswordPage() {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -16,8 +16,8 @@ export default function ResetPasswordPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const isRecovery = window.location.hash.includes('type=recovery');
+    if (typeof window === "undefined") return;
+    const isRecovery = window.location.hash.includes("type=recovery");
     if (isRecovery) {
       setReady(true);
       return;
@@ -31,11 +31,11 @@ export default function ResetPasswordPage() {
     setError(null);
     setPasswordError(null);
     if (password.length < 6) {
-      setPasswordError('Пароль не менее 6 символов');
+      setPasswordError("Пароль не менее 6 символов");
       return;
     }
     if (password !== confirmPassword) {
-      setPasswordError('Пароли не совпадают');
+      setPasswordError("Пароли не совпадают");
       return;
     }
     setLoading(true);
@@ -46,10 +46,10 @@ export default function ResetPasswordPage() {
         setError(err.message);
         return;
       }
-      router.push('/methodology');
+      router.push("/methodology");
       router.refresh();
     } catch {
-      setError('Ошибка. Попробуйте позже.');
+      setError("Ошибка. Попробуйте позже.");
     } finally {
       setLoading(false);
     }
@@ -60,7 +60,8 @@ export default function ResetPasswordPage() {
       <div className="min-h-screen flex items-center justify-center px-4 pt-24 pb-12">
         <div className="w-full max-w-md text-center">
           <p className="text-theme/90 mb-6">
-            Используйте ссылку из письма для сброса пароля. Если вы перешли по старой ссылке, запросите новую на странице «Забыли пароль?».
+            Используйте ссылку из письма для сброса пароля. Если вы перешли по старой ссылке,
+            запросите новую на странице «Забыли пароль?».
           </p>
           <Link href="/forgot-password" className="btn-primary inline-block py-3 px-8">
             Запросить ссылку
@@ -112,7 +113,7 @@ export default function ResetPasswordPage() {
           </div>
           {error && <p className="text-sm text-red-500">{error}</p>}
           <button type="submit" className="btn-primary w-full py-3" disabled={loading}>
-            {loading ? 'Сохранение…' : 'Сохранить пароль'}
+            {loading ? "Сохранение…" : "Сохранить пароль"}
           </button>
         </form>
         <p className="text-center text-theme/80 text-sm mt-4">

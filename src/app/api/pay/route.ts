@@ -13,8 +13,6 @@ type PayBody = {
   productId?: string;
 };
 
-// Server-side authoritative pricing for methodology purchases.
-// This prevents price tampering from the client.
 const METHODOLOGY_PRICE_BY_PRODUCT_ID: Record<string, number> = {
   "1": 1990,
 };
@@ -29,7 +27,7 @@ export async function POST(req: NextRequest) {
     console.error("Pay: ROBOKASSA_LOGIN or ROBOKASSA_PASS1 not set");
     return NextResponse.json(
       { error: "Оплата временно недоступна. Настройте Robokassa в .env." },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
@@ -39,8 +37,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Server not configured" }, { status: 503 });
   }
 
-  // Origin hardening (best-effort): only allow requests from our site.
-  // Note: this is not a full CSRF protection by itself; it is validated together with CSRF token below.
   if (isProd) {
     const originHeader = req.headers.get("origin");
     const refererHeader = req.headers.get("referer");
@@ -70,7 +66,6 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // CSRF validation: double-submit token (cookie + header).
   const csrfCookie = (await cookies()).get("csrf_token")?.value;
   const csrfHeader = req.headers.get("x-csrf-token");
   if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {

@@ -156,9 +156,7 @@ function PaymentModal({
           Сумма: <strong>{product.price} ₽</strong>
         </p>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-theme mb-1">
-            Email
-          </label>
+          <label className="block text-sm font-medium text-theme mb-1">Email</label>
           <input
             type="email"
             value={email}
@@ -169,13 +167,20 @@ function PaymentModal({
           />
         </div>
         <p className="text-sm text-theme/80 mb-3">
-          После нажатия вы перейдёте на защищённую страницу Robokassa для ввода данных карты и оплаты.
+          После нажатия вы перейдёте на защищённую страницу Robokassa для ввода данных карты и
+          оплаты.
         </p>
         <p className="text-xs text-theme/80 mb-3">
-          Нажимая кнопку, вы соглашаетесь с{' '}
-          <a href="/offer" target="_blank" rel="noopener noreferrer" className="underline text-theme-accent hover:text-theme">
+          Нажимая кнопку, вы соглашаетесь с{" "}
+          <a
+            href="/offer"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline text-theme-accent hover:text-theme"
+          >
             договором оферты
-          </a>.
+          </a>
+          .
         </p>
         {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
         <button
@@ -242,23 +247,23 @@ function AuthRequiredModal({ onClose }: { onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
         style={{ position: "relative" }}
       >
-          <button
-            type="button"
-            onClick={startClose}
-            className="text-theme-accent hover:text-theme text-2xl leading-none p-1 absolute top-2 right-2"
-            aria-label="Закрыть"
-          >
-            ×
-          </button>
+        <button
+          type="button"
+          onClick={startClose}
+          className="text-theme-accent hover:text-theme text-2xl leading-none p-1 absolute top-2 right-2"
+          aria-label="Закрыть"
+        >
+          ×
+        </button>
 
-          <div className="mb-5">
-            <h3
-              id="auth-required-title"
-              className="text-xl font-bold text-theme text-center w-full px-10"
-            >
-              Для покупки данного видео войдите или зарегистрируйтесь
-            </h3>
-          </div>
+        <div className="mb-5">
+          <h3
+            id="auth-required-title"
+            className="text-xl font-bold text-theme text-center w-full px-10"
+          >
+            Для покупки данного видео войдите или зарегистрируйтесь
+          </h3>
+        </div>
 
         <div className="flex flex-col gap-3">
           <Link href="/login" className="btn-primary w-full text-lg px-8 py-4 text-center">
@@ -345,11 +350,23 @@ function PaymentResultModal({
             aria-hidden
           >
             {isSuccess ? (
-              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg
+                className="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             ) : (
-              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg
+                className="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             )}
@@ -362,11 +379,7 @@ function PaymentResultModal({
               ? "Спасибо за оплату. Мы свяжемся с вами по указанной почте."
               : "Операция была отменена или произошла ошибка. Попробуйте ещё раз или свяжитесь с нами."}
           </p>
-          <button
-            type="button"
-            onClick={startClose}
-            className="btn-primary mt-2 px-8 py-3"
-          >
+          <button type="button" onClick={startClose} className="btn-primary mt-2 px-8 py-3">
             Закрыть
           </button>
         </div>
@@ -375,7 +388,7 @@ function PaymentResultModal({
   );
 }
 
-const DEFAULT_PAGE_TITLE = 'Методология';
+const DEFAULT_PAGE_TITLE = "Методология";
 
 export default function MethodologyClient({ videos, pageTitle }: MethodologyClientProps) {
   const list = videos && videos.length > 0 ? videos : METHODOLOGY_VIDEOS;
@@ -387,7 +400,12 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
   const [authRequiredOpen, setAuthRequiredOpen] = useState(false);
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const searchParams = useSearchParams();
-  const paymentFromUrl = searchParams.get("payment") === "success" ? "success" : searchParams.get("payment") === "fail" ? "fail" : null;
+  const paymentFromUrl =
+    searchParams.get("payment") === "success"
+      ? "success"
+      : searchParams.get("payment") === "fail"
+        ? "fail"
+        : null;
   const [resultDismissed, setResultDismissed] = useState(false);
   const paymentResult = paymentFromUrl && !resultDismissed ? paymentFromUrl : null;
 
@@ -437,7 +455,7 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
         price: item.price ?? DEFAULT_PRICE,
       });
     },
-    [isAuthed, purchasedModuleIds]
+    [isAuthed, purchasedModuleIds],
   );
 
   const closePaymentResult = useCallback(() => {
@@ -499,7 +517,6 @@ function MethodologyVideoBlock({
 }) {
   return (
     <div className="glass rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 w-full min-w-0 transition-[transform,box-shadow] duration-300 ease-in-out hover:scale-[1.01] hover:shadow-xl md:items-center">
-      {/* Left: video via proxy (only for purchased modules) or placeholder */}
       <div
         className="flex-shrink-0 w-full md:min-w-0 md:w-[48%] lg:w-[50%] flex items-center"
         onContextMenu={(e) => hasAccess && e.preventDefault()}
@@ -514,8 +531,6 @@ function MethodologyVideoBlock({
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
-              {/* YouTube sometimes renders a "Watch on YouTube" strip inside the iframe.
-                  We can't fully disable it via embed parameters, so we visually cover the strip. */}
               <div
                 aria-hidden="true"
                 className="absolute bottom-0 left-0 right-0 h-[45%] bg-gradient-to-t from-black/55 to-transparent z-10 pointer-events-none"
@@ -523,8 +538,19 @@ function MethodologyVideoBlock({
             </>
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-theme/70">
-              <svg className="w-12 h-12 md:w-16 md:h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+              <svg
+                className="w-12 h-12 md:w-16 md:h-16"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                aria-hidden
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                />
               </svg>
               <span className="text-sm md:text-base text-center px-4">Доступ после оплаты</span>
             </div>
@@ -532,7 +558,6 @@ function MethodologyVideoBlock({
         </div>
       </div>
 
-      {/* Right: description and button. On mobile below video. */}
       <div className="flex flex-col flex-1 min-w-0">
         {item.title && (
           <h2 className="text-lg md:text-xl min-[1200px]:text-2xl min-[1200px]:md:text-3xl font-bold mb-4 text-theme">
