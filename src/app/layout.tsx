@@ -8,6 +8,7 @@ import PageTransition from "@/components/ui/PageTransition";
 import BackgroundSvg from "@/components/ui/BackgroundSvg";
 import { ApplyModalProvider } from "@/components/ui/ApplyModalContext";
 import { CookieConsentProvider } from "@/components/ui/CookieConsentContext";
+import { LanguageProvider } from "@/components/ui/LanguageContext";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getConfig, fetchStory } from "@/lib/storyblok";
 
@@ -86,21 +87,23 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <body className="min-h-screen flex flex-col antialiased" suppressHydrationWarning>
         <SmoothScroll>
-          <ApplyModalProvider>
-            <Header
-              logoText={header?.logo_text?.trim() || undefined}
-              altText={header?.alt_text?.trim() || undefined}
-              navLinks={navLinks.length > 0 ? navLinks : undefined}
-            />
-            <CookieConsentProvider>
-              <PageTransition>
-                <BackgroundSvg />
-                <main className="flex-1">{children}</main>
-                <Footer creditText={footerCreditText} />
-              </PageTransition>
-            </CookieConsentProvider>
-            <SpeedInsights />
-          </ApplyModalProvider>
+          <LanguageProvider>
+            <ApplyModalProvider>
+              <Header
+                logoText={header?.logo_text?.trim() || undefined}
+                altText={header?.alt_text?.trim() || undefined}
+                navLinks={navLinks.length > 0 ? navLinks : undefined}
+              />
+              <CookieConsentProvider>
+                <PageTransition>
+                  <BackgroundSvg />
+                  <main className="flex-1">{children}</main>
+                  <Footer creditText={footerCreditText} />
+                </PageTransition>
+              </CookieConsentProvider>
+              <SpeedInsights />
+            </ApplyModalProvider>
+          </LanguageProvider>
         </SmoothScroll>
       </body>
     </html>

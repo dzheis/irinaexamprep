@@ -281,58 +281,41 @@ footer.nav {
   }
 
   .nav-link {
-    @apply inline-flex items-center justify-center rounded-full border;
-    color: var(--color-text);
+    color: var(--color-accent);
     padding: 0.5rem 1rem;
-    border-color: transparent;
-    background: transparent;
-    opacity: 0.85;
+    border-radius: 9999px;
+    background-color: transparent;
     box-shadow: none;
-    text-decoration: none;
-    transform: scale(1);
+    transform: translateY(0);
     transition:
-      transform 0.3s ease-in-out,
-      opacity 0.3s ease-in-out,
-      background 0.3s ease-in-out,
-      border-color 0.3s ease-in-out,
-      color 0.3s ease-in-out,
-      box-shadow 0.3s ease-in-out;
+      color 0.35s ease,
+      box-shadow 0.35s ease,
+      transform 0.35s ease,
+      background-color 0.35s ease,
+      margin-right 0.35s ease;
   }
   .nav-link:hover {
-    background: rgba(255, 255, 255, 0.8);
-    border-color: var(--color-light-bg);
-    color: #000000;
-    transform: scale(1.04);
-    box-shadow:
-      0 4px 14px color-mix(in srgb, var(--color-cta-button) 28%, transparent),
-      0 2px 6px color-mix(in srgb, var(--color-cta-button) 18%, transparent),
-      inset 0 2px 4px rgba(0, 0, 0, 0.08);
-    opacity: 1;
+    color: var(--color-text);
+    background-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 4px 14px rgba(47, 52, 64, 0.22);
+    transform: translateY(-2px);
+    margin-right: 0.5rem;
   }
   .nav-link:active {
-    transform: scale(0.98);
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(47, 52, 64, 0.15);
   }
   .nav-link--active {
-    background: rgba(255, 255, 255, 0.8);
-    border-color: var(--color-light-bg);
-    color: #000000;
-    transform: scale(1.04);
-    box-shadow:
-      0 4px 14px color-mix(in srgb, var(--color-cta-button) 28%, transparent),
-      0 2px 6px color-mix(in srgb, var(--color-cta-button) 18%, transparent),
-      inset 0 2px 4px rgba(0, 0, 0, 0.08);
-    opacity: 1;
+    color: var(--color-text);
+    background-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 4px 14px rgba(47, 52, 64, 0.22);
+    transform: translateY(-2px);
   }
   .nav-link--active:hover {
-    background: rgba(255, 255, 255, 0.8);
-    border-color: var(--color-light-bg);
-    color: #000000;
-    transform: scale(1.04);
-    box-shadow:
-      0 4px 14px color-mix(in srgb, var(--color-cta-button) 28%, transparent),
-      0 2px 6px color-mix(in srgb, var(--color-cta-button) 18%, transparent),
-      inset 0 2px 4px rgba(0, 0, 0, 0.08);
-    opacity: 1;
+    color: var(--color-text);
+    background-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 4px 14px rgba(47, 52, 64, 0.22);
+    transform: translateY(-2px);
   }
 
   .auth-header-icon-btn {

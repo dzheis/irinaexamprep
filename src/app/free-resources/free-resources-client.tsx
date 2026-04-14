@@ -1,6 +1,7 @@
 "use client";
 
 import type { FreeResourceForDisplay } from "@/lib/free-resources-storyblok";
+import { useLanguage } from "@/components/ui/LanguageContext";
 
 const SAMPLE_FILE_URL = "/free-resources/sample-download.txt";
 
@@ -45,6 +46,7 @@ function getDownloadHref(item: FreeResourceForDisplay): string {
 }
 
 function ResourceCard({ item }: { item: FreeResourceForDisplay }) {
+  const { localizeText } = useLanguage();
   const href = getDownloadHref(item);
   const useProxyDownload = href.startsWith("/api/download");
 
@@ -54,9 +56,9 @@ function ResourceCard({ item }: { item: FreeResourceForDisplay }) {
     const link = e.currentTarget;
     const prevText = link.textContent;
     try {
-      link.textContent = "Скачивание…";
+      link.textContent = localizeText("Скачивание…");
       const res = await fetch(href);
-      if (!res.ok) throw new Error("Download failed");
+      if (!res.ok) throw new Error(localizeText("Download failed"));
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -78,13 +80,13 @@ function ResourceCard({ item }: { item: FreeResourceForDisplay }) {
     <div className="flex flex-col md:flex-row gap-4 md:gap-6 w-full min-w-0">
       <div className="glass rounded-2xl p-6 md:p-8 flex items-center justify-center text-center min-h-[120px] md:min-h-[140px] w-full md:w-[36%] lg:w-[32%] flex-shrink-0 transition-[transform,box-shadow] duration-300 ease-in-out hover:scale-[1.01] hover:shadow-xl">
         <h2 className="text-lg md:text-xl min-[1200px]:text-2xl min-[1200px]:md:text-3xl font-bold text-theme">
-          {item.title}
+          {localizeText(item.title)}
         </h2>
       </div>
 
       <div className="glass rounded-2xl p-6 md:p-8 flex flex-col flex-1 min-w-0 min-h-0 transition-[transform,box-shadow] duration-300 ease-in-out hover:scale-[1.01] hover:shadow-xl">
         <div className="prose prose-theme max-w-none text-theme text-justify leading-relaxed [&>*]:text-justify break-words flex-1">
-          <p className="whitespace-pre-line">{item.description}</p>
+          <p className="whitespace-pre-line">{localizeText(item.description)}</p>
         </div>
         <div className="mt-4 flex justify-end flex-shrink-0">
           <a
@@ -93,7 +95,7 @@ function ResourceCard({ item }: { item: FreeResourceForDisplay }) {
             download={!useProxyDownload ? (item.downloadFilename ?? true) : undefined}
             onClick={handleProxyDownload}
           >
-            Скачать
+            {localizeText("Скачать")}
           </a>
         </div>
       </div>
@@ -107,6 +109,7 @@ type FreeResourcesClientProps = {
 };
 
 export default function FreeResourcesClient({ pageTitle, resources }: FreeResourcesClientProps) {
+  const { localizeText } = useLanguage();
   const title = pageTitle?.trim() || DEFAULT_PAGE_TITLE;
   const list = resources && resources.length > 0 ? resources : FALLBACK_RESOURCES;
 
@@ -116,7 +119,7 @@ export default function FreeResourcesClient({ pageTitle, resources }: FreeResour
         <div className="pt-24 md:pt-28">
           <section className="py-20 md:py-28 max-w-[1680px] mx-auto px-4 md:px-8">
             <h1 className="text-3xl md:text-4xl lg:text-5xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl min-[1200px]:lg:text-7xl font-bold text-center mb-14 md:mb-20 text-theme">
-              {title}
+              {localizeText(title)}
             </h1>
 
             <div className="flex flex-col gap-8 md:gap-10">

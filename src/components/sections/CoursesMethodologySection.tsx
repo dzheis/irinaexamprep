@@ -5,6 +5,7 @@ import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { CoursesSectionBlockContent } from "@/lib/storyblok-types";
+import { useLanguage } from "@/components/ui/LanguageContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -60,6 +61,7 @@ function linkToHref(link: unknown): string {
 }
 
 export default function CoursesMethodologySection({ data }: CoursesMethodologySectionProps) {
+  const { localizeText } = useLanguage();
   const cards = useMemo(() => {
     const items = data?.cards?.filter((c) => c.title?.trim());
     if (!items || items.length === 0) return DEFAULT_CARDS;
@@ -274,7 +276,7 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
               onMouseLeave={() => onCardMouseLeave(coursesCardRef.current)}
             >
               <h2 className="text-2xl md:text-3xl min-[1200px]:text-4xl min-[1200px]:md:text-5xl font-bold mb-6 text-theme">
-                {cards[0].title}
+                {localizeText(cards[0].title)}
               </h2>
               <Link
                 href={cards[0].link}
@@ -282,10 +284,10 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
                 onMouseEnter={onLinkMouseEnter}
                 onMouseLeave={onLinkMouseLeave}
               >
-                Подробнее →
+                {localizeText("Подробнее")} →
               </Link>
               <p className="text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl leading-relaxed text-justify text-theme">
-                {cards[0].description}
+                {localizeText(cards[0].description)}
               </p>
             </div>
 
@@ -296,7 +298,7 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
               onMouseLeave={() => onCardMouseLeave(methodologyCardRef.current)}
             >
               <h2 className="text-2xl md:text-3xl min-[1200px]:text-4xl min-[1200px]:md:text-5xl font-bold mb-6 text-theme">
-                {cards[1].title}
+                {localizeText(cards[1].title)}
               </h2>
               <Link
                 href={cards[1].link}
@@ -304,10 +306,10 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
                 onMouseEnter={onLinkMouseEnter}
                 onMouseLeave={onLinkMouseLeave}
               >
-                Подробнее →
+                {localizeText("Подробнее")} →
               </Link>
               <p className="text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl leading-relaxed text-justify text-theme">
-                {cards[1].description}
+                {localizeText(cards[1].description)}
               </p>
             </div>
 
@@ -318,7 +320,7 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
               onMouseLeave={() => onCardMouseLeave(freeResourcesCardRef.current)}
             >
               <h2 className="text-2xl md:text-3xl min-[1200px]:text-4xl min-[1200px]:md:text-5xl font-bold mb-6 text-theme">
-                {cards[2].title}
+                {localizeText(cards[2].title)}
               </h2>
               <Link
                 href={cards[2].link}
@@ -326,10 +328,10 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
                 onMouseEnter={onLinkMouseEnter}
                 onMouseLeave={onLinkMouseLeave}
               >
-                Подробнее →
+                {localizeText("Подробнее")} →
               </Link>
               <p className="text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl leading-relaxed text-justify text-theme">
-                {cards[2].description}
+                {localizeText(cards[2].description)}
               </p>
             </div>
           </div>

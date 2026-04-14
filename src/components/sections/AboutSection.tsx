@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { useScrollLock } from "@/components/ui/SmoothScroll";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import type { AboutBlockContent } from "@/lib/storyblok-types";
+import { useLanguage } from "@/components/ui/LanguageContext";
 
 const CERT_BUTTON_CLASS =
   "relative rounded-md overflow-hidden transition-[filter] duration-200 hover:brightness-105 active:brightness-100 cursor-zoom-in select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50";
@@ -68,6 +69,7 @@ function certsFromStoryblok(
 }
 
 export default function AboutSection({ data }: AboutSectionProps) {
+  const { localizeText } = useLanguage();
   const aboutTitle = data?.title?.trim() || "Обо мне";
   const paragraphsRaw = paragraphsFromData(data?.paragraphs);
   const paragraphs = paragraphsRaw.length > 0 ? paragraphsRaw : ABOUT_PARAGRAPHS;
@@ -88,6 +90,12 @@ export default function AboutSection({ data }: AboutSectionProps) {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalClosing, setModalClosing] = useState(false);
   const [modalImage, setModalImage] = useState<{ src: string; alt: string } | null>(null);
+  const [certScale, setCertScale] = useState(1);
+  const [certOffset, setCertOffset] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const panPointerId = useRef<number | null>(null);
+  const panStart = useRef({ x: 0, y: 0, ox: 0, oy: 0 });
+  const pinchStart = useRef<{ distance: number; scale: number } | null>(null);
   const scrollLock = useScrollLock();
 
   useBodyScrollLock(certModalOpen);
@@ -105,12 +113,20 @@ export default function AboutSection({ data }: AboutSectionProps) {
   }, [certModalOpen, scrollLock]);
 
   const openCertModal = useCallback((src: string, alt: string) => {
+    setCertScale(1);
+    setCertOffset({ x: 0, y: 0 });
+    setIsPanning(false);
+    panPointerId.current = null;
+    pinchStart.current = null;
     setModalImage({ src, alt });
     setCertModalOpen(true);
   }, []);
 
   const handleCloseModal = useCallback(() => {
     if (modalClosing) return;
+    setIsPanning(false);
+    panPointerId.current = null;
+    pinchStart.current = null;
     setModalClosing(true);
   }, [modalClosing]);
 
@@ -121,9 +137,111 @@ export default function AboutSection({ data }: AboutSectionProps) {
         setModalClosing(false);
         setModalVisible(false);
         setModalImage(null);
+        setCertScale(1);
+        setCertOffset({ x: 0, y: 0 });
       }
     },
     [modalClosing],
+  );
+
+  const updateScale = useCallback((next: number) => {
+    const clamped = Math.max(1, Math.min(3, next));
+    setCertScale(clamped);
+    if (clamped === 1) setCertOffset({ x: 0, y: 0 });
+  }, []);
+
+  const handleCertWheel = useCallback(
+    (e: React.WheelEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const delta = e.deltaY > 0 ? -0.16 : 0.16;
+      updateScale(certScale + delta);
+    },
+    [certScale, updateScale],
+  );
+
+  const handleCertPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      panPointerId.current = e.pointerId;
+      setIsPanning(true);
+      panStart.current = { x: e.clientX, y: e.clientY, ox: certOffset.x, oy: certOffset.y };
+      e.currentTarget.setPointerCapture(e.pointerId);
+    },
+    [certOffset.x, certOffset.y],
+  );
+
+  const handleCertPointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!isPanning || panPointerId.current !== e.pointerId) return;
+      e.stopPropagation();
+      const dx = e.clientX - panStart.current.x;
+      const dy = e.clientY - panStart.current.y;
+      setCertOffset({ x: panStart.current.ox + dx, y: panStart.current.oy + dy });
+    },
+    [isPanning],
+  );
+
+  const handleCertPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (panPointerId.current !== e.pointerId) return;
+    setIsPanning(false);
+    panPointerId.current = null;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+  }, []);
+
+  const handleCertTouchStart = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      if (e.touches.length === 2) {
+        const [a, b] = [e.touches[0], e.touches[1]];
+        const distance = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+        pinchStart.current = { distance, scale: certScale };
+        setIsPanning(false);
+        return;
+      }
+      if (e.touches.length === 1 && certScale > 1) {
+        const t = e.touches[0];
+        setIsPanning(true);
+        panStart.current = { x: t.clientX, y: t.clientY, ox: certOffset.x, oy: certOffset.y };
+      }
+    },
+    [certScale, certOffset.x, certOffset.y],
+  );
+
+  const handleCertTouchMove = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.touches.length === 2 && pinchStart.current) {
+        const [a, b] = [e.touches[0], e.touches[1]];
+        const distance = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+        const ratio = distance / Math.max(1, pinchStart.current.distance);
+        updateScale(pinchStart.current.scale * ratio);
+        return;
+      }
+      if (e.touches.length === 1 && isPanning && certScale > 1) {
+        const t = e.touches[0];
+        const dx = t.clientX - panStart.current.x;
+        const dy = t.clientY - panStart.current.y;
+        setCertOffset({ x: panStart.current.ox + dx, y: panStart.current.oy + dy });
+      }
+    },
+    [certScale, isPanning, updateScale],
+  );
+
+  const handleCertTouchEnd = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      if (e.touches.length < 2) pinchStart.current = null;
+      if (e.touches.length === 1 && certScale > 1) {
+        const t = e.touches[0];
+        setIsPanning(true);
+        panStart.current = { x: t.clientX, y: t.clientY, ox: certOffset.x, oy: certOffset.y };
+        return;
+      }
+      if (e.touches.length === 0) setIsPanning(false);
+    },
+    [certScale, certOffset.x, certOffset.y],
   );
 
   return (
@@ -139,11 +257,13 @@ export default function AboutSection({ data }: AboutSectionProps) {
               sizes="(max-width: 767px) 100vw, 50vw"
             />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-theme">{aboutTitle}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-theme">
+            {localizeText(aboutTitle)}
+          </h2>
           <div className="w-full prose prose-lg max-w-none leading-relaxed text-theme [&_p]:text-justify [&_p]:indent-8 [&>p]:mb-4 [&>p:last-child]:mb-0">
             {paragraphs.map((text, i) => (
               <p key={i} className="text-base text-justify">
-                {text}
+                {localizeText(text)}
               </p>
             ))}
           </div>
@@ -157,7 +277,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
                   tabIndex={0}
                   onClick={() => openCertModal(cert.src, cert.alt)}
                   onKeyDown={(e) => e.key === "Enter" && openCertModal(cert.src, cert.alt)}
-                  aria-label={`Открыть ${cert.alt} в полном размере`}
+                  aria-label={localizeText(`Открыть ${cert.alt} в полном размере`)}
                 >
                   <Image
                     src={cert.src}
@@ -176,7 +296,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
                   tabIndex={0}
                   onClick={() => openCertModal(cert.src, cert.alt)}
                   onKeyDown={(e) => e.key === "Enter" && openCertModal(cert.src, cert.alt)}
-                  aria-label={`Открыть ${cert.alt} в полном размере`}
+                  aria-label={localizeText(`Открыть ${cert.alt} в полном размере`)}
                 >
                   <Image
                     src={cert.src}
@@ -207,7 +327,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
           <div className="flex flex-col lg:flex-row gap-8 justify-between">
             <div className="w-full max-w-full min-[640px]:max-w-[50%] lg:w-1/2 lg:max-w-none lg:pr-4 flex flex-col">
               <h2 className="text-3xl md:text-4xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl font-bold mb-6 text-left text-white">
-                {aboutTitle}
+                {localizeText(aboutTitle)}
               </h2>
 
               <div className="prose prose-lg max-w-none leading-relaxed text-white min-h-0 overflow-visible text-left [&_p]:text-justify [&>p]:mb-4 [&>p:last-child]:mb-0">
@@ -216,7 +336,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
                     key={i}
                     className="text-base md:text-lg min-[1200px]:text-xl min-[1200px]:md:text-2xl text-justify indent-8"
                   >
-                    {text}
+                    {localizeText(text)}
                   </p>
                 ))}
               </div>
@@ -232,7 +352,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
                     tabIndex={0}
                     onClick={() => openCertModal(cert.src, cert.alt)}
                     onKeyDown={(e) => e.key === "Enter" && openCertModal(cert.src, cert.alt)}
-                    aria-label={`Открыть ${cert.alt} в полном размере`}
+                    aria-label={localizeText(`Открыть ${cert.alt} в полном размере`)}
                   >
                     <Image
                       src={cert.src}
@@ -257,7 +377,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
                   tabIndex={0}
                   onClick={() => openCertModal(cert.src, cert.alt)}
                   onKeyDown={(e) => e.key === "Enter" && openCertModal(cert.src, cert.alt)}
-                  aria-label={`Открыть ${cert.alt} в полном размере`}
+                  aria-label={localizeText(`Открыть ${cert.alt} в полном размере`)}
                 >
                   <Image
                     src={cert.src}
@@ -276,7 +396,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
                   tabIndex={0}
                   onClick={() => openCertModal(cert.src, cert.alt)}
                   onKeyDown={(e) => e.key === "Enter" && openCertModal(cert.src, cert.alt)}
-                  aria-label={`Открыть ${cert.alt} в полном размере`}
+                  aria-label={localizeText(`Открыть ${cert.alt} в полном размере`)}
                 >
                   <Image
                     src={cert.src}
@@ -310,6 +430,28 @@ export default function AboutSection({ data }: AboutSectionProps) {
             aria-modal="true"
             aria-label={`${modalImage.alt} в полном размере`}
           >
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCloseModal();
+              }}
+              className="absolute right-5 top-5 z-[10000] inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-white transition-colors hover:bg-black/45"
+              aria-label="Закрыть сертификат"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M18 6L6 18" />
+                <path d="M6 6l12 12" />
+              </svg>
+            </button>
             <div
               className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none p-4"
               aria-hidden
@@ -318,15 +460,39 @@ export default function AboutSection({ data }: AboutSectionProps) {
                 className={`relative w-full h-full max-w-[80vw] max-h-[80vh] origin-center transition-transform duration-500 ease-out ${
                   modalVisible && !modalClosing ? "scale-100" : "scale-[0.85]"
                 }`}
+                onClick={(e) => e.stopPropagation()}
+                onWheel={handleCertWheel}
+                onPointerDown={handleCertPointerDown}
+                onPointerMove={handleCertPointerMove}
+                onPointerUp={handleCertPointerUp}
+                onPointerCancel={handleCertPointerUp}
+                onTouchStart={handleCertTouchStart}
+                onTouchMove={handleCertTouchMove}
+                onTouchEnd={handleCertTouchEnd}
+                onDoubleClick={() => updateScale(certScale > 1 ? 1 : 2)}
+                style={{
+                  pointerEvents: "auto",
+                  cursor: isPanning ? "grabbing" : "grab",
+                  touchAction: "none",
+                }}
               >
-                <Image
-                  src={modalImage.src}
-                  alt={`${modalImage.alt} — полный размер`}
-                  fill
-                  unoptimized
-                  className="object-contain"
-                  sizes="80vw"
-                />
+                <div
+                  className="relative h-full w-full"
+                  style={{
+                    transform: `translate(${certOffset.x}px, ${certOffset.y}px) scale(${certScale})`,
+                    transformOrigin: "center center",
+                    transition: isPanning ? "none" : "transform 180ms ease-out",
+                  }}
+                >
+                  <Image
+                    src={modalImage.src}
+                    alt={`${modalImage.alt} — полный размер`}
+                    fill
+                    unoptimized
+                    className="object-contain"
+                    sizes="80vw"
+                  />
+                </div>
               </div>
             </div>
           </div>,
