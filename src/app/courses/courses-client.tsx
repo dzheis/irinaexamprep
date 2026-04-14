@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useApplyModal } from "@/components/ui/ApplyModalContext";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import type { CoursesStoryContent } from "@/lib/storyblok-types";
+import { useLanguage } from "@/components/ui/LanguageContext";
 
 const DEFAULT_TITLE = "Курсы подготовки к экзаменам";
 
@@ -273,7 +274,19 @@ function normalizeCourseBlock(item: CourseBlock): {
   };
 }
 
-const CAE_CPE_SINGLE_LINE = /^(CAE|CPE)\s+(\([^)]+\))$/;
+const EXAM_SINGLE_LINE = /^(FCE|CAE|CPE)\s+(\([^)]+\))$/;
+
+function localizeCourseTitleByLanguage(title: string, language: "en" | "ru"): string {
+  if (language !== "ru") return title;
+  const normalized = title.replace(/\r\n/g, "\n").replace(/\s+/g, " ").trim();
+  if (normalized === "FCE (B2 level)") return "FCE\n(B2 уровень)";
+  if (normalized === "CAE (C1 Advanced)") return "CAE\n(C1 Продвинутый)";
+  if (normalized === "CPE (C2 Proficiency)") return "CPE\n(C2 Профессионал.)";
+  if (normalized === "FCE\n(B2 level)") return "FCE\n(B2 уровень)";
+  if (normalized === "CAE\n(C1 Advanced)") return "CAE\n(C1 Продвинутый)";
+  if (normalized === "CPE\n(C2 Proficiency)") return "CPE\n(C2 Профессионал.)";
+  return title;
+}
 
 function renderCourseCardTitle(title: string): ReactNode {
   const normalized = title.replace(/\r\n/g, "\n").trim();
@@ -282,27 +295,106 @@ function renderCourseCardTitle(title: string): ReactNode {
     .map((l) => l.trim())
     .filter(Boolean);
   if (lines.length >= 2) {
+    const secondLine = lines.slice(1).join(" ");
+    const secondLineClass = "text-[0.92em] leading-tight block max-w-full whitespace-nowrap";
     return (
       <>
         <div>{lines[0]}</div>
-        <div className="whitespace-nowrap">{lines.slice(1).join(" ")}</div>
+        <div className={secondLineClass}>{secondLine}</div>
       </>
     );
   }
   const single = lines[0] ?? normalized;
-  const m = single.match(CAE_CPE_SINGLE_LINE);
+  const m = single.match(EXAM_SINGLE_LINE);
   if (m) {
+    const secondLineClass = "text-[0.92em] leading-tight block max-w-full whitespace-nowrap";
     return (
       <>
         <div>{m[1]}</div>
-        <div className="whitespace-nowrap">{m[2]}</div>
+        <div className={secondLineClass}>{m[2]}</div>
       </>
     );
   }
   return single;
 }
 
+type Frequency = "once" | "twice";
+
+function FrequencyIcon({ kind }: { kind: Frequency }) {
+  if (kind === "twice") {
+    return (
+      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M4 12a8 8 0 0 1 13.8-5.5" />
+        <path d="M20 4v6h-6" />
+        <path d="M20 12a8 8 0 0 1-13.8 5.5" />
+        <path d="M4 20v-6h6" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <rect x="3.5" y="5.5" width="17" height="15" rx="2.5" />
+      <path d="M8 3.5v4M16 3.5v4M3.5 10.5h17" />
+    </svg>
+  );
+}
+
+function CourseFrequencyPricing({ language }: { language: "en" | "ru" }) {
+  const [selected, setSelected] = useState<Frequency>("once");
+  const [priceVisible, setPriceVisible] = useState(true);
+  const [displayPrice, setDisplayPrice] = useState(8000);
+
+  const options = useMemo(
+    () => [
+      { key: "once" as const, label: language === "ru" ? "1 раз в неделю" : "Once a week", price: 8000 },
+      { key: "twice" as const, label: language === "ru" ? "2 раза в неделю" : "Twice a week", price: 15000 },
+    ],
+    [language],
+  );
+
+  const changeOption = (next: Frequency) => {
+    if (next === selected) return;
+    const nextPrice = options.find((o) => o.key === next)?.price ?? 8000;
+    setSelected(next);
+    setPriceVisible(false);
+    window.setTimeout(() => {
+      setDisplayPrice(nextPrice);
+      setPriceVisible(true);
+    }, 120);
+  };
+
+  return (
+    <div className="mt-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {options.map((option) => (
+          <button
+            key={option.key}
+            type="button"
+            onClick={() => changeOption(option.key)}
+            className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-2 text-xs md:text-sm font-semibold border transition-all duration-300 ${
+              selected === option.key
+                ? "bg-white border-theme-secondary-accent text-theme shadow-[0_4px_12px_rgba(47,52,64,0.22),inset_0_1px_0_rgba(255,255,255,0.9)] scale-[1.02]"
+                : "bg-white/45 border-white/60 text-theme-accent hover:bg-white/65"
+            }`}
+          >
+            <FrequencyIcon kind={option.key} />
+            <span>{option.label}</span>
+          </button>
+        ))}
+      </div>
+      <div
+        className={`mt-2 text-center rounded-full border border-theme-light-bg bg-white/70 px-4 py-2 text-sm md:text-base font-bold text-theme transition-all duration-200 ${
+          priceVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"
+        }`}
+      >
+        {displayPrice.toLocaleString("ru-RU")} {language === "ru" ? "рублей" : "RUB"}
+      </div>
+    </div>
+  );
+}
+
 export default function CoursesClient({ data }: { data?: CoursesStoryContent | null }) {
+  const { language, localizeText } = useLanguage();
   const [detailsModalCourseId, setDetailsModalCourseId] = useState<number | null>(null);
   const applyModal = useApplyModal();
 
@@ -340,7 +432,7 @@ export default function CoursesClient({ data }: { data?: CoursesStoryContent | n
   const renderCard = (course: CourseForDisplay) => (
     <div key={course.id} className="flex justify-center perspective-1000 min-w-0">
       <div className="course-card glass rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 w-full max-w-xl md:max-w-none min-w-0 transition-[transform,box-shadow] duration-300 ease-in-out hover:scale-[1.02] hover:shadow-xl">
-        <div className="flex flex-col items-center justify-center flex-shrink-0 md:w-[48%] min-w-0">
+        <div className="flex flex-col items-center justify-center flex-shrink-0 md:w-[44%] min-w-0">
           <div className="relative w-full max-h-[320px] sm:max-h-[380px] md:max-h-[360px] aspect-[3/4] rounded-3xl overflow-hidden bg-theme-secondary-accent/10 flex items-center justify-center">
             <Image
               src={course.imagePath || "/images/certificates/FCE B2.jpg"}
@@ -353,7 +445,9 @@ export default function CoursesClient({ data }: { data?: CoursesStoryContent | n
         </div>
         <div className="flex flex-col justify-center text-center md:text-left flex-1 min-w-0">
           <h2 className="text-xl md:text-2xl min-[1200px]:text-3xl min-[1200px]:md:text-4xl font-bold mb-5 md:mb-6 text-theme break-words text-center">
-            {renderCourseCardTitle(course.title)}
+            {renderCourseCardTitle(
+              localizeCourseTitleByLanguage(localizeText(course.title), language),
+            )}
           </h2>
           <div className="flex flex-col gap-4 min-w-0">
             <button
@@ -361,15 +455,16 @@ export default function CoursesClient({ data }: { data?: CoursesStoryContent | n
               onClick={() => setDetailsModalCourseId(course.id)}
               className="btn btn-secondary w-full text-center min-w-0 text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl py-3 md:py-3.5 overflow-hidden text-ellipsis whitespace-nowrap"
             >
-              Подробнее
+              {localizeText("Подробнее")}
             </button>
             <button
               type="button"
               onClick={() => applyModal?.openApplyModal(course.id, course.title)}
               className="btn-primary w-full text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl px-5 py-3 md:py-4 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
             >
-              Подать заявку
+              {localizeText("Подать заявку")}
             </button>
+            <CourseFrequencyPricing language={language} />
           </div>
         </div>
       </div>
@@ -380,17 +475,17 @@ export default function CoursesClient({ data }: { data?: CoursesStoryContent | n
     <div className="min-h-screen relative">
       <div className="relative z-10">
         <div className="pt-24 md:pt-28">
-          <section className="py-20 md:py-28 max-w-[1680px] mx-auto px-4 md:px-8">
+          <section className="py-20 md:py-28 max-w-[1760px] mx-auto px-4 md:px-8">
             <div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl min-[1200px]:lg:text-7xl font-bold text-center mb-14 md:mb-20 text-theme">
-                {pageTitle}
+                {localizeText(pageTitle)}
               </h1>
 
               <div
                 className={
                   courses.length === 4
                     ? "grid grid-cols-1 min-[1400px]:grid-cols-2 gap-y-8 gap-x-0 min-[1400px]:gap-8 min-[1400px]:md:gap-10 perspective-1000 min-[1400px]:max-w-[900px] min-[1400px]:mx-auto"
-                    : "grid grid-cols-1 min-[1400px]:grid-cols-3 gap-y-8 gap-x-0 min-[1400px]:gap-8 min-[1400px]:md:gap-10 perspective-1000"
+                    : "grid grid-cols-1 min-[1400px]:grid-cols-3 gap-y-8 gap-x-0 min-[1400px]:gap-6 min-[1400px]:md:gap-8 perspective-1000"
                 }
               >
                 {courses.length === 4
@@ -448,6 +543,7 @@ function DetailsModal({
   description: string;
   onClose: () => void;
 }) {
+  const { localizeText } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -514,13 +610,13 @@ function DetailsModal({
       >
         <div className="flex items-center justify-between gap-4 flex-shrink-0 pb-4 border-b border-theme-secondary-accent/30">
           <h2 id="details-modal-title" className="text-xl font-bold text-theme">
-            {courseTitle}
+            {localizeText(courseTitle)}
           </h2>
           <button
             type="button"
             onClick={startClose}
             className="text-theme-accent hover:text-theme text-2xl leading-none p-1 flex-shrink-0"
-            aria-label="Закрыть"
+            aria-label={localizeText("Закрыть")}
           >
             ×
           </button>
@@ -546,13 +642,13 @@ function DetailsModal({
                     <>
                       <div className="!text-center font-bold">{first}</div>
                       <div className="!text-center font-bold">{second}</div>
-                      {rest}
+                      {localizeText(rest)}
                     </>
                   );
                 }
               }
 
-              return description;
+              return localizeText(description);
             })()}
           </div>
         </div>

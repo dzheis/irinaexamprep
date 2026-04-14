@@ -5,6 +5,7 @@ import Link from "next/link";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import type { CtaBlockContent } from "@/lib/storyblok-types";
+import { useLanguage } from "@/components/ui/LanguageContext";
 
 import emailAnimation from "@/../public/lottie/e-mail_default.json";
 import instagramAnimation from "@/../public/lottie/instagram_default.json";
@@ -38,6 +39,7 @@ type SocialLink = { href: string; label: string; type: "telegram" | "instagram" 
 type CTASectionProps = { data?: CtaBlockContent | null };
 
 export default function CTASection({ data }: CTASectionProps) {
+  const { localizeText } = useLanguage();
   const title = data?.title?.trim() || DEFAULT_CTA_TITLE;
   const subtitle = data?.subtitle?.trim() || DEFAULT_CTA_SUBTITLE;
   const consentText = data?.privacy_consent_text?.trim() || DEFAULT_CONSENT_TEXT;
@@ -202,10 +204,10 @@ export default function CTASection({ data }: CTASectionProps) {
           }
         >
           <h2 className="text-3xl md:text-4xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl font-bold mb-4 text-theme">
-            {title}
+            {localizeText(title)}
           </h2>
           <p className="text-lg md:text-xl min-[1200px]:text-2xl min-[1200px]:md:text-3xl opacity-90 mb-8 text-theme">
-            {subtitle}
+            {localizeText(subtitle)}
           </p>
           <form
             className="group flex flex-col gap-4 max-w-lg mx-auto mb-4"
@@ -225,7 +227,7 @@ export default function CTASection({ data }: CTASectionProps) {
               </div>
               <input
                 type="email"
-                placeholder="Email адрес"
+                placeholder={localizeText("Email address")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
@@ -237,7 +239,7 @@ export default function CTASection({ data }: CTASectionProps) {
                 disabled={isLoading}
                 className="px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 shadow-lg btn-cta-subscribe disabled:opacity-70 disabled:cursor-not-allowed w-full sm:w-auto"
               >
-                {isLoading ? "Отправка…" : "Подписаться"}
+                {isLoading ? localizeText("Отправка…") : localizeText("Подписаться")}
               </button>
             </div>
             <div className="flex items-start gap-2">
@@ -249,9 +251,9 @@ export default function CTASection({ data }: CTASectionProps) {
                 className="mt-1 rounded border-theme/30 text-theme-accent focus:ring-theme-accent"
               />
               <label htmlFor="cta-consent-pd" className="text-sm text-theme/90">
-                {consentText}{" "}
+                {localizeText(consentText)}{" "}
                 <Link href="/privacy" className="underline text-theme-accent hover:text-theme">
-                  политикой конфиденциальности
+                  {localizeText("политикой конфиденциальности")}
                 </Link>
               </label>
             </div>
@@ -261,12 +263,14 @@ export default function CTASection({ data }: CTASectionProps) {
               className="text-sm font-medium text-green-600 dark:text-green-400 mb-6"
               role="status"
             >
-              Спасибо! Проверьте почту — мы отправили вам письмо с полезными ссылками.
+              {localizeText(
+                "Спасибо! Проверьте почту — мы отправили вам письмо с полезными ссылками.",
+              )}
             </p>
           )}
           {error && (
             <p className="text-sm font-medium text-red-600 dark:text-red-400 mb-6" role="alert">
-              {error}
+              {localizeText(error)}
             </p>
           )}
           {!isSuccess && !error && <div className="h-0 mb-6" aria-hidden />}
@@ -291,7 +295,7 @@ export default function CTASection({ data }: CTASectionProps) {
                     className="w-full h-full"
                   />
                 </div>
-                <span className="text-sm font-medium text-theme">{item.label}</span>
+                <span className="text-sm font-medium text-theme">{localizeText(item.label)}</span>
               </Link>
             ))}
           </div>

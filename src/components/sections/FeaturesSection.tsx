@@ -5,6 +5,7 @@ import Lottie from "lottie-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { FeaturesBlockContent } from "@/lib/storyblok-types";
+import { useLanguage } from "@/components/ui/LanguageContext";
 
 import calendarAnimation from "@/../public/lottie/calendar_default.json";
 import clockAnimation from "@/../public/lottie/clock_default.json";
@@ -145,6 +146,7 @@ function TiltCard({
 type FeaturesSectionProps = { data?: FeaturesBlockContent | null };
 
 export default function FeaturesSection({ data }: FeaturesSectionProps) {
+  const { localizeText } = useLanguage();
   const sectionTitle = data?.title?.trim() || "Индивидуальный подход";
   const sectionSubtitle =
     data?.subtitle?.trim() || "Большой опыт преподавания и современная методика обучения.";
@@ -216,10 +218,10 @@ export default function FeaturesSection({ data }: FeaturesSectionProps) {
       <div className="max-w-7xl mx-auto">
         <div ref={headerRef} className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl font-bold mb-4 text-theme">
-            {sectionTitle}
+            {localizeText(sectionTitle)}
           </h2>
           <p className="text-lg md:text-xl min-[1200px]:text-2xl min-[1200px]:md:text-3xl opacity-90 max-w-3xl mx-auto text-theme">
-            {sectionSubtitle}
+            {localizeText(sectionSubtitle)}
           </p>
         </div>
         <div
@@ -229,7 +231,11 @@ export default function FeaturesSection({ data }: FeaturesSectionProps) {
           {features.map((feature, i) => (
             <TiltCard
               key={feature.title}
-              feature={feature}
+                  feature={{
+                    ...feature,
+                    title: localizeText(feature.title),
+                    description: localizeText(feature.description),
+                  }}
               cardRef={(el) => {
                 if (el) cardsRef.current[i] = el;
               }}

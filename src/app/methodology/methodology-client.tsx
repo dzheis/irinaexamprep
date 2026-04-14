@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useLanguage } from "@/components/ui/LanguageContext";
 
 export type MethodologyVideoItem = {
   id: string;
@@ -391,6 +392,7 @@ function PaymentResultModal({
 const DEFAULT_PAGE_TITLE = "Методология";
 
 export default function MethodologyClient({ videos, pageTitle }: MethodologyClientProps) {
+  const { localizeText } = useLanguage();
   const list = videos && videos.length > 0 ? videos : METHODOLOGY_VIDEOS;
   const title = pageTitle?.trim() || DEFAULT_PAGE_TITLE;
   const [paymentProduct, setPaymentProduct] = useState<PaymentProduct | null>(null);
@@ -441,22 +443,19 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
       .catch(() => setCsrfToken(null));
   }, []);
 
-  const handleBuy = useCallback(
-    (item: MethodologyVideoItem) => {
-      const alreadyPurchased = purchasedModuleIds.includes(item.id);
-      if (alreadyPurchased) return;
-      if (!isAuthed) {
-        setAuthRequiredOpen(true);
-        return;
-      }
-      setPaymentProduct({
-        id: item.id,
-        title: item.title ?? "Курс",
-        price: item.price ?? DEFAULT_PRICE,
-      });
-    },
-    [isAuthed, purchasedModuleIds],
-  );
+  const handleBuy = (item: MethodologyVideoItem) => {
+    const alreadyPurchased = purchasedModuleIds.includes(item.id);
+    if (alreadyPurchased) return;
+    if (!isAuthed) {
+      setAuthRequiredOpen(true);
+      return;
+    }
+    setPaymentProduct({
+      id: item.id,
+      title: item.title ?? "Курс",
+      price: item.price ?? DEFAULT_PRICE,
+    });
+  };
 
   const closePaymentResult = useCallback(() => {
     setResultDismissed(true);
@@ -474,14 +473,18 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
         <div className="pt-24 md:pt-28">
           <section className="py-20 md:py-28 max-w-[1680px] mx-auto px-4 md:px-8">
             <h1 className="text-3xl md:text-4xl lg:text-5xl min-[1200px]:text-5xl min-[1200px]:md:text-6xl min-[1200px]:lg:text-7xl font-bold text-center mb-14 md:mb-20 text-theme">
-              {title}
+              {localizeText(title)}
             </h1>
 
             <div className="flex flex-col gap-8 md:gap-10">
               {list.map((item) => (
                 <MethodologyVideoBlock
                   key={item.id}
-                  item={item}
+                  item={{
+                    ...item,
+                    title: item.title ? localizeText(item.title) : item.title,
+                    description: localizeText(item.description),
+                  }}
                   hasAccess={purchasedModuleIds.includes(item.id)}
                   onBuy={() => handleBuy(item)}
                 />
@@ -515,6 +518,7 @@ function MethodologyVideoBlock({
   hasAccess: boolean;
   onBuy: () => void;
 }) {
+  const { localizeText } = useLanguage();
   return (
     <div className="glass rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 w-full min-w-0 transition-[transform,box-shadow] duration-300 ease-in-out hover:scale-[1.01] hover:shadow-xl md:items-center">
       <div
@@ -526,7 +530,7 @@ function MethodologyVideoBlock({
             <>
               <iframe
                 src={`/api/video-embed?module=${encodeURIComponent(item.id)}`}
-                title={item.title ?? "Видео"}
+                title={item.title ?? localizeText("Видео")}
                 className="absolute inset-0 w-full h-full z-0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -552,7 +556,9 @@ function MethodologyVideoBlock({
                   d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
                 />
               </svg>
-              <span className="text-sm md:text-base text-center px-4">Доступ после оплаты</span>
+              <span className="text-sm md:text-base text-center px-4">
+                {localizeText("Доступ после оплаты")}
+              </span>
             </div>
           )}
         </div>
@@ -571,7 +577,7 @@ function MethodologyVideoBlock({
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3 md:gap-4">
             <span
               className="inline-flex items-center rounded-full px-5 py-2.5 md:px-6 md:py-3 text-base md:text-lg min-[1200px]:text-xl min-[1200px]:md:text-2xl font-semibold text-theme bg-white/80 border border-theme/20 shadow-[0_2px_8px_rgba(47,52,64,0.12),0_1px_3px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.8)] transition-transform duration-300 hover:scale-[1.02]"
-              aria-label="Цена"
+              aria-label={localizeText("Цена")}
             >
               {typeof item.price === "number"
                 ? item.price.toLocaleString("ru-RU")
@@ -583,7 +589,7 @@ function MethodologyVideoBlock({
               onClick={onBuy}
               className="btn-primary text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl px-10 py-3 md:py-4 min-w-[200px]"
             >
-              Купить
+              {localizeText("Купить")}
             </button>
           </div>
         )}
