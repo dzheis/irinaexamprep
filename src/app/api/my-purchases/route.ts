@@ -15,12 +15,14 @@ export async function GET() {
       return NextResponse.json({ moduleIds: [] });
     }
     const emailLower = user.email.trim().toLowerCase();
+    const emailRaw = user.email.trim();
     if (ADMIN_EMAIL && emailLower === ADMIN_EMAIL) {
       const moduleIds = await getAllMethodologyModuleIds();
       return NextResponse.json({ moduleIds });
     }
     const db = createServiceClient();
-    const { data: rows } = await db.from("purchases").select("module_id").eq("email", user.email);
+    const emailVariants = [...new Set([emailLower, emailRaw])];
+    const { data: rows } = await db.from("purchases").select("module_id").in("email", emailVariants);
     const moduleIds = (rows ?? []).map((r) => r.module_id).filter(Boolean);
     return NextResponse.json({ moduleIds });
   } catch {

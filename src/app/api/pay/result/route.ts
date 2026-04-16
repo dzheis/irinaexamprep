@@ -12,7 +12,13 @@ function checkResultSignature(
 ): boolean {
   const str = `${outSum}:${invId}:${pass2}`;
   const expected = crypto.createHash("md5").update(str, "utf8").digest("hex").toUpperCase();
-  return expected === (signatureValue ?? "").toUpperCase();
+  return expected === (signatureValue ?? "").trim().toUpperCase();
+}
+
+function parseAmount(value: string): number {
+  const normalized = value.replace(/\s/g, "").replace(",", ".");
+  const n = Number(normalized);
+  return Number.isFinite(n) ? n : NaN;
 }
 
 function plainResponse(text: string) {
@@ -35,6 +41,11 @@ async function handleResult(params: {
   const invId = params.InvId ?? "";
   const signatureValue = params.SignatureValue ?? "";
   if (!outSum || !invId || !signatureValue) {
+    console.error("Pay result: missing OutSum, InvId or SignatureValue", {
+      hasOutSum: !!outSum,
+      hasInvId: !!invId,
+      hasSignature: !!signatureValue,
+    });
     return plainResponse("ERROR");
   }
   if (!checkResultSignature(outSum, invId, signatureValue, ROBOKASSA_PASS2)) {
@@ -44,13 +55,22 @@ async function handleResult(params: {
 
   try {
     const supabase = createServiceClient();
-    const { data: pending } = await supabase
+    const { data: pending, error: pendingErr } = await supabase
       .from("pending_payments")
       .select("email, product_id, out_sum")
       .eq("inv_id", invId)
-      .single();
+      .maybeSingle();
+    if (pendingErr) {
+      console.error("Pay result: pending_payments query failed", pendingErr);
+    }
+    if (!pending?.email || !pending?.product_id) {
+      console.error("Pay result: no pending row for InvId (check inv_id in DB vs callback)", {
+        invId,
+        pendingFound: !!pending,
+      });
+    }
     if (pending?.email && pending?.product_id) {
-      const outSumNumber = Number(outSum);
+      const outSumNumber = parseAmount(outSum);
       const pendingOutSumNumber = Number(pending.out_sum);
       const isOutSumMatch =
         Number.isFinite(outSumNumber) &&
@@ -69,7 +89,7 @@ async function handleResult(params: {
       await supabase
         .from("purchases")
         .upsert(
-          { email: pending.email, module_id: pending.product_id },
+          { email: pending.email.trim().toLowerCase(), module_id: pending.product_id },
           { onConflict: "email,module_id" },
         );
       await supabase.from("pending_payments").delete().eq("inv_id", invId);
@@ -90,6 +110,14 @@ export async function GET(req: NextRequest) {
   });
 }
 
+function extractResultFields(sp: URLSearchParams) {
+  return {
+    OutSum: sp.get("OutSum"),
+    InvId: sp.get("InvId"),
+    SignatureValue: sp.get("SignatureValue"),
+  };
+}
+
 export async function POST(req: NextRequest) {
   let OutSum: string | null = null;
   let InvId: string | null = null;
@@ -97,15 +125,17 @@ export async function POST(req: NextRequest) {
   const contentType = req.headers.get("content-type") ?? "";
   if (contentType.includes("application/x-www-form-urlencoded")) {
     const body = await req.text();
-    const sp = new URLSearchParams(body);
-    OutSum = sp.get("OutSum");
-    InvId = sp.get("InvId");
-    SignatureValue = sp.get("SignatureValue");
+    ({ OutSum, InvId, SignatureValue } = extractResultFields(new URLSearchParams(body)));
   } else if (contentType.includes("multipart/form-data")) {
     const form = await req.formData();
     OutSum = form.get("OutSum") as string | null;
     InvId = form.get("InvId") as string | null;
     SignatureValue = form.get("SignatureValue") as string | null;
+  } else {
+    const body = await req.text();
+    if (body.trim()) {
+      ({ OutSum, InvId, SignatureValue } = extractResultFields(new URLSearchParams(body)));
+    }
   }
   return handleResult({ OutSum, InvId, SignatureValue });
 }

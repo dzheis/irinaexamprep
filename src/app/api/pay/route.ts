@@ -19,7 +19,7 @@ const METHODOLOGY_PRICE_BY_PRODUCT_ID: Record<string, number> = {
 
 function buildSignature(login: string, outSum: string, invId: string, pass1: string): string {
   const str = `${login}:${outSum}:${invId}:${pass1}`;
-  return crypto.createHash("md5").update(str, "utf8").digest("hex");
+  return crypto.createHash("md5").update(str, "utf8").digest("hex").toUpperCase();
 }
 
 export async function POST(req: NextRequest) {
@@ -94,13 +94,13 @@ export async function POST(req: NextRequest) {
     if (!user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    email = user.email.trim();
+    email = user.email.trim().toLowerCase();
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const outSum = amount.toFixed(2);
-  const invId = String(Math.abs((Date.now() >>> 0) % 2147483647));
+  const invId = String(crypto.randomInt(1, 2147483647));
   const signature = buildSignature(ROBOKASSA_LOGIN, outSum, invId, ROBOKASSA_PASS1);
 
   try {
@@ -128,8 +128,10 @@ export async function POST(req: NextRequest) {
     MerchantLogin: ROBOKASSA_LOGIN,
     OutSum: outSum,
     InvId: invId,
+    Description: "Методика: цифровой доступ к материалам",
     SignatureValue: signature,
     Culture: "ru",
+    Encoding: "utf-8",
     ...(ROBOKASSA_TEST && { IsTest: "1" }),
     Email: email,
     ...(successUrl && { SuccessURL: successUrl }),
