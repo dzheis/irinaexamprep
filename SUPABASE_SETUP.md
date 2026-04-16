@@ -31,11 +31,31 @@ ADMIN_EMAIL=ваш-email@example.com
 ## 4. Auth в Supabase
 
 - **Authentication → Providers**: включить **Email**.
-- **Authentication → URL Configuration**: в **Redirect URLs** добавить:
-  - `http://localhost:3000/auth/callback`
-  - `http://localhost:3000/reset-password`
-  - `https://ваш-домен.com/auth/callback`
-  - `https://ваш-домен.com/reset-password`
+- **Authentication → URL Configuration** (важно и для **localhost**, и для **продакшена**):
+
+### Site URL
+
+- Для **боевого сайта** удобно указать: `https://irinaexamprep.com` — ссылки в письмах (подтверждение, сброс пароля) по умолчанию ведут на этот домен.
+- Для отладки только на машине можно временно поставить `http://localhost:3000`, но тогда ссылки из писем будут указывать на localhost (удобно не всем). Обычно оставляют продакшен-домен и тестируют вход локально через **Redirect URLs** ниже.
+
+### Redirect URLs (добавить все строки, по одной на строку)
+
+Локальная разработка (Next.js по умолчанию порт **3000**):
+
+- `http://localhost:3000/auth/callback`
+- `http://localhost:3000/reset-password`
+- `http://127.0.0.1:3000/auth/callback`
+- `http://127.0.0.1:3000/reset-password`
+
+Продакшен **https://irinaexamprep.com**:
+
+- `https://irinaexamprep.com/auth/callback`
+- `https://irinaexamprep.com/reset-password`
+
+Если используете **www**, добавьте те же пути с `https://www.irinaexamprep.com`, либо настройте редирект с www на без www и оставьте один вариант.
+
+После изменений сохраните настройки в Supabase. Без совпадения URL редирект после входа/по ссылке из письма может завершиться ошибкой «redirect_uri mismatch».
+
 - **Confirm email**: если включено, после регистрации на почту уходит ссылка; по переходу активируется аккаунт.
 - **Recovery (сброс пароля)**: ссылка из письма ведёт на `/reset-password`; там пользователь вводит новый пароль дважды.
 

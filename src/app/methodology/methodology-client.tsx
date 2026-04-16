@@ -95,6 +95,7 @@ function PaymentModal({
       if (csrfToken) headers["x-csrf-token"] = csrfToken;
       const res = await fetch("/api/pay", {
         method: "POST",
+        credentials: "include",
         headers,
         body: JSON.stringify({
           productId: product.id,
