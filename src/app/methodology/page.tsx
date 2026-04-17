@@ -22,7 +22,7 @@ export default async function Methodology() {
         </div>
       }
     >
-      <MethodologyClient pageTitle={pageTitle} videos={videos.length > 0 ? videos : undefined} />
+      <MethodologyClient pageTitle={pageTitle} {...(videos.length > 0 ? { videos } : {})} />
     </Suspense>
   );
 }

@@ -5,7 +5,7 @@ import {
   upsertPurchaseAndDeletePending,
 } from "@/services/paymentService";
 
-const ROBOKASSA_PASS2 = process.env.ROBOKASSA_PASS2;
+const ROBOKASSA_PASS2 = process.env["ROBOKASSA_PASS2"];
 
 function checkResultSignature(
   outSum: string,

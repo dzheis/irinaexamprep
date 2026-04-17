@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://irinaexamprep.com' // Замени на реальный URL
+  const baseUrl = process.env["NEXT_PUBLIC_SITE_URL"];
 
   // Статические страницы
   const staticPages = [
@@ -13,7 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/privacy',
     '/payment-refund',
   ].map((route) => ({
-    url: `${baseUrl}${route}`,
+    url: `${baseUrl ?? "https://irinaexamprep.com"}${route}`,
     lastModified: new Date().toISOString(),
     changeFrequency: 'monthly' as const,
     priority: route === '' ? 1 : 0.8,

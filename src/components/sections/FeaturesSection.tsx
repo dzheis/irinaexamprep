@@ -157,7 +157,7 @@ export default function FeaturesSection({ data }: FeaturesSectionProps) {
     const keys = ["calendar", "clock", "consultation"];
     return items.map((item, i) => {
       const rawKey = item.animation_key?.toLowerCase()?.trim();
-      const key = rawKey && rawKey in ANIMATION_MAP ? rawKey : keys[i % 3];
+      const key = rawKey && rawKey in ANIMATION_MAP ? rawKey : (keys[i % 3] ?? "calendar");
       return {
         title: item.title!.trim(),
         description: item.description?.trim() ?? "",

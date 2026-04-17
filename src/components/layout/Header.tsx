@@ -336,7 +336,7 @@ export default function Header({
                   className={`relative inline-block align-baseline overflow-hidden ${CHARS2[i] === " " ? "char-space" : ""}`}
                 >
                   <span className="invisible select-none font-inherit" aria-hidden>
-                    <CellChar char={CHARS2[i]} />
+                    <CellChar char={CHARS2[i] ?? ""} />
                   </span>
                   <span
                     ref={(el) => {
@@ -345,7 +345,7 @@ export default function Header({
                     className="absolute left-0 top-0 overflow-hidden opacity-0 max-w-full"
                     aria-hidden="true"
                   >
-                    <CellChar char={CHARS2[i]} />
+                    <CellChar char={CHARS2[i] ?? ""} />
                   </span>
                 </span>
               ))}
@@ -357,7 +357,7 @@ export default function Header({
                   className={`relative inline-block align-baseline overflow-hidden ${CHARS1[i] === " " ? "char-space" : ""}`}
                 >
                   <span className="invisible select-none font-inherit" aria-hidden>
-                    <CellChar char={CHARS1[i]} />
+                    <CellChar char={CHARS1[i] ?? ""} />
                   </span>
                   <span
                     ref={(el) => {
@@ -365,7 +365,7 @@ export default function Header({
                     }}
                     className="absolute left-0 top-0 overflow-hidden max-w-full"
                   >
-                    <CellChar char={CHARS1[i]} />
+                    <CellChar char={CHARS1[i] ?? ""} />
                   </span>
                 </span>
               ))}

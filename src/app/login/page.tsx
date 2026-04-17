@@ -3,10 +3,10 @@
 import { useActionState, useState } from "react";
 import Link from "next/link";
 import PasswordInput from "@/components/ui/PasswordInput";
-import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS } from "@/utils/auth-form-constants";
+import { INPUT_BASE_CLASS } from "@/utils/auth-form-constants";
 import { loginAction } from "./loginAction";
 
-const initialState = { error: null, emailError: null };
+const initialState = { error: null };
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -27,11 +27,10 @@ export default function LoginPage() {
               name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`${INPUT_BASE_CLASS} ${state.emailError ? INPUT_ERROR_CLASS : ""}`}
+              className={INPUT_BASE_CLASS}
               autoComplete="email"
               disabled={isPending}
             />
-            {state.emailError && <p className="mt-1 text-sm text-red-500">{state.emailError}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-theme mb-1">
@@ -52,7 +51,14 @@ export default function LoginPage() {
           </p>
           {state.error && <p className="text-sm text-red-500">{state.error}</p>}
           <button type="submit" className="btn-primary w-full py-3" disabled={isPending}>
-            {isPending ? "Вход…" : "Войти"}
+            {isPending ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                Вход…
+              </span>
+            ) : (
+              "Войти"
+            )}
           </button>
         </form>
         <p className="text-center text-theme/80 text-sm mt-4">

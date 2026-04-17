@@ -14,6 +14,7 @@ const SUBTITLE_CLASS = "font-normal text-theme-accent mb-6 text-justify";
 
 export default async function PaymentRefundPage() {
   const data = await getTextPageFromStoryblok("payment-refund", DEFAULT_TITLE);
+  const subtitle = data.customFields?.["subtitle"];
   const contentHtml =
     data.contentRichText != null
       ? (renderRichText(data.contentRichText as unknown as Parameters<typeof renderRichText>[0]) ??
@@ -28,9 +29,7 @@ export default async function PaymentRefundPage() {
 
           {contentHtml ? (
             <>
-              {data.customFields?.subtitle != null && (
-                <h2 className={SUBTITLE_CLASS}>{data.customFields.subtitle}</h2>
-              )}
+              {subtitle != null && <h2 className={SUBTITLE_CLASS}>{String(subtitle)}</h2>}
               <section
                 className="prose prose-theme max-w-none text-theme space-y-6 [&_p]:text-justify [&_ul]:pl-6 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-8 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2"
                 dangerouslySetInnerHTML={{ __html: contentHtml }}

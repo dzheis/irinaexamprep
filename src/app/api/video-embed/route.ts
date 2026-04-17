@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { getVideoIdByModuleIdFromStoryblok } from "@/lib/methodology-storyblok";
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.trim().toLowerCase() || "";
+const ADMIN_EMAIL = process.env["ADMIN_EMAIL"]?.trim().toLowerCase() || "";
 
 export async function GET(req: NextRequest) {
   const moduleId = req.nextUrl.searchParams.get("module");

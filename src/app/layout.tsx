@@ -90,15 +90,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <LanguageProvider>
             <ApplyModalProvider>
               <Header
-                logoText={header?.logo_text?.trim() || undefined}
-                altText={header?.alt_text?.trim() || undefined}
-                navLinks={navLinks.length > 0 ? navLinks : undefined}
+                {...(header?.logo_text?.trim() ? { logoText: header.logo_text.trim() } : {})}
+                {...(header?.alt_text?.trim() ? { altText: header.alt_text.trim() } : {})}
+                {...(navLinks.length > 0 ? { navLinks } : {})}
               />
               <CookieConsentProvider>
                 <PageTransition>
                   <BackgroundSvg />
                   <main className="flex-1">{children}</main>
-                  <Footer creditText={footerCreditText} />
+                  <Footer {...(footerCreditText !== undefined ? { creditText: footerCreditText } : {})} />
                 </PageTransition>
               </CookieConsentProvider>
               <SpeedInsights />

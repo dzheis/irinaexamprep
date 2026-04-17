@@ -18,7 +18,13 @@ function isRichTextDoc(raw: unknown): raw is { type: string; content?: unknown[]
 
 function getDocFromBlock(block: Record<string, unknown> | null): Record<string, unknown> | null {
   if (!block || typeof block !== "object") return null;
-  const candidates = [block.content, block.richtext, block.rich_text, block.body, block.text];
+  const candidates = [
+    block["content"],
+    block["richtext"],
+    block["rich_text"],
+    block["body"],
+    block["text"],
+  ];
   for (const c of candidates) {
     if (c != null && isRichTextDoc(c)) return c as Record<string, unknown>;
   }
@@ -33,24 +39,26 @@ export async function getOfferFromStoryblok(): Promise<OfferFromStoryblok> {
   }
 
   const title =
-    (raw.title ?? raw.headline) != null ? String(raw.title ?? raw.headline).trim() : DEFAULT_TITLE;
+    (raw["title"] ?? raw["headline"]) != null
+      ? String(raw["title"] ?? raw["headline"]).trim()
+      : DEFAULT_TITLE;
 
   let contentRichText: Record<string, unknown> | null = null;
 
-  const topContent = raw.content ?? raw.body ?? raw.richtext ?? raw.rich_text;
+  const topContent = raw["content"] ?? raw["body"] ?? raw["richtext"] ?? raw["rich_text"];
   if (topContent != null && isRichTextDoc(topContent)) {
     contentRichText = topContent as Record<string, unknown>;
   }
 
-  if (!contentRichText && Array.isArray(raw.body)) {
-    const body = raw.body as Record<string, unknown>[];
+  if (!contentRichText && Array.isArray(raw["body"])) {
+    const body = raw["body"] as Record<string, unknown>[];
     for (const block of body) {
       const doc = getDocFromBlock(block);
       if (doc) {
         contentRichText = doc;
         break;
       }
-      const nested = block?.content as Record<string, unknown> | undefined;
+      const nested = block?.["content"] as Record<string, unknown> | undefined;
       if (nested && typeof nested === "object") {
         const fromNested =
           getDocFromBlock(nested) ??

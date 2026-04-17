@@ -130,6 +130,10 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
     gsap.to(e.currentTarget, { scale: 1, duration: 0.25, ease: HOVER_EASE, overwrite: true });
   }, []);
 
+  const coursesCard = cards[0] ?? DEFAULT_CARDS[0]!;
+  const methodologyCard = cards[1] ?? DEFAULT_CARDS[1]!;
+  const freeResourcesCard = cards[2] ?? DEFAULT_CARDS[2]!;
+
   useEffect(() => {
     const cardsWrapper = cardsWrapperRef.current;
     if (!cardsWrapper) return;
@@ -276,10 +280,10 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
               onMouseLeave={() => onCardMouseLeave(coursesCardRef.current)}
             >
               <h2 className="text-2xl md:text-3xl min-[1200px]:text-4xl min-[1200px]:md:text-5xl font-bold mb-6 text-theme">
-                {localizeText(cards[0].title)}
+                {localizeText(coursesCard.title)}
               </h2>
               <Link
-                href={cards[0].link}
+                href={coursesCard.link}
                 className="inline-block mb-6 text-base min-[1200px]:text-xl font-semibold transition-colors duration-300 hover:opacity-80 text-theme-accent"
                 onMouseEnter={onLinkMouseEnter}
                 onMouseLeave={onLinkMouseLeave}
@@ -287,7 +291,7 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
                 {localizeText("Подробнее")} →
               </Link>
               <p className="text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl leading-relaxed text-justify text-theme">
-                {localizeText(cards[0].description)}
+                {localizeText(coursesCard.description)}
               </p>
             </div>
 
@@ -298,10 +302,10 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
               onMouseLeave={() => onCardMouseLeave(methodologyCardRef.current)}
             >
               <h2 className="text-2xl md:text-3xl min-[1200px]:text-4xl min-[1200px]:md:text-5xl font-bold mb-6 text-theme">
-                {localizeText(cards[1].title)}
+                {localizeText(methodologyCard.title)}
               </h2>
               <Link
-                href={cards[1].link}
+                href={methodologyCard.link}
                 className="inline-block mb-6 text-base min-[1200px]:text-xl font-semibold transition-colors duration-300 hover:opacity-80 text-theme-accent"
                 onMouseEnter={onLinkMouseEnter}
                 onMouseLeave={onLinkMouseLeave}
@@ -309,7 +313,7 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
                 {localizeText("Подробнее")} →
               </Link>
               <p className="text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl leading-relaxed text-justify text-theme">
-                {localizeText(cards[1].description)}
+                {localizeText(methodologyCard.description)}
               </p>
             </div>
 
@@ -320,10 +324,10 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
               onMouseLeave={() => onCardMouseLeave(freeResourcesCardRef.current)}
             >
               <h2 className="text-2xl md:text-3xl min-[1200px]:text-4xl min-[1200px]:md:text-5xl font-bold mb-6 text-theme">
-                {localizeText(cards[2].title)}
+                {localizeText(freeResourcesCard.title)}
               </h2>
               <Link
-                href={cards[2].link}
+                href={freeResourcesCard.link}
                 className="inline-block mb-6 text-base min-[1200px]:text-xl font-semibold transition-colors duration-300 hover:opacity-80 text-theme-accent"
                 onMouseEnter={onLinkMouseEnter}
                 onMouseLeave={onLinkMouseLeave}
@@ -331,7 +335,7 @@ export default function CoursesMethodologySection({ data }: CoursesMethodologySe
                 {localizeText("Подробнее")} →
               </Link>
               <p className="text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl leading-relaxed text-justify text-theme">
-                {localizeText(cards[2].description)}
+                {localizeText(freeResourcesCard.description)}
               </p>
             </div>
           </div>

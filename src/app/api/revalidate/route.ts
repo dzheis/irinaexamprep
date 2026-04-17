@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 
 /** Storyblok publish webhook: requires `x-revalidate-secret` / `?secret=` matching `REVALIDATE_SECRET`. */
-const REVALIDATE_SECRET = process.env.REVALIDATE_SECRET;
+const REVALIDATE_SECRET = process.env["REVALIDATE_SECRET"];
 
 export async function POST(req: NextRequest) {
   if (!REVALIDATE_SECRET?.trim()) {

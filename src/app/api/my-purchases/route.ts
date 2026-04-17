@@ -3,7 +3,7 @@ import { getAllMethodologyModuleIds } from "@/lib/methodology-storyblok";
 import { getPurchasedModuleIdsByEmails } from "@/services/lessonService";
 import { getServerUser } from "@/services/userService";
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.trim().toLowerCase() || "";
+const ADMIN_EMAIL = process.env["ADMIN_EMAIL"]?.trim().toLowerCase() || "";
 
 export async function GET() {
   try {

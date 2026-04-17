@@ -40,12 +40,17 @@ export default function HomeClient({
   return (
     <div className="min-h-screen relative">
       <div className="relative z-10">
-        <HeroSection title={title} description={description} intro={intro} imageUrl={imageUrl} />
-        <CoursesMethodologySection data={coursesSection} />
-        <TestimonialsSection data={testimonials} />
-        <AboutSection data={about} />
-        <FeaturesSection data={features} />
-        <CTASection data={cta} />
+        <HeroSection
+          title={title}
+          description={description}
+          {...(intro ? { intro } : {})}
+          {...(imageUrl ? { imageUrl } : {})}
+        />
+        <CoursesMethodologySection {...(coursesSection ? { data: coursesSection } : {})} />
+        <TestimonialsSection {...(testimonials ? { data: testimonials } : {})} />
+        <AboutSection {...(about ? { data: about } : {})} />
+        <FeaturesSection {...(features ? { data: features } : {})} />
+        <CTASection {...(cta ? { data: cta } : {})} />
       </div>
     </div>
   );

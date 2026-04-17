@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
-const NOTIFY_EMAIL = process.env.SUBSCRIPTION_NOTIFY_EMAIL || "dzheis@gmail.com";
-const FROM_EMAIL = process.env.EMAIL_USER;
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "";
+const NOTIFY_EMAIL = process.env["SUBSCRIPTION_NOTIFY_EMAIL"] || "dzheis@gmail.com";
+const FROM_EMAIL = process.env["EMAIL_USER"];
+const SITE_URL = process.env["NEXT_PUBLIC_SITE_URL"] || "";
 
 export async function POST(req: NextRequest) {
   try {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    if (!process.env["EMAIL_USER"] || !process.env["EMAIL_PASS"]) {
       console.error("Subscribe: EMAIL_USER or EMAIL_PASS not set");
       return NextResponse.json(
         { success: false, error: "Сервис подписки временно недоступен." },
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+      auth: { user: process.env["EMAIL_USER"], pass: process.env["EMAIL_PASS"] },
     });
 
     const date = new Date().toLocaleString("ru-RU", {

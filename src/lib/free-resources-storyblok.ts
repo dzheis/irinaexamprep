@@ -18,13 +18,14 @@ type RawItem = {
 
 function getTitleFromRaw(raw: Record<string, unknown> | null): string {
   if (!raw || typeof raw !== "object") return "";
-  const t = (raw.title ?? raw.headline ?? "") as string;
+  const t = (raw["title"] ?? raw["headline"] ?? "") as string;
   return t?.trim() ?? "";
 }
 
 function getResourcesFromRaw(raw: Record<string, unknown> | null): RawItem[] {
   if (!raw || typeof raw !== "object") return [];
-  const arr = raw.resources ?? raw.Blocks ?? raw.items ?? raw.blocks ?? raw.resource_list;
+  const arr =
+    raw["resources"] ?? raw["Blocks"] ?? raw["items"] ?? raw["blocks"] ?? raw["resource_list"];
   if (!Array.isArray(arr)) return [];
   return arr as RawItem[];
 }
@@ -68,8 +69,8 @@ export async function getFreeResourcesFromStoryblok(): Promise<{
         id: String(index + 1),
         title,
         description,
-        downloadUrl: fileUrl || undefined,
-        downloadFilename: downloadFilename || undefined,
+        ...(fileUrl ? { downloadUrl: fileUrl } : {}),
+        ...(downloadFilename ? { downloadFilename } : {}),
       };
     })
     .filter((r) => r != null) as FreeResourceForDisplay[];

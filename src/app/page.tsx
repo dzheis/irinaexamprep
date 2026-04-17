@@ -56,13 +56,13 @@ export default async function Home() {
     <HomeClient
       title={hero?.title ?? FALLBACK_TITLE}
       description={hero?.description ?? FALLBACK_DESCRIPTION}
-      intro={hero?.intro}
-      imageUrl={hero?.image?.filename}
-      about={about}
-      cta={cta}
-      features={features}
-      testimonials={testimonials}
-      coursesSection={coursesSection}
+      {...(hero?.intro ? { intro: hero.intro } : {})}
+      {...(hero?.image?.filename ? { imageUrl: hero.image.filename } : {})}
+      {...(about ? { about } : {})}
+      {...(cta ? { cta } : {})}
+      {...(features ? { features } : {})}
+      {...(testimonials ? { testimonials } : {})}
+      {...(coursesSection ? { coursesSection } : {})}
     />
   );
 }

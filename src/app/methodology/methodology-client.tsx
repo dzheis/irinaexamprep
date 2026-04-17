@@ -461,9 +461,10 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
                 <MethodologyVideoBlock
                   key={item.id}
                   item={{
-                    ...item,
-                    title: item.title ? localizeText(item.title) : item.title,
+                    id: item.id,
                     description: localizeText(item.description),
+                    ...(typeof item.price === "number" ? { price: item.price } : {}),
+                    ...(item.title ? { title: localizeText(item.title) } : {}),
                   }}
                   hasAccess={purchasedModuleIds.includes(item.id)}
                   onBuy={() => handleBuy(item)}

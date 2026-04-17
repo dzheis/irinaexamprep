@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
-const TEACHER_EMAIL = process.env.APPLY_NOTIFY_EMAIL || "dzheis@gmail.com";
-const FROM_EMAIL = process.env.EMAIL_USER;
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "";
+const TEACHER_EMAIL = process.env["APPLY_NOTIFY_EMAIL"] || "dzheis@gmail.com";
+const FROM_EMAIL = process.env["EMAIL_USER"];
+const SITE_URL = process.env["NEXT_PUBLIC_SITE_URL"] || "";
 
 const TEXT_ONLY_REGEX = /^[a-zA-Zа-яА-ЯёЁ\s\-']*$/;
 
@@ -62,7 +62,7 @@ function buildTeacherHtml(data: ApplyBody): string {
 
 export async function POST(req: NextRequest) {
   try {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    if (!process.env["EMAIL_USER"] || !process.env["EMAIL_PASS"]) {
       console.error("Apply: EMAIL_USER or EMAIL_PASS not set");
       return NextResponse.json(
         { success: false, error: "Сервис заявок временно недоступен." },
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+      auth: { user: process.env["EMAIL_USER"], pass: process.env["EMAIL_PASS"] },
     });
 
     const date = new Date().toLocaleString("ru-RU", {
@@ -123,13 +123,13 @@ export async function POST(req: NextRequest) {
     const payload: ApplyBody = {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
-      middleName: middleName?.trim() || undefined,
       email: trimmedEmail,
-      telegram: telegram?.trim() || undefined,
-      instagram: instagram?.trim() || undefined,
-      whatsapp: whatsapp?.trim() || undefined,
       courseId: Number(courseId) || 0,
-      courseTitle: courseTitle?.trim() || undefined,
+      ...(middleName?.trim() ? { middleName: middleName.trim() } : {}),
+      ...(telegram?.trim() ? { telegram: telegram.trim() } : {}),
+      ...(instagram?.trim() ? { instagram: instagram.trim() } : {}),
+      ...(whatsapp?.trim() ? { whatsapp: whatsapp.trim() } : {}),
+      ...(courseTitle?.trim() ? { courseTitle: courseTitle.trim() } : {}),
     };
 
     await transporter.sendMail({
