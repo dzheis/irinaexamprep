@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PasswordInput from "@/components/ui/PasswordInput";
-import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from "@/utils/auth-form-constants";
+import { ROUTES } from "@/presentation/routes";
+import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from "@/shared/constants/auth-form";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function SignupPage() {
@@ -80,7 +81,7 @@ export default function SignupPage() {
       }
 
       if (data.session) {
-        router.push("/methodology");
+        router.push(ROUTES.methodology);
         router.refresh();
         return;
       }
@@ -102,7 +103,7 @@ export default function SignupPage() {
             На <strong>{email.trim()}</strong> отправлена ссылка для подтверждения. Перейдите по
             ней, чтобы активировать аккаунт и получить доступ ко всем возможностям.
           </p>
-          <Link href="/login" className="btn-primary inline-block py-3 px-8">
+          <Link href={ROUTES.login} className="btn-primary inline-block py-3 px-8">
             Перейти к входу
           </Link>
         </div>
@@ -171,7 +172,7 @@ export default function SignupPage() {
         </form>
         <p className="text-center text-theme/80 text-sm mt-4">
           Уже есть аккаунт?{" "}
-          <Link href="/login" className="text-theme-accent hover:underline">
+          <Link href={ROUTES.login} className="text-theme-accent hover:underline">
             Войти
           </Link>
         </p>

@@ -7,6 +7,11 @@ import { useLanguage } from "@/components/ui/LanguageContext";
 import { useUser } from "@/hooks/useUser";
 import { usePurchases } from "@/hooks/usePurchases";
 import { useCsrfToken } from "@/hooks/useCsrfToken";
+import {
+  canOpenPaymentModal,
+  isModulePurchased,
+} from "@/domain/policies/methodologyPurchasePolicy";
+import { ROUTES } from "@/presentation/routes";
 
 export type MethodologyVideoItem = {
   id: string;
@@ -178,7 +183,7 @@ function PaymentModal({
         <p className="text-xs text-theme/80 mb-3">
           Нажимая кнопку, вы соглашаетесь с{" "}
           <a
-            href="/offer"
+            href={ROUTES.offer}
             target="_blank"
             rel="noopener noreferrer"
             className="underline text-theme-accent hover:text-theme"
@@ -271,10 +276,10 @@ function AuthRequiredModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex flex-col gap-3">
-          <Link href="/login" className="btn-primary w-full text-lg px-8 py-4 text-center">
+          <Link href={ROUTES.login} className="btn-primary w-full text-lg px-8 py-4 text-center">
             Войти
           </Link>
-          <Link href="/signup" className="btn-secondary w-full text-lg px-8 py-4 text-center">
+          <Link href={ROUTES.signup} className="btn-secondary w-full text-lg px-8 py-4 text-center">
             Зарегистрироваться
           </Link>
         </div>
@@ -421,9 +426,9 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
   const userEmail = typeof user?.email === "string" ? user.email : null;
 
   const handleBuy = (item: MethodologyVideoItem) => {
-    const alreadyPurchased = purchasedModuleIds.includes(item.id);
+    const alreadyPurchased = isModulePurchased(purchasedModuleIds, item.id);
     if (alreadyPurchased) return;
-    if (!isAuthed) {
+    if (!canOpenPaymentModal({ isAuthed, purchasedModuleIds, moduleId: item.id })) {
       setAuthRequiredOpen(true);
       return;
     }

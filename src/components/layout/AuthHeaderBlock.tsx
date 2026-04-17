@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Tooltip from "@/components/ui/Tooltip";
+import { ROUTES } from "@/presentation/routes";
 import { useLanguage } from "@/components/ui/LanguageContext";
 import { useUser } from "@/hooks/useUser";
 
@@ -32,7 +33,7 @@ export default function AuthHeaderBlock({
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     refetch();
-    router.push("/");
+    router.push(ROUTES.home);
     router.refresh();
   };
 
@@ -110,7 +111,7 @@ export default function AuthHeaderBlock({
     <div className={`flex items-center gap-2 min-w-0 ${className}`}>
       {isMobile ? (
         <>
-          <Link href="/login" className="inline-flex items-center gap-2 no-underline" aria-label={localizeText("Log in")}>
+          <Link href={ROUTES.login} className="inline-flex items-center gap-2 no-underline" aria-label={localizeText("Log in")}>
             <span className={AUTH_ICON_BTN}>
               <svg
                 className={AUTH_ICON_GLYPH}
@@ -129,7 +130,7 @@ export default function AuthHeaderBlock({
             </span>
             <span className={MOBILE_ACTION_TEXT}>{localizeText("Log in")}</span>
           </Link>
-          <Link href="/signup" className="inline-flex items-center gap-2 no-underline" aria-label={localizeText("Sign up")}>
+          <Link href={ROUTES.signup} className="inline-flex items-center gap-2 no-underline" aria-label={localizeText("Sign up")}>
             <span className={AUTH_ICON_BTN}>
               <svg
                 className={AUTH_ICON_GLYPH}
@@ -154,7 +155,7 @@ export default function AuthHeaderBlock({
         <>
           <Tooltip label={localizeText("Log in")}>
             <Link
-              href="/login"
+              href={ROUTES.login}
               className={`${AUTH_ICON_BTN} no-underline`}
               aria-label={localizeText("Log in")}
             >
@@ -176,7 +177,7 @@ export default function AuthHeaderBlock({
           </Tooltip>
           <Tooltip label={localizeText(SIGNUP_TOOLTIP_LABEL)}>
             <Link
-              href="/signup"
+              href={ROUTES.signup}
               className={`${AUTH_ICON_BTN} no-underline`}
               aria-label={localizeText("Sign up")}
             >

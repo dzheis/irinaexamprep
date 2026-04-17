@@ -3,7 +3,8 @@
 import { useActionState, useState } from "react";
 import Link from "next/link";
 import PasswordInput from "@/components/ui/PasswordInput";
-import { INPUT_BASE_CLASS } from "@/utils/auth-form-constants";
+import { ROUTES } from "@/presentation/routes";
+import { INPUT_BASE_CLASS } from "@/shared/constants/auth-form";
 import { loginAction } from "./loginAction";
 
 const initialState = { error: null };
@@ -45,7 +46,7 @@ export default function LoginPage() {
             <input type="hidden" name="password" value={password} />
           </div>
           <p className="text-sm">
-            <Link href="/forgot-password" className="text-theme-accent hover:underline">
+            <Link href={ROUTES.forgotPassword} className="text-theme-accent hover:underline">
               Забыли пароль?
             </Link>
           </p>
@@ -63,7 +64,7 @@ export default function LoginPage() {
         </form>
         <p className="text-center text-theme/80 text-sm mt-4">
           Нет аккаунта?{" "}
-          <Link href="/signup" className="text-theme-accent hover:underline">
+          <Link href={ROUTES.signup} className="text-theme-accent hover:underline">
             Зарегистрироваться
           </Link>
         </p>

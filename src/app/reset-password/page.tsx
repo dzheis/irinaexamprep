@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { ROUTES } from "@/presentation/routes";
 import { useRouter } from "next/navigation";
 import PasswordInput from "@/components/ui/PasswordInput";
 import { useAuth } from "@/hooks/useAuth";
@@ -45,7 +46,7 @@ export default function ResetPasswordPage() {
         setError(err.message);
         return;
       }
-      router.push("/methodology");
+      router.push(ROUTES.methodology);
       router.refresh();
     } catch {
       setError("Ошибка. Попробуйте позже.");
@@ -62,7 +63,7 @@ export default function ResetPasswordPage() {
             Используйте ссылку из письма для сброса пароля. Если вы перешли по старой ссылке,
             запросите новую на странице «Забыли пароль?».
           </p>
-          <Link href="/forgot-password" className="btn-primary inline-block py-3 px-8">
+          <Link href={ROUTES.forgotPassword} className="btn-primary inline-block py-3 px-8">
             Запросить ссылку
           </Link>
         </div>
@@ -116,7 +117,7 @@ export default function ResetPasswordPage() {
           </button>
         </form>
         <p className="text-center text-theme/80 text-sm mt-4">
-          <Link href="/login" className="text-theme-accent hover:underline">
+          <Link href={ROUTES.login} className="text-theme-accent hover:underline">
             Вернуться к входу
           </Link>
         </p>

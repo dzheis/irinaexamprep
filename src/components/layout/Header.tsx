@@ -9,16 +9,17 @@ import { useScrollToSection, useScrollToTop } from "@/components/ui/SmoothScroll
 import { useApplyModal } from "@/components/ui/ApplyModalContext";
 import { useLanguage } from "@/components/ui/LanguageContext";
 import AuthHeaderBlock from "@/components/layout/AuthHeaderBlock";
+import { HOME_HASH, ROUTES } from "@/presentation/routes";
 
 const DEFAULT_LOGO = "Irina Petrova";
 const DEFAULT_ALT = "Best Practices for Learning English";
 
 const DEFAULT_NAV_LINKS: { href: string; id?: string; label: string }[] = [
-  { href: "/#about", id: "about", label: "About me" },
-  { href: "/courses", label: "Language Courses" },
-  { href: "/methodology", label: "Methodology" },
-  { href: "/free-resources", label: "Free resources" },
-  { href: "/#cta", id: "cta", label: "Contacts" },
+  { href: HOME_HASH.about, id: "about", label: "About me" },
+  { href: ROUTES.courses, label: "Language Courses" },
+  { href: ROUTES.methodology, label: "Methodology" },
+  { href: ROUTES.freeResources, label: "Free resources" },
+  { href: HOME_HASH.cta, id: "cta", label: "Contacts" },
 ];
 
 const STAGGER = 0.045;
@@ -31,8 +32,8 @@ const SCROLL_TO_SECTION_KEY = "scrollToSection";
 
 function isNavLinkActive(href: string, pathname: string): boolean {
   const path = href.split("#")[0]?.split("?")[0] ?? "";
-  if (href.includes("#") && (path === "/" || path === "")) return false;
-  if (!path || path === "/") return false;
+  if (href.includes("#") && (path === ROUTES.home || path === "")) return false;
+  if (!path || path === ROUTES.home) return false;
   return pathname === path || pathname.startsWith(`${path}/`);
 }
 
@@ -319,11 +320,11 @@ export default function Header({
       <nav className="w-full max-w-[1550px] mx-auto px-6 py-4 box-border min-h-[4.5rem]">
         <div className="flex items-center justify-between gap-2 sm:gap-4 min-w-0">
           <Link
-            href="/"
+            href={ROUTES.home}
             className="relative text-base md:text-lg min-[1200px]:text-xl min-[1200px]:md:text-2xl font-semibold tracking-tight text-theme inline-flex flex-nowrap whitespace-nowrap flex-shrink-0"
             onMouseEnter={handleLogoMouseEnter}
             onClick={(e) => {
-              if (pathname === "/" && scrollToTop) {
+              if (pathname === ROUTES.home && scrollToTop) {
                 e.preventDefault();
                 scrollToTop();
               }
@@ -381,15 +382,15 @@ export default function Header({
                   className={`nav-link !text-[#5e6f86] flex-shrink-0 max-[1380px]:!px-1${isNavLinkActive(href, pathname) ? " nav-link--active" : ""}`}
                   onClick={(e) => {
                     if (id != null) {
-                      if (pathname === "/" && scrollToSection) {
+                      if (pathname === ROUTES.home && scrollToSection) {
                         e.preventDefault();
                         scrollToSection(id);
-                      } else if (pathname !== "/") {
+                      } else if (pathname !== ROUTES.home) {
                         e.preventDefault();
                         if (typeof window !== "undefined") {
                           sessionStorage.setItem(SCROLL_TO_SECTION_KEY, id);
                         }
-                        router.push("/");
+                        router.push(ROUTES.home);
                       }
                     }
                   }}
@@ -451,15 +452,15 @@ export default function Header({
                 className={`nav-link !text-[#5e6f86] py-2${isNavLinkActive(href, pathname) ? " nav-link--active" : ""}`}
                 onClick={(e) => {
                   if (id != null) {
-                    if (pathname === "/" && scrollToSection) {
+                    if (pathname === ROUTES.home && scrollToSection) {
                       e.preventDefault();
                       scrollToSection(id);
-                    } else if (pathname !== "/") {
+                    } else if (pathname !== ROUTES.home) {
                       e.preventDefault();
                       if (typeof window !== "undefined") {
                         sessionStorage.setItem(SCROLL_TO_SECTION_KEY, id);
                       }
-                      router.push("/");
+                      router.push(ROUTES.home);
                     }
                   }
                   closeMenu();
