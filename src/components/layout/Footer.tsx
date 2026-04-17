@@ -5,7 +5,7 @@ import { memo } from "react";
 import FooterCredit from "./FooterCredit";
 import FooterCookieLink from "./FooterCookieLink";
 import { useLanguage } from "@/components/ui/LanguageContext";
-import { ROUTES } from "@/presentation/routes";
+import { ROUTES } from "@/shared/constants/routes";
 
 const FOOTER_LEGAL_CLASS =
   "footer-legal-link text-xs md:text-sm min-[1200px]:text-base !px-3 !py-1.5 max-[500px]:!px-1.5 max-[500px]:!py-0.5 min-[1200px]:!px-5 min-[1200px]:!py-2.5";

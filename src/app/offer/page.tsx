@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { renderRichText } from "@storyblok/react";
-import { getOfferFromStoryblok } from "@/lib/offer-storyblok";
-import { ROUTES } from "@/presentation/routes";
+import { getOfferFromStoryblok } from "@/infrastructure/storyblok/offerStoryblok";
+import { ROUTES } from "@/shared/constants/routes";
 
 export const metadata: Metadata = {
   title: "Публичная оферта | Irina Exam Prep",

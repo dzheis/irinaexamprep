@@ -1,5 +1,5 @@
 import FreeResourcesClient from "./free-resources-client";
-import { getFreeResourcesFromStoryblok } from "@/lib/free-resources-storyblok";
+import { getFreeResourcesFromStoryblok } from "@/infrastructure/storyblok/freeResourcesStoryblok";
 
 export default async function FreeResourcesPage() {
   const { title: pageTitle, resources } = await getFreeResourcesFromStoryblok();

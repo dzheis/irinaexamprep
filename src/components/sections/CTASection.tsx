@@ -6,7 +6,7 @@ import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import type { CtaBlockContent } from "@/lib/storyblok-types";
 import { useLanguage } from "@/components/ui/LanguageContext";
-import { ROUTES } from "@/presentation/routes";
+import { ROUTES } from "@/shared/constants/routes";
 
 import emailAnimation from "@/../public/lottie/e-mail_default.json";
 import instagramAnimation from "@/../public/lottie/instagram_default.json";

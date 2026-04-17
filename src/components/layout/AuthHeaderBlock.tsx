@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Tooltip from "@/components/ui/Tooltip";
-import { ROUTES } from "@/presentation/routes";
+import { ROUTES } from "@/shared/constants/routes";
 import { useLanguage } from "@/components/ui/LanguageContext";
 import { useUser } from "@/hooks/useUser";
 

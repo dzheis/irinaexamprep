@@ -1,45 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { createServiceClient } from "@/lib/supabase/server";
-import { getVideoIdByModuleIdFromStoryblok } from "@/lib/methodology-storyblok";
+import { getMethodologyVideoEmbedUrl } from "@/application/useCases/methodology/getVideoEmbedUrl";
 
-const ADMIN_EMAIL = process.env["ADMIN_EMAIL"]?.trim().toLowerCase() || "";
+const STATUS_MAP: Record<string, { status: number; body: string }> = {
+  bad_request: { status: 400, body: "Missing module" },
+  unauthorized: { status: 401, body: "Unauthorized" },
+  forbidden: { status: 403, body: "Forbidden" },
+  not_found: { status: 404, body: "Not found" },
+  error: { status: 500, body: "Error" },
+};
 
 export async function GET(req: NextRequest) {
-  const moduleId = req.nextUrl.searchParams.get("module");
-  if (!moduleId?.trim()) {
-    return new NextResponse("Missing module", { status: 400 });
+  const result = await getMethodologyVideoEmbedUrl(req.nextUrl.searchParams.get("module"));
+  if (result.status === "ok") {
+    return NextResponse.redirect(result.embedUrl, 302);
   }
-
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user?.email) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-    const emailLower = user.email.trim().toLowerCase();
-    const isAdmin = !!ADMIN_EMAIL && emailLower === ADMIN_EMAIL;
-    if (!isAdmin) {
-      const db = createServiceClient();
-      const { data: row } = await db
-        .from("purchases")
-        .select("id")
-        .eq("email", user.email)
-        .eq("module_id", moduleId.trim())
-        .maybeSingle();
-      if (!row) {
-        return new NextResponse("Forbidden", { status: 403 });
-      }
-    }
-    const videoId = await getVideoIdByModuleIdFromStoryblok(moduleId.trim());
-    if (!videoId) {
-      return new NextResponse("Not found", { status: 404 });
-    }
-    const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`;
-    return NextResponse.redirect(embedUrl, 302);
-  } catch {
-    return new NextResponse("Error", { status: 500 });
-  }
+  const mapped = STATUS_MAP[result.status] ?? STATUS_MAP["error"]!;
+  return new NextResponse(mapped.body, { status: mapped.status });
 }

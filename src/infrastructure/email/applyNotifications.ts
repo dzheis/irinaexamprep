@@ -1,4 +1,4 @@
-import type { ApplyFormInput } from "@/types/applyForm";
+import type { ApplyFormPayload } from "@/domain/content/applyFormPayload";
 import { ROUTES } from "@/shared/constants/routes";
 import { createGmailTransporter } from "@/infrastructure/email/gmailTransporter";
 
@@ -6,7 +6,7 @@ const TEACHER_EMAIL = process.env["APPLY_NOTIFY_EMAIL"] || "dzheis@gmail.com";
 const FROM_EMAIL = process.env["EMAIL_USER"];
 const SITE_URL = process.env["NEXT_PUBLIC_SITE_URL"] || "";
 
-function buildTeacherText(data: ApplyFormInput): string {
+function buildTeacherText(data: ApplyFormPayload): string {
   const lines: string[] = [
     `Новая заявка на курс${data.courseTitle ? `: ${data.courseTitle}` : ""}`,
     "",
@@ -22,7 +22,7 @@ function buildTeacherText(data: ApplyFormInput): string {
   return lines.join("\n");
 }
 
-function buildTeacherHtml(data: ApplyFormInput): string {
+function buildTeacherHtml(data: ApplyFormPayload): string {
   const rows = [
     ["Имя", data.firstName],
     ["Фамилия", data.lastName],
@@ -47,7 +47,7 @@ function buildTeacherHtml(data: ApplyFormInput): string {
   `;
 }
 
-export async function sendApplyFormEmails(payload: ApplyFormInput): Promise<void> {
+export async function sendApplyFormEmails(payload: ApplyFormPayload): Promise<void> {
   const transporter = createGmailTransporter();
 
   const date = new Date().toLocaleString("ru-RU", {

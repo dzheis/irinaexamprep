@@ -4,7 +4,7 @@ import { ReactNode, useRef, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ROUTES } from "@/presentation/routes";
+import { ROUTES } from "@/shared/constants/routes";
 
 gsap.registerPlugin(ScrollTrigger);
 

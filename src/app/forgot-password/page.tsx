@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { validatePlainEmail } from "@/application/useCases/auth/resetPassword";
-import { ROUTES } from "@/presentation/routes";
+import { ROUTES } from "@/shared/constants/routes";
 import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS } from "@/shared/constants/auth-form";
 import { useAuth } from "@/hooks/useAuth";
 

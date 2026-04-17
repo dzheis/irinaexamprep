@@ -1,6 +1,6 @@
 "use client";
 
-import type { FreeResourceForDisplay } from "@/lib/free-resources-storyblok";
+import type { FreeResourceForDisplay } from "@/infrastructure/storyblok/freeResourcesStoryblok";
 import { useLanguage } from "@/components/ui/LanguageContext";
 
 const SAMPLE_FILE_URL = "/free-resources/sample-download.txt";

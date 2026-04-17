@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { renderRichText } from "@storyblok/react";
-import { getTextPageFromStoryblok } from "@/lib/text-page-storyblok";
-import { ROUTES } from "@/presentation/routes";
+import { getTextPageFromStoryblok } from "@/infrastructure/storyblok/textPageStoryblok";
+import { ROUTES } from "@/shared/constants/routes";
 
 export const metadata: Metadata = {
   title: "Оплата, получение услуги и возврат | Irina Exam Prep",

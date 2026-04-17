@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import Link from "next/link";
 import PasswordInput from "@/components/ui/PasswordInput";
-import { ROUTES } from "@/presentation/routes";
+import { ROUTES } from "@/shared/constants/routes";
 import { INPUT_BASE_CLASS } from "@/shared/constants/auth-form";
 import { loginAction } from "./loginAction";
 
