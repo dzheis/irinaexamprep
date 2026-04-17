@@ -1,5 +1,5 @@
 import CoursesClient from "./courses-client";
-import { fetchStory } from "@/lib/storyblok";
+import { fetchStory } from "@/infrastructure/storyblok/client";
 import type { CoursesStoryContent } from "@/lib/storyblok-types";
 
 function normalizeCoursesContent(raw: Record<string, unknown> | null): CoursesStoryContent | null {

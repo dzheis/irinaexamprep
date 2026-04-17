@@ -1,7 +1,7 @@
-export type AuthUser = {
-  id: string;
-  email?: string;
-};
+import type { User } from "@/domain/entities/User";
+import type { Result } from "@/domain/entities/Result";
+
+export type AuthUser = User;
 
 export type Purchase = {
   module_id: string;
@@ -18,4 +18,6 @@ export type PaymentProduct = {
   title: string;
   price: number;
 };
+
+export type ExamResult = Result;
 
