@@ -10,7 +10,7 @@ import { ApplyModalProvider } from "@/components/ui/ApplyModalContext";
 import { CookieConsentProvider } from "@/components/ui/CookieConsentContext";
 import { LanguageProvider } from "@/components/ui/LanguageContext";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { getConfig, fetchStory } from "@/lib/storyblok";
+import { getConfig, fetchStory } from "@/infrastructure/storyblok/client";
 
 const sourceSans = Source_Sans_3({
   subsets: ["latin", "cyrillic"],

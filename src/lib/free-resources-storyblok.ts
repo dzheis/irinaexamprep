@@ -1,4 +1,4 @@
-import { fetchStory } from "@/lib/storyblok";
+import { fetchStory } from "@/infrastructure/storyblok/client";
 
 export type FreeResourceForDisplay = {
   id: string;

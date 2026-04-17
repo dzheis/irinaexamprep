@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { getServerUser } from "@/services/userService";
+import { getSessionUser } from "@/application/use-cases/auth/getSessionUser";
 
 export async function GET() {
   try {
-    const user = await getServerUser();
+    const user = await getSessionUser();
     if (!user) return NextResponse.json({ user: null });
     return NextResponse.json({ user });
   } catch {

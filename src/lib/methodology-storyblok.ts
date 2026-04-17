@@ -1,4 +1,4 @@
-import { fetchStory } from "@/lib/storyblok";
+import { fetchStory } from "@/infrastructure/storyblok/client";
 import { getVideoIdByModuleId } from "@/lib/methodology-modules";
 import type { MethodologyVideoItem } from "@/app/methodology/methodology-client";
 

@@ -1,5 +1,5 @@
 import HomeClient from "./home-client";
-import { fetchStory } from "@/lib/storyblok";
+import { fetchStory } from "@/infrastructure/storyblok/client";
 import type {
   HomeStoryContent,
   HeroContent,
