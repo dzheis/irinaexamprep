@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { CoursesSectionBlockContent } from "@/lib/storyblok-types";
 import { useLanguage } from "@/components/ui/LanguageContext";
+import { ROUTES } from "@/presentation/routes";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -27,13 +28,13 @@ const DEFAULT_FREE_RESOURCES_DESCRIPTION =
 const DEFAULT_CARDS = [
   {
     title: "Language Courses",
-    link: "/courses",
+    link: ROUTES.courses,
     description: DEFAULT_LANGUAGE_COURSES_DESCRIPTION,
   },
-  { title: "Methodology", link: "/methodology", description: DEFAULT_METHODOLOGY_DESCRIPTION },
+  { title: "Methodology", link: ROUTES.methodology, description: DEFAULT_METHODOLOGY_DESCRIPTION },
   {
     title: "Free resources",
-    link: "/free-resources",
+    link: ROUTES.freeResources,
     description: DEFAULT_FREE_RESOURCES_DESCRIPTION,
     wide: true,
   },

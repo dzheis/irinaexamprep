@@ -5,6 +5,7 @@ import { memo } from "react";
 import FooterCredit from "./FooterCredit";
 import FooterCookieLink from "./FooterCookieLink";
 import { useLanguage } from "@/components/ui/LanguageContext";
+import { ROUTES } from "@/presentation/routes";
 
 const FOOTER_LEGAL_CLASS =
   "footer-legal-link text-xs md:text-sm min-[1200px]:text-base !px-3 !py-1.5 max-[500px]:!px-1.5 max-[500px]:!py-0.5 min-[1200px]:!px-5 min-[1200px]:!py-2.5";
@@ -24,14 +25,14 @@ function Footer({ creditText }: FooterProps) {
         <div className="flex flex-col items-center w-full min-[1280px]:items-start min-[1280px]:w-max">
           <div className="flex flex-col w-max gap-3">
             <div className="flex flex-wrap items-center justify-center min-[1280px]:justify-start gap-2 sm:gap-3 max-[500px]:grid max-[500px]:grid-cols-2 max-[500px]:w-max max-[500px]:gap-1.5">
-              <Link href="/offer" className={FOOTER_LEGAL_CLASS}>
+              <Link href={ROUTES.offer} className={FOOTER_LEGAL_CLASS}>
                 {localizeText("Публичная оферта")}
               </Link>
-              <Link href="/payment-refund" className={FOOTER_LEGAL_CLASS}>
+              <Link href={ROUTES.paymentRefund} className={FOOTER_LEGAL_CLASS}>
                 {localizeText("Оплата и возврат")}
               </Link>
               <Link
-                href="/privacy"
+                href={ROUTES.privacy}
                 className={`${FOOTER_LEGAL_CLASS} max-[500px]:col-span-2 max-[500px]:justify-self-center`}
               >
                 {localizeText("Политика конфиденциальности")}

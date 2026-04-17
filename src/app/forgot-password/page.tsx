@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from "@/utils/auth-form-constants";
+import { ROUTES } from "@/presentation/routes";
+import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from "@/shared/constants/auth-form";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function ForgotPasswordPage() {
@@ -49,7 +50,7 @@ export default function ForgotPasswordPage() {
             На <strong>{email.trim()}</strong> отправлена ссылка для сброса пароля. Перейдите по
             ней, чтобы задать новый пароль.
           </p>
-          <Link href="/login" className="btn-primary inline-block py-3 px-8">
+          <Link href={ROUTES.login} className="btn-primary inline-block py-3 px-8">
             Вернуться к входу
           </Link>
         </div>
@@ -90,7 +91,7 @@ export default function ForgotPasswordPage() {
           </button>
         </form>
         <p className="text-center text-theme/80 text-sm mt-4">
-          <Link href="/login" className="text-theme-accent hover:underline">
+          <Link href={ROUTES.login} className="text-theme-accent hover:underline">
             Вернуться к входу
           </Link>
         </p>

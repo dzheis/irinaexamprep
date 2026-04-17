@@ -4,6 +4,7 @@ import { ReactNode, useRef, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ROUTES } from "@/presentation/routes";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -23,7 +24,7 @@ function useHasPinSection() {
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
   }, []);
-  return pathname === "/" && isDesktop;
+  return pathname === ROUTES.home && isDesktop;
 }
 
 function useIsDesktopForPin() {
@@ -84,21 +85,21 @@ export default function PageTransition({ children }: { children: ReactNode }) {
         return;
       const href = target.getAttribute("href");
       if (!href || !href.startsWith("/") || href.startsWith("//")) return;
-      const pathOnly = href.replace(/#.*/, "") || "/";
+      const pathOnly = href.replace(/#.*/, "") || ROUTES.home;
       if (pathOnly === window.location.pathname) return;
 
       const hashMatch = href.match(/^\/#([^?]+)$/);
-      if (pathOnly === "/" && hashMatch?.[1]) {
+      if (pathOnly === ROUTES.home && hashMatch?.[1]) {
         const anchorId = hashMatch[1];
         if (typeof window !== "undefined") {
           sessionStorage.setItem("scrollToSection", anchorId);
         }
         e.preventDefault();
-        router.push("/");
+        router.push(ROUTES.home);
         return;
       }
 
-      if (pathOnly === "/" && isDesktopForPin) {
+      if (pathOnly === ROUTES.home && isDesktopForPin) {
         e.preventDefault();
         router.push(href);
         return;

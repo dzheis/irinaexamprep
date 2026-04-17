@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import AnimatedButtonText from "@/components/ui/AnimatedButtonText";
 import { useLanguage } from "@/components/ui/LanguageContext";
+import { ROUTES } from "@/presentation/routes";
 
 const DEFAULT_INTRO =
   "Курсы для студентов продвинутого уровня, которые хотят сдать FCE, CAE или CPE и уверенно использовать английский на высоком уровне. Также на сайте вы найдете материалы по методике преподавания для учителей английского.";
@@ -51,13 +52,13 @@ export default function HeroSection({ title, description, intro, imageUrl }: Her
             ) : null}
             <div className="flex flex-col min-[476px]:flex-row flex-wrap items-center justify-center gap-4 mt-2">
               <Link
-                href="/courses"
+                href={ROUTES.courses}
                 className="btn-primary text-lg px-8 py-4 w-full min-[476px]:w-auto justify-center"
               >
                 <AnimatedButtonText text={localizeText("Начать обучение")} />
               </Link>
               <Link
-                href="/methodology"
+                href={ROUTES.methodology}
                 className="btn-secondary text-lg px-8 py-4 w-full min-[476px]:w-auto justify-center"
               >
                 <AnimatedButtonText text={localizeText("Методика")} />

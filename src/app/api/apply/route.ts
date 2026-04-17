@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { ROUTES } from "@/presentation/routes";
 
 const TEACHER_EMAIL = process.env["APPLY_NOTIFY_EMAIL"] || "dzheis@gmail.com";
 const FROM_EMAIL = process.env["EMAIL_USER"];
@@ -140,7 +141,7 @@ export async function POST(req: NextRequest) {
       html: `${buildTeacherHtml(payload)}<p style="margin-top:16px;color:#777;font-size:14px;">Дата и время: ${date}</p>`,
     });
 
-    const coursesUrl = SITE_URL ? `${SITE_URL}/courses` : "/courses";
+    const coursesUrl = SITE_URL ? `${SITE_URL}${ROUTES.courses}` : ROUTES.courses;
 
     await transporter.sendMail({
       from: FROM_EMAIL,

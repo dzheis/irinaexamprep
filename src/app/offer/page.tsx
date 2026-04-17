@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { renderRichText } from "@storyblok/react";
 import { getOfferFromStoryblok } from "@/lib/offer-storyblok";
+import { ROUTES } from "@/presentation/routes";
 
 export const metadata: Metadata = {
   title: "Публичная оферта | Irina Exam Prep",
@@ -34,7 +35,7 @@ export default async function OfferPage() {
 
           <div className="mt-10 flex flex-wrap gap-3">
             <Link
-              href="/"
+              href={ROUTES.home}
               className="btn-secondary !px-5 !py-2.5 text-sm md:text-base no-underline inline-flex items-center gap-2"
             >
               ← Вернуться на главную

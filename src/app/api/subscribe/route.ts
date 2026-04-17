@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { ROUTES } from "@/presentation/routes";
 
 const NOTIFY_EMAIL = process.env["SUBSCRIPTION_NOTIFY_EMAIL"] || "dzheis@gmail.com";
 const FROM_EMAIL = process.env["EMAIL_USER"];
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
       `,
     });
 
-    const coursesUrl = SITE_URL ? `${SITE_URL}/courses` : "/courses";
+    const coursesUrl = SITE_URL ? `${SITE_URL}${ROUTES.courses}` : ROUTES.courses;
 
     await transporter.sendMail({
       from: FROM_EMAIL,

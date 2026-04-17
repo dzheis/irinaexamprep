@@ -6,6 +6,7 @@ import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import type { CtaBlockContent } from "@/lib/storyblok-types";
 import { useLanguage } from "@/components/ui/LanguageContext";
+import { ROUTES } from "@/presentation/routes";
 
 import emailAnimation from "@/../public/lottie/e-mail_default.json";
 import instagramAnimation from "@/../public/lottie/instagram_default.json";
@@ -252,7 +253,7 @@ export default function CTASection({ data }: CTASectionProps) {
               />
               <label htmlFor="cta-consent-pd" className="text-sm text-theme/90">
                 {localizeText(consentText)}{" "}
-                <Link href="/privacy" className="underline text-theme-accent hover:text-theme">
+                <Link href={ROUTES.privacy} className="underline text-theme-accent hover:text-theme">
                   {localizeText("политикой конфиденциальности")}
                 </Link>
               </label>

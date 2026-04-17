@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
+import { ROUTES } from "@/presentation/routes";
 
 /** Storyblok publish webhook: requires `x-revalidate-secret` / `?secret=` matching `REVALIDATE_SECRET`. */
 const REVALIDATE_SECRET = process.env["REVALIDATE_SECRET"];
@@ -16,13 +17,13 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    revalidatePath("/");
-    revalidatePath("/courses");
-    revalidatePath("/methodology");
-    revalidatePath("/free-resources");
-    revalidatePath("/offer");
-    revalidatePath("/payment-refund");
-    revalidatePath("/privacy");
+    revalidatePath(ROUTES.home);
+    revalidatePath(ROUTES.courses);
+    revalidatePath(ROUTES.methodology);
+    revalidatePath(ROUTES.freeResources);
+    revalidatePath(ROUTES.offer);
+    revalidatePath(ROUTES.paymentRefund);
+    revalidatePath(ROUTES.privacy);
     return NextResponse.json({ revalidated: true, now: Date.now() });
   } catch (e) {
     console.error("Revalidate error:", e);

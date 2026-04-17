@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { ROUTES } from "@/presentation/routes";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/methodology";
+  const next = searchParams.get("next") ?? ROUTES.methodology;
 
   if (code) {
     const supabase = await createClient();

@@ -8,6 +8,7 @@ import {
   type CookieConsentState,
   type CookieCategory,
 } from "@/lib/cookie-consent";
+import { ROUTES } from "@/presentation/routes";
 
 const BANNER_BASE_CLASS =
   "fixed bottom-0 left-0 right-0 z-[100] px-4 py-3 bg-white/60 backdrop-blur-lg border-t border-black/10 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] transition-[opacity,transform] duration-400 ease-in-out";
@@ -135,7 +136,7 @@ function CookieConsentInner(_: unknown, ref: React.Ref<CookieConsentRef>) {
             <p className="text-sm text-justify sm:text-left text-[#2F3440]">
               Мы используем файлы cookie и аналогичные технологии для работы сайта и анализа
               посещаемости. Вы можете принять все, отклонить все или настроить выбор. Подробнее — в{" "}
-              <Link href="/privacy" className="underline hover:opacity-90">
+              <Link href={ROUTES.privacy} className="underline hover:opacity-90">
                 политике конфиденциальности
               </Link>
               .
@@ -147,7 +148,7 @@ function CookieConsentInner(_: unknown, ref: React.Ref<CookieConsentRef>) {
               <button type="button" onClick={handleCustomize} className={BTN_SECONDARY_CLASS}>
                 Настроить
               </button>
-              <Link href="/privacy" className={BTN_LINK_CLASS}>
+              <Link href={ROUTES.privacy} className={BTN_LINK_CLASS}>
                 Подробнее
               </Link>
               <button type="button" onClick={handleAcceptAll} className={BTN_PRIMARY_CLASS}>

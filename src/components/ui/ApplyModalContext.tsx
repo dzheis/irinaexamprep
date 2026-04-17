@@ -12,6 +12,7 @@ import {
 } from "react";
 import { useForm } from "react-hook-form";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { ROUTES } from "@/presentation/routes";
 
 const TEXT_ONLY_PATTERN = /^[a-zA-Zа-яА-ЯёЁ\s\-']*$/;
 const TEXT_ONLY_MSG = "Для ввода доступен только текст";
@@ -274,7 +275,7 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
                 <label htmlFor="apply-consent-pd" className="text-sm text-theme/90">
                   Даю согласие на обработку персональных данных в соответствии с{" "}
                   <a
-                    href="/privacy"
+                    href={ROUTES.privacy}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="underline text-theme-accent hover:text-theme"
@@ -291,7 +292,7 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
               <p className="text-xs text-theme/80 mb-3">
                 Отправляя заявку, вы также соглашаетесь с{" "}
                 <a
-                  href="/offer"
+                  href={ROUTES.offer}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline text-theme-accent hover:text-theme"
