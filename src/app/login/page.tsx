@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import PasswordInput from "@/components/ui/PasswordInput";
-import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from "@/lib/auth-form-constants";
+import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from "@/utils/auth-form-constants";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { signInWithPassword } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,8 +31,7 @@ export default function LoginPage() {
     }
     setLoading(true);
     try {
-      const supabase = createClient();
-      const { error: err } = await supabase.auth.signInWithPassword({
+      const { error: err } = await signInWithPassword({
         email: trimmedEmail,
         password,
       });

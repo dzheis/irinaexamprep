@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import PasswordInput from "@/components/ui/PasswordInput";
-import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from "@/lib/auth-form-constants";
+import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from "@/utils/auth-form-constants";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -17,6 +17,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const router = useRouter();
+  const { signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,9 +39,8 @@ export default function SignupPage() {
     }
     setLoading(true);
     try {
-      const supabase = createClient();
       const origin = typeof window !== "undefined" ? window.location.origin : "";
-      const { data, error: err } = await supabase.auth.signUp({
+      const { data, error: err } = await signUp({
         email: trimmedEmail,
         password,
         options: {

@@ -4,6 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/components/ui/LanguageContext";
+import { useUser } from "@/hooks/useUser";
+import { usePurchases } from "@/hooks/usePurchases";
+import { useCsrfToken } from "@/hooks/useCsrfToken";
 
 export type MethodologyVideoItem = {
   id: string;
@@ -397,12 +400,15 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
   const list = videos && videos.length > 0 ? videos : METHODOLOGY_VIDEOS;
   const title = pageTitle?.trim() || DEFAULT_PAGE_TITLE;
   const [paymentProduct, setPaymentProduct] = useState<PaymentProduct | null>(null);
-  const [purchasedModuleIds, setPurchasedModuleIds] = useState<string[]>([]);
-  const [isAuthed, setIsAuthed] = useState(false);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [authRequiredOpen, setAuthRequiredOpen] = useState(false);
-  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const searchParams = useSearchParams();
+  const { user } = useUser([]);
+  const {
+    moduleIds: purchasedModuleIds,
+    loading: purchasesLoading,
+    refetch: refetchPurchases,
+  } = usePurchases([searchParams.get("payment")]);
+  const { token: csrfToken } = useCsrfToken();
   const paymentFromUrl =
     searchParams.get("payment") === "success"
       ? "success"
@@ -411,38 +417,8 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
         : null;
   const [resultDismissed, setResultDismissed] = useState(false);
   const paymentResult = paymentFromUrl && !resultDismissed ? paymentFromUrl : null;
-
-  const fetchPurchases = useCallback(() => {
-    fetch("/api/my-purchases")
-      .then((r) => r.json())
-      .then((data) => setPurchasedModuleIds(Array.isArray(data.moduleIds) ? data.moduleIds : []))
-      .catch(() => setPurchasedModuleIds([]));
-  }, []);
-
-  useEffect(() => {
-    fetchPurchases();
-  }, [fetchPurchases, paymentFromUrl]);
-
-  useEffect(() => {
-    fetch("/api/auth/session")
-      .then((r) => r.json())
-      .then((data) => {
-        const u = data?.user ?? null;
-        setIsAuthed(!!u);
-        setUserEmail(typeof u?.email === "string" ? u.email : null);
-      })
-      .catch(() => {
-        setIsAuthed(false);
-        setUserEmail(null);
-      });
-  }, []);
-
-  useEffect(() => {
-    fetch("/api/csrf-token")
-      .then((r) => r.json())
-      .then((data) => setCsrfToken(typeof data?.token === "string" ? data.token : null))
-      .catch(() => setCsrfToken(null));
-  }, []);
+  const isAuthed = !!user;
+  const userEmail = typeof user?.email === "string" ? user.email : null;
 
   const handleBuy = (item: MethodologyVideoItem) => {
     const alreadyPurchased = purchasedModuleIds.includes(item.id);
@@ -460,13 +436,13 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
 
   const closePaymentResult = useCallback(() => {
     setResultDismissed(true);
-    fetchPurchases();
+    refetchPurchases();
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.delete("payment");
       window.history.replaceState(null, "", url.pathname + url.search);
     }
-  }, [fetchPurchases]);
+  }, [refetchPurchases]);
 
   return (
     <div className="min-h-screen relative">
@@ -478,6 +454,9 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
             </h1>
 
             <div className="flex flex-col gap-8 md:gap-10">
+              {purchasesLoading && (
+                <p className="text-sm text-theme/70">{localizeText("Проверяем доступ к материалам...")}</p>
+              )}
               {list.map((item) => (
                 <MethodologyVideoBlock
                   key={item.id}

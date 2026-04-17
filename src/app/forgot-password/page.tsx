@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
-import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from "@/lib/auth-form-constants";
+import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from "@/utils/auth-form-constants";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -11,6 +11,7 @@ export default function ForgotPasswordPage() {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const { resetPasswordForEmail } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,9 +24,8 @@ export default function ForgotPasswordPage() {
     }
     setLoading(true);
     try {
-      const supabase = createClient();
       const origin = typeof window !== "undefined" ? window.location.origin : "";
-      const { error: err } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+      const { error: err } = await resetPasswordForEmail(trimmedEmail, {
         redirectTo: `${origin}/reset-password`,
       });
       if (err) {

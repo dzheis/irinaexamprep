@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { createServiceClient } from "@/lib/supabase/server";
 import { getAllMethodologyModuleIds } from "@/lib/methodology-storyblok";
+import { getPurchasedModuleIdsByEmails } from "@/services/lessonService";
+import { getServerUser } from "@/services/userService";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.trim().toLowerCase() || "";
 
 export async function GET() {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getServerUser();
     if (!user?.email) {
       return NextResponse.json({ moduleIds: [] });
     }
@@ -20,10 +17,8 @@ export async function GET() {
       const moduleIds = await getAllMethodologyModuleIds();
       return NextResponse.json({ moduleIds });
     }
-    const db = createServiceClient();
     const emailVariants = [...new Set([emailLower, emailRaw])];
-    const { data: rows } = await db.from("purchases").select("module_id").in("email", emailVariants);
-    const moduleIds = (rows ?? []).map((r) => r.module_id).filter(Boolean);
+    const moduleIds = await getPurchasedModuleIdsByEmails(emailVariants);
     return NextResponse.json({ moduleIds });
   } catch {
     return NextResponse.json({ moduleIds: [] });

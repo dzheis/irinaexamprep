@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Tooltip from "@/components/ui/Tooltip";
 import { useLanguage } from "@/components/ui/LanguageContext";
-
-type Session = { user: { id: string; email?: string } } | null;
+import { useUser } from "@/hooks/useUser";
 
 const EMAIL_STYLE_LIKE_NAV =
   "inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold text-theme-accent bg-transparent";
@@ -26,34 +24,19 @@ export default function AuthHeaderBlock({
   className?: string;
   variant?: "desktop" | "mobile";
 }) {
-  const [session, setSession] = useState<Session>(null);
   const { localizeText } = useLanguage();
   const pathname = usePathname();
   const router = useRouter();
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/auth/session")
-      .then((r) => r.json())
-      .then((data) => {
-        if (!cancelled) setSession(data.user ? { user: data.user } : null);
-      })
-      .catch(() => {
-        if (!cancelled) setSession(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [pathname]);
+  const { user, refetch } = useUser([pathname]);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
-    setSession(null);
+    refetch();
     router.push("/");
     router.refresh();
   };
 
-  if (session?.user?.email) {
+  if (user?.email) {
     const isMobile = variant === "mobile";
     return (
       <div className={`flex items-center gap-2 min-w-0 ${className}`}>
@@ -63,9 +46,9 @@ export default function AuthHeaderBlock({
               ? `${EMAIL_STYLE_LIKE_NAV} min-w-0 truncate max-w-[200px] sm:max-w-[240px]`
               : "inline-flex items-center rounded-full px-3 py-1.5 min-[1200px]:px-4 min-[1200px]:py-2 text-sm min-[1200px]:text-base font-semibold text-theme truncate max-w-[120px] min-[1200px]:max-w-[180px]"
           }
-          title={session.user.email}
+          title={user.email}
         >
-          {session.user.email}
+          {user.email}
         </span>
         {isMobile ? (
           <button
