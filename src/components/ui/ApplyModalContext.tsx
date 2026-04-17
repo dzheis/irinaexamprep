@@ -12,9 +12,9 @@ import {
 } from "react";
 import { useForm } from "react-hook-form";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { isApplyNameTextOnly } from "@/application/useCases/content/applyNameValidation";
 import { ROUTES } from "@/presentation/routes";
 
-const TEXT_ONLY_PATTERN = /^[a-zA-Zа-яА-ЯёЁ\s\-']*$/;
 const TEXT_ONLY_MSG = "Для ввода доступен только текст";
 
 const INPUT_BASE_CLASS =
@@ -166,13 +166,13 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
                 <input
                   {...register("firstName", {
                     required: "Обязательное поле",
-                    validate: (v) => !v.trim() || TEXT_ONLY_PATTERN.test(v) || TEXT_ONLY_MSG,
+                    validate: (v) => !v.trim() || isApplyNameTextOnly(v) || TEXT_ONLY_MSG,
                   })}
                   placeholder="Имя"
                   className={`${INPUT_BASE_CLASS} ${errors.firstName ? INPUT_ERROR_CLASS : ""}`}
                   onChange={(e) => {
                     register("firstName").onChange(e);
-                    if (TEXT_ONLY_PATTERN.test(e.target.value)) clearErrors("firstName");
+                    if (isApplyNameTextOnly(e.target.value)) clearErrors("firstName");
                   }}
                 />
                 {errors.firstName && (
@@ -186,13 +186,13 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
                 <input
                   {...register("lastName", {
                     required: "Обязательное поле",
-                    validate: (v) => !v.trim() || TEXT_ONLY_PATTERN.test(v) || TEXT_ONLY_MSG,
+                    validate: (v) => !v.trim() || isApplyNameTextOnly(v) || TEXT_ONLY_MSG,
                   })}
                   placeholder="Фамилия"
                   className={`${INPUT_BASE_CLASS} ${errors.lastName ? INPUT_ERROR_CLASS : ""}`}
                   onChange={(e) => {
                     register("lastName").onChange(e);
-                    if (TEXT_ONLY_PATTERN.test(e.target.value)) clearErrors("lastName");
+                    if (isApplyNameTextOnly(e.target.value)) clearErrors("lastName");
                   }}
                 />
                 {errors.lastName && (
@@ -203,13 +203,13 @@ function ApplyModal({ courseId, courseTitle, onClose }: ApplyModalProps) {
                 <label className="block text-sm font-medium text-theme mb-1">Отчество</label>
                 <input
                   {...register("middleName", {
-                    validate: (v) => !v?.trim() || TEXT_ONLY_PATTERN.test(v) || TEXT_ONLY_MSG,
+                    validate: (v) => !v?.trim() || isApplyNameTextOnly(v) || TEXT_ONLY_MSG,
                   })}
                   placeholder="Отчество"
                   className={`${INPUT_BASE_CLASS} ${errors.middleName ? INPUT_ERROR_CLASS : ""}`}
                   onChange={(e) => {
                     register("middleName").onChange(e);
-                    if (!e.target.value.trim() || TEXT_ONLY_PATTERN.test(e.target.value))
+                    if (!e.target.value.trim() || isApplyNameTextOnly(e.target.value))
                       clearErrors("middleName");
                   }}
                 />

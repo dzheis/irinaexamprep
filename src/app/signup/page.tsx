@@ -4,8 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PasswordInput from "@/components/ui/PasswordInput";
+import { validateSignUpForm } from "@/application/useCases/auth/signUp";
 import { ROUTES } from "@/presentation/routes";
-import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from "@/shared/constants/auth-form";
+import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS } from "@/shared/constants/auth-form";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function SignupPage() {
@@ -26,16 +27,14 @@ export default function SignupPage() {
     setEmailError(null);
     setPasswordError(null);
     const trimmedEmail = email.trim();
-    if (!EMAIL_REGEX.test(trimmedEmail)) {
-      setEmailError("Введите корректный email");
-      return;
-    }
-    if (password.length < 6) {
-      setPasswordError("Пароль не менее 6 символов");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setPasswordError("Пароли не совпадают");
+    const check = validateSignUpForm({
+      email: trimmedEmail,
+      password,
+      confirmPassword,
+    });
+    if (!check.ok) {
+      if (check.field === "email") setEmailError(check.message);
+      else setPasswordError(check.message);
       return;
     }
     setLoading(true);

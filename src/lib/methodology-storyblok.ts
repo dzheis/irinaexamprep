@@ -1,6 +1,6 @@
 import { fetchStory } from "@/infrastructure/storyblok/client";
 import { getVideoIdByModuleId } from "@/lib/methodology-modules";
-import type { MethodologyVideoItem } from "@/app/methodology/methodology-client";
+import type { MethodologyVideoItem } from "@/types/methodology";
 
 type RawModule = {
   id?: string;

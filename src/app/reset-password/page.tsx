@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ROUTES } from "@/presentation/routes";
 import { useRouter } from "next/navigation";
 import PasswordInput from "@/components/ui/PasswordInput";
+import { validatePasswordResetForm } from "@/application/useCases/auth/resetPassword";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function ResetPasswordPage() {
@@ -31,12 +32,9 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     setError(null);
     setPasswordError(null);
-    if (password.length < 6) {
-      setPasswordError("Пароль не менее 6 символов");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setPasswordError("Пароли не совпадают");
+    const pw = validatePasswordResetForm(password, confirmPassword);
+    if (!pw.ok) {
+      setPasswordError(pw.message);
       return;
     }
     setLoading(true);

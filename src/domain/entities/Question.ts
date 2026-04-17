@@ -1,8 +1,1 @@
-export type Question = {
-  id: string;
-  examId: string;
-  prompt: string;
-  options?: string[];
-  correctAnswer?: string;
-};
-
+export type { Question } from "../content/Question";

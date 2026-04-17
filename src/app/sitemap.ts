@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { SITEMAP_STATIC_PATHS } from '@/presentation/routes'
+import { SITEMAP_STATIC_PATHS } from "@/shared/constants/routes";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env["NEXT_PUBLIC_SITE_URL"];

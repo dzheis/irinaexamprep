@@ -1,27 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
 import { cookies } from "next/headers";
+import { createMethodologyPayment } from "@/application/useCases/payment/createPayment";
 import { createServerClient } from "@/services/supabaseServer";
-import { createPendingPayment } from "@/services/paymentService";
 
 const ROBOKASSA_LOGIN = process.env["ROBOKASSA_LOGIN"];
 const ROBOKASSA_PASS1 = process.env["ROBOKASSA_PASS1"];
 const ROBOKASSA_TEST =
   process.env["ROBOKASSA_TEST"] === "1" || process.env["ROBOKASSA_TEST"] === "true";
-const ROBOKASSA_BASE_URL = "https://auth.robokassa.ru/Merchant/Index.aspx";
 
 type PayBody = {
   productId?: string;
 };
-
-const METHODOLOGY_PRICE_BY_PRODUCT_ID: Record<string, number> = {
-  "1": 1990,
-};
-
-function buildSignature(login: string, outSum: string, invId: string, pass1: string): string {
-  const str = `${login}:${outSum}:${invId}:${pass1}`;
-  return crypto.createHash("md5").update(str, "utf8").digest("hex").toUpperCase();
-}
 
 export async function POST(req: NextRequest) {
   if (!ROBOKASSA_LOGIN || !ROBOKASSA_PASS1) {
@@ -81,12 +70,8 @@ export async function POST(req: NextRequest) {
   }
 
   const productId = (body.productId ?? "").trim();
-  const amount = METHODOLOGY_PRICE_BY_PRODUCT_ID[productId];
-  if (!amount || !Number.isFinite(amount) || amount <= 0) {
-    return NextResponse.json({ error: "Invalid product" }, { status: 400 });
-  }
 
-  let email: string;
+  let payerEmail: string;
   try {
     const supabase = await createServerClient();
     const {
@@ -95,45 +80,30 @@ export async function POST(req: NextRequest) {
     if (!user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    email = user.email.trim().toLowerCase();
+    payerEmail = user.email.trim().toLowerCase();
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const outSum = amount.toFixed(2);
-  const invId = String(crypto.randomInt(1, 2147483647));
-  const signature = buildSignature(ROBOKASSA_LOGIN, outSum, invId, ROBOKASSA_PASS1);
-
-  try {
-    await createPendingPayment({ invId, productId, email, amount });
-  } catch (e) {
-    console.error("Pay: failed to save pending_payment", e);
-    return NextResponse.json({ error: "Ошибка сохранения заказа" }, { status: 500 });
-  }
-
-  const origin =
+  const publicSiteOrigin =
     process.env["NEXT_PUBLIC_SITE_URL"] ||
     (req.headers.get("x-forwarded-proto") && req.headers.get("host")
       ? `${req.headers.get("x-forwarded-proto")}://${req.headers.get("host")}`
       : "");
-  const successUrl = origin ? `${origin}/methodology?payment=success` : "";
-  const failUrl = origin ? `${origin}/methodology?payment=fail` : "";
 
-  const params = new URLSearchParams({
-    MerchantLogin: ROBOKASSA_LOGIN,
-    OutSum: outSum,
-    InvId: invId,
-    Description: "Методика: цифровой доступ к материалам",
-    SignatureValue: signature,
-    Culture: "ru",
-    Encoding: "utf-8",
-    ...(ROBOKASSA_TEST && { IsTest: "1" }),
-    Email: email,
-    ...(successUrl && { SuccessURL: successUrl }),
-    ...(failUrl && { FailURL: failUrl }),
+  const result = await createMethodologyPayment({
+    robokassaLogin: ROBOKASSA_LOGIN,
+    robokassaPass1: ROBOKASSA_PASS1,
+    robokassaTest: ROBOKASSA_TEST,
+    productId,
+    payerEmail,
+    publicSiteOrigin,
   });
 
-  const redirectUrl = `${ROBOKASSA_BASE_URL}?${params.toString()}`;
+  if (!result.ok) {
+    const status = result.error === "Invalid product" ? 400 : 500;
+    return NextResponse.json({ error: result.error }, { status });
+  }
 
-  return NextResponse.json({ redirectUrl });
+  return NextResponse.json({ redirectUrl: result.redirectUrl });
 }

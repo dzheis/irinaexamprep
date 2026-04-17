@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { ROUTES } from "@/presentation/routes";
+import { ROUTES } from "@/shared/constants/routes";
 
 /** Storyblok publish webhook: requires `x-revalidate-secret` / `?secret=` matching `REVALIDATE_SECRET`. */
 const REVALIDATE_SECRET = process.env["REVALIDATE_SECRET"];

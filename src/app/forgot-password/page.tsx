@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { validatePlainEmail } from "@/application/useCases/auth/resetPassword";
 import { ROUTES } from "@/presentation/routes";
-import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS, EMAIL_REGEX } from "@/shared/constants/auth-form";
+import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS } from "@/shared/constants/auth-form";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function ForgotPasswordPage() {
@@ -19,8 +20,9 @@ export default function ForgotPasswordPage() {
     setError(null);
     setEmailError(null);
     const trimmedEmail = email.trim();
-    if (!EMAIL_REGEX.test(trimmedEmail)) {
-      setEmailError("Введите корректный email");
+    const emailErr = validatePlainEmail(trimmedEmail);
+    if (emailErr) {
+      setEmailError(emailErr);
       return;
     }
     setLoading(true);
