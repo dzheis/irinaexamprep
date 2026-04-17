@@ -1,5 +1,5 @@
-import type { User } from "@/domain/entities/User";
-import type { Result } from "@/domain/entities/Result";
+import type { User } from "@/domain/auth/User";
+import type { Result } from "@/domain/methodology/Result";
 
 export type AuthUser = User;
 

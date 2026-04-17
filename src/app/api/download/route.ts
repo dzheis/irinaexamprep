@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { fetchRemoteFileStream } from "@/infrastructure/http/remoteFileFetch";
 
 const ALLOWED_ORIGINS = ["https://a.storyblok.com", "https://s3.amazonaws.com"];
 
@@ -17,33 +18,25 @@ function isAllowedUrl(url: string): boolean {
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get("url");
-  const filename = req.nextUrl.searchParams.get("filename")?.trim();
+  const filename = req.nextUrl.searchParams.get("filename")?.trim() ?? null;
 
   if (!url || !isAllowedUrl(url)) {
     return new NextResponse("Invalid or disallowed URL", { status: 400 });
   }
 
-  try {
-    const res = await fetch(url, { headers: { Accept: "*/*" } });
-    if (!res.ok) {
-      return new NextResponse("File not found", { status: 404 });
-    }
-    const contentType = res.headers.get("content-type") ?? "application/octet-stream";
-    const contentDisposition = filename
-      ? `attachment; filename="${filename.replace(/"/g, '\\"')}"`
-      : (res.headers.get("content-disposition") ?? "attachment");
-    const body = res.body;
-    if (!body) return new NextResponse("No content", { status: 502 });
-
-    return new NextResponse(body, {
-      status: 200,
-      headers: {
-        "Content-Type": contentType,
-        "Content-Disposition": contentDisposition,
-        "Cache-Control": "private, max-age=3600",
-      },
-    });
-  } catch {
+  const result = await fetchRemoteFileStream(url, filename);
+  if (result.status !== "ok") {
+    if (result.status === "not_found") return new NextResponse("File not found", { status: 404 });
+    if (result.status === "no_content") return new NextResponse("No content", { status: 502 });
     return new NextResponse("Download failed", { status: 502 });
   }
+
+  return new NextResponse(result.body, {
+    status: 200,
+    headers: {
+      "Content-Type": result.contentType,
+      "Content-Disposition": result.contentDisposition,
+      "Cache-Control": "private, max-age=3600",
+    },
+  });
 }

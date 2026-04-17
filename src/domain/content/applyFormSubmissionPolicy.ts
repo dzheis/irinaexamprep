@@ -1,6 +1,6 @@
 import { isValidEmailFormat } from "@/domain/auth/credentialsPolicy";
 import { isApplyNameTextOnly } from "@/domain/content/applyApplicationPolicy";
-import type { ApplyFormInput } from "@/types/applyForm";
+import type { ApplyFormPayload } from "@/domain/content/applyFormPayload";
 
 function readString(v: unknown): string | undefined {
   if (typeof v === "string") return v;
@@ -9,7 +9,7 @@ function readString(v: unknown): string | undefined {
 }
 
 export function validateApplyFormSubmission(body: unknown):
-  | { ok: true; payload: ApplyFormInput }
+  | { ok: true; payload: ApplyFormPayload }
   | { ok: false; error: string } {
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     return { ok: false, error: "Некорректное тело запроса" };
@@ -49,7 +49,7 @@ export function validateApplyFormSubmission(body: unknown):
     return { ok: false, error: "Некорректный email" };
   }
 
-  const payload: ApplyFormInput = {
+  const payload: ApplyFormPayload = {
     firstName: firstName.trim(),
     lastName: lastName.trim(),
     email: trimmedEmail,

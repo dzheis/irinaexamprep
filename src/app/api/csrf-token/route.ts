@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import crypto from "crypto";
 import { cookies } from "next/headers";
+import { generateCsrfToken } from "@/infrastructure/security/csrfToken";
 
 const CSRF_COOKIE_NAME = "csrf_token";
 
 export async function GET() {
-  const token = crypto.randomBytes(16).toString("hex");
+  const token = generateCsrfToken();
 
   const cookieStore = await cookies();
   cookieStore.set(CSRF_COOKIE_NAME, token, {
@@ -13,7 +13,7 @@ export async function GET() {
     httpOnly: false,
     sameSite: "lax",
     secure: process.env["NODE_ENV"] === "production",
-    maxAge: 60 * 30, // 30 minutes
+    maxAge: 60 * 30,
   });
 
   return NextResponse.json({ token });

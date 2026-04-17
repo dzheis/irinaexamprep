@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import AnimatedButtonText from "@/components/ui/AnimatedButtonText";
 import { useLanguage } from "@/components/ui/LanguageContext";
-import { ROUTES } from "@/presentation/routes";
+import { ROUTES } from "@/shared/constants/routes";
 
 const DEFAULT_INTRO =
   "Курсы для студентов продвинутого уровня, которые хотят сдать FCE, CAE или CPE и уверенно использовать английский на высоком уровне. Также на сайте вы найдете материалы по методике преподавания для учителей английского.";

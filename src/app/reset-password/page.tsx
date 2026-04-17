@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ROUTES } from "@/presentation/routes";
+import { ROUTES } from "@/shared/constants/routes";
 import { useRouter } from "next/navigation";
 import PasswordInput from "@/components/ui/PasswordInput";
 import { validatePasswordResetForm } from "@/application/useCases/auth/resetPassword";

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PasswordInput from "@/components/ui/PasswordInput";
 import { validateSignUpForm } from "@/application/useCases/auth/signUp";
-import { ROUTES } from "@/presentation/routes";
+import { ROUTES } from "@/shared/constants/routes";
 import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS } from "@/shared/constants/auth-form";
 import { useAuth } from "@/hooks/useAuth";
 

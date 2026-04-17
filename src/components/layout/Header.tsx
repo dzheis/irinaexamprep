@@ -9,7 +9,7 @@ import { useScrollToSection, useScrollToTop } from "@/components/ui/SmoothScroll
 import { useApplyModal } from "@/components/ui/ApplyModalContext";
 import { useLanguage } from "@/components/ui/LanguageContext";
 import AuthHeaderBlock from "@/components/layout/AuthHeaderBlock";
-import { HOME_HASH, ROUTES } from "@/presentation/routes";
+import { HOME_HASH, ROUTES } from "@/shared/constants/routes";
 
 const DEFAULT_LOGO = "Irina Petrova";
 const DEFAULT_ALT = "Best Practices for Learning English";

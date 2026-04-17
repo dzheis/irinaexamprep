@@ -1,7 +1,7 @@
 import { isMethodologyAdminEmail } from "@/domain/methodology/adminAccess";
-import { getAllMethodologyModuleIds } from "@/infrastructure/methodology/storyblokModuleIds";
-import { getPurchasedModuleIdsByEmails } from "@/services/lessonService";
-import { getServerUser } from "@/services/userService";
+import { getAllMethodologyModuleIds } from "@/infrastructure/methodology/methodologyStoryblok";
+import { getPurchasedModuleIdsByEmails } from "@/infrastructure/purchases/purchasedModules";
+import { getServerUser } from "@/infrastructure/auth/supabaseUser";
 
 const ADMIN_EMAIL = process.env["ADMIN_EMAIL"]?.trim().toLowerCase() || "";
 

@@ -2,7 +2,7 @@ import { getMethodologyProductPriceRub } from "@/domain/payment/methodologyProdu
 import { paySignatureSource } from "@/domain/payment/robokassaSignature";
 import { md5Utf8HexUppercase, randomRobokassaInvId } from "@/infrastructure/payment/robokassaHash";
 import { ROUTES } from "@/shared/constants/routes";
-import { createPendingPayment } from "@/services/paymentService";
+import { createPendingPayment } from "@/infrastructure/payment/persistence";
 
 const ROBOKASSA_BASE_URL = "https://auth.robokassa.ru/Merchant/Index.aspx";
 

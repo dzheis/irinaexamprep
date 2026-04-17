@@ -1,5 +1,5 @@
 import { validateSignInCredentials } from "@/domain/auth/credentialsPolicy";
-import { createServerClient } from "@/services/supabaseServer";
+import { signInWithEmailPassword } from "@/infrastructure/auth/supabasePasswordAuth";
 
 export async function signIn(email: string, password: string): Promise<{ error: string | null }> {
   const message = validateSignInCredentials(email, password);
@@ -8,17 +8,15 @@ export async function signIn(email: string, password: string): Promise<{ error: 
   }
 
   try {
-    const supabase = await createServerClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (!error) return { error: null };
-
-    if (error.message === "Invalid login credentials") {
+    const result = await signInWithEmailPassword(email, password);
+    if (result.ok) return { error: null };
+    if (result.reason === "invalid_credentials") {
       return { error: "Неверный email или пароль" };
     }
-    if (error.message.includes("Email not confirmed")) {
+    if (result.reason === "email_not_confirmed") {
       return { error: "Подтвердите email по ссылке из письма" };
     }
-    return { error: error.message };
+    return { error: result.message };
   } catch {
     return { error: "Ошибка входа. Попробуйте позже." };
   }

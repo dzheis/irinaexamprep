@@ -10,7 +10,7 @@ import { md5Utf8HexUppercase } from "@/infrastructure/payment/robokassaHash";
 import {
   getPendingPayment,
   upsertPurchaseAndDeletePending,
-} from "@/services/paymentService";
+} from "@/infrastructure/payment/persistence";
 
 function checkResultSignature(
   outSum: string,

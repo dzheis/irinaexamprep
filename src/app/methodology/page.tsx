@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import MethodologyClient from "./methodology-client";
-import { getMethodologyFromStoryblok } from "@/lib/methodology-storyblok";
+import { getMethodologyFromStoryblok } from "@/infrastructure/methodology/methodologyStoryblok";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";

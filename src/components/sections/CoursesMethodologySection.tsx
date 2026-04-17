@@ -6,7 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { CoursesSectionBlockContent } from "@/lib/storyblok-types";
 import { useLanguage } from "@/components/ui/LanguageContext";
-import { ROUTES } from "@/presentation/routes";
+import { ROUTES } from "@/shared/constants/routes";
 
 gsap.registerPlugin(ScrollTrigger);
 

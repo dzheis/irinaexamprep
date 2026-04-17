@@ -13,7 +13,7 @@ import {
 import { useForm } from "react-hook-form";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { isApplyNameTextOnly } from "@/application/useCases/content/applyNameValidation";
-import { ROUTES } from "@/presentation/routes";
+import { ROUTES } from "@/shared/constants/routes";
 
 const TEXT_ONLY_MSG = "Для ввода доступен только текст";
 

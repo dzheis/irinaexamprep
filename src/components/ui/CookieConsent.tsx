@@ -8,7 +8,7 @@ import {
   type CookieConsentState,
   type CookieCategory,
 } from "@/lib/cookie-consent";
-import { ROUTES } from "@/presentation/routes";
+import { ROUTES } from "@/shared/constants/routes";
 
 const BANNER_BASE_CLASS =
   "fixed bottom-0 left-0 right-0 z-[100] px-4 py-3 bg-white/60 backdrop-blur-lg border-t border-black/10 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] transition-[opacity,transform] duration-400 ease-in-out";
