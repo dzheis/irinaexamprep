@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { createServiceClient } from "@/lib/supabase/server";
+import {
+  getPendingPayment,
+  upsertPurchaseAndDeletePending,
+} from "@/services/paymentService";
 
 const ROBOKASSA_PASS2 = process.env.ROBOKASSA_PASS2;
 
@@ -54,15 +57,7 @@ async function handleResult(params: {
   }
 
   try {
-    const supabase = createServiceClient();
-    const { data: pending, error: pendingErr } = await supabase
-      .from("pending_payments")
-      .select("email, product_id, out_sum")
-      .eq("inv_id", invId)
-      .maybeSingle();
-    if (pendingErr) {
-      console.error("Pay result: pending_payments query failed", pendingErr);
-    }
+    const pending = await getPendingPayment(invId);
     if (!pending?.email || !pending?.product_id) {
       console.error("Pay result: no pending row for InvId (check inv_id in DB vs callback)", {
         invId,
@@ -85,14 +80,11 @@ async function handleResult(params: {
         });
         return plainResponse(`OK${invId}`);
       }
-
-      await supabase
-        .from("purchases")
-        .upsert(
-          { email: pending.email.trim().toLowerCase(), module_id: pending.product_id },
-          { onConflict: "email,module_id" },
-        );
-      await supabase.from("pending_payments").delete().eq("inv_id", invId);
+      await upsertPurchaseAndDeletePending({
+        invId,
+        email: pending.email,
+        productId: pending.product_id,
+      });
     }
   } catch (e) {
     console.error("Pay result: failed to record purchase", e);
