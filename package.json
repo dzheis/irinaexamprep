@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint src --max-warnings 0",
+    "test": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -38,6 +39,8 @@
     "postcss": "^8.5.6",
     "prettier": "^3.8.1",
     "tailwindcss": "^3.4.19",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.4"
   }
 }
