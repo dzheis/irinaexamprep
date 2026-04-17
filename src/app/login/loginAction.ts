@@ -1,8 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { ROUTES } from "@/presentation/routes";
-import { signIn } from "@/services/auth";
+import { signIn } from "@/application/useCases/auth/signIn";
+import { ROUTES } from "@/shared/constants/routes";
 
 export type LoginActionState = {
   error: string | null;
@@ -23,4 +23,3 @@ export async function loginAction(
 
   redirect(ROUTES.methodology);
 }
-

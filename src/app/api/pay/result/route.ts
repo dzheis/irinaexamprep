@@ -1,28 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
-import {
-  getPendingPayment,
-  upsertPurchaseAndDeletePending,
-} from "@/services/paymentService";
+import { verifyRobokassaPaymentResult } from "@/application/useCases/payment/verifyPayment";
 
 const ROBOKASSA_PASS2 = process.env["ROBOKASSA_PASS2"];
-
-function checkResultSignature(
-  outSum: string,
-  invId: string,
-  signatureValue: string,
-  pass2: string,
-): boolean {
-  const str = `${outSum}:${invId}:${pass2}`;
-  const expected = crypto.createHash("md5").update(str, "utf8").digest("hex").toUpperCase();
-  return expected === (signatureValue ?? "").trim().toUpperCase();
-}
-
-function parseAmount(value: string): number {
-  const normalized = value.replace(/\s/g, "").replace(",", ".");
-  const n = Number(normalized);
-  return Number.isFinite(n) ? n : NaN;
-}
 
 function plainResponse(text: string) {
   return new NextResponse(text, {
@@ -51,46 +30,14 @@ async function handleResult(params: {
     });
     return plainResponse("ERROR");
   }
-  if (!checkResultSignature(outSum, invId, signatureValue, ROBOKASSA_PASS2)) {
-    console.error("Pay result: invalid signature", { outSum, invId });
-    return plainResponse("ERROR");
-  }
 
-  try {
-    const pending = await getPendingPayment(invId);
-    if (!pending?.email || !pending?.product_id) {
-      console.error("Pay result: no pending row for InvId (check inv_id in DB vs callback)", {
-        invId,
-        pendingFound: !!pending,
-      });
-    }
-    if (pending?.email && pending?.product_id) {
-      const outSumNumber = parseAmount(outSum);
-      const pendingOutSumNumber = Number(pending.out_sum);
-      const isOutSumMatch =
-        Number.isFinite(outSumNumber) &&
-        Number.isFinite(pendingOutSumNumber) &&
-        Math.abs(outSumNumber - pendingOutSumNumber) <= 0.01;
-
-      if (!isOutSumMatch) {
-        console.error("Pay result: out_sum mismatch", {
-          outSum: outSumNumber,
-          pendingOutSum: pendingOutSumNumber,
-          invId,
-        });
-        return plainResponse(`OK${invId}`);
-      }
-      await upsertPurchaseAndDeletePending({
-        invId,
-        email: pending.email,
-        productId: pending.product_id,
-      });
-    }
-  } catch (e) {
-    console.error("Pay result: failed to record purchase", e);
-  }
-
-  return plainResponse(`OK${invId}`);
+  const body = await verifyRobokassaPaymentResult({
+    outSum,
+    invId,
+    signatureValue,
+    pass2: ROBOKASSA_PASS2,
+  });
+  return plainResponse(body);
 }
 
 export async function GET(req: NextRequest) {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/application/use-cases/auth/getSessionUser";
+import { getSessionUser } from "@/application/useCases/auth/getSessionUser";
 
 export async function GET() {
   try {

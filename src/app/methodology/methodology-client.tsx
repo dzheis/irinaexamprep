@@ -7,20 +7,18 @@ import { useLanguage } from "@/components/ui/LanguageContext";
 import { useUser } from "@/hooks/useUser";
 import { usePurchases } from "@/hooks/usePurchases";
 import { useCsrfToken } from "@/hooks/useCsrfToken";
+import { validatePlainEmail } from "@/application/useCases/auth/resetPassword";
 import {
   canOpenPaymentModal,
+  getMethodologyProductPriceRub,
   isModulePurchased,
-} from "@/domain/policies/methodologyPurchasePolicy";
-import { ROUTES } from "@/presentation/routes";
+} from "@/application/useCases/methodology/methodologyAccess";
+import { ROUTES } from "@/shared/constants/routes";
+import type { MethodologyVideoItem } from "@/types/methodology";
 
-export type MethodologyVideoItem = {
-  id: string;
-  title?: string;
-  description: string;
-  price?: number;
-};
+export type { MethodologyVideoItem };
 
-const DEFAULT_PRICE = 1990;
+const DEFAULT_PRICE = getMethodologyProductPriceRub("1") ?? 1990;
 
 const INPUT_BASE_CLASS =
   "w-full px-4 py-3 rounded-xl border bg-white/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-theme-secondary-accent/50 transition-all duration-300 input-theme";
@@ -29,7 +27,7 @@ const METHODOLOGY_VIDEOS: MethodologyVideoItem[] = [
   {
     id: "1",
     title: "Why Teaching ≠ Learning: a way towards conscious teaching",
-    price: 1990,
+    price: DEFAULT_PRICE,
     description:
       "Teachers often do “everything right”: plan carefully, explain clearly, choose good materials, run communicative activities, and still see slow, uneven progress. Students forget, plateau, and repeat the same errors. This webinar explains why that happens and how to teach more consciously, without overteaching or burning out.\n\nThe core idea is that teaching creates conditions, while learning is what the learner actually processes, retains, and can use later. These are not the same process, and confusing them leads to predictable classroom problems, which we also discuss in the webinar.",
   },
@@ -92,8 +90,9 @@ function PaymentModal({
       return;
     }
     const trimmed = (prefilledEmail ?? email).trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      setError("Введите корректный email");
+    const emailErr = validatePlainEmail(trimmed);
+    if (emailErr) {
+      setError(emailErr);
       return;
     }
     setError(null);

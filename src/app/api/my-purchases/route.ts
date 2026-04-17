@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { getPurchasedModuleIdsForCurrentUser } from "@/application/use-cases/methodology/getPurchasedModuleIdsForCurrentUser";
+import { getPurchasedModules } from "@/application/useCases/methodology/getPurchasedModules";
 
 export async function GET() {
   try {
-    const moduleIds = await getPurchasedModuleIdsForCurrentUser();
+    const moduleIds = await getPurchasedModules();
     return NextResponse.json({ moduleIds });
   } catch {
     return NextResponse.json({ moduleIds: [] });
