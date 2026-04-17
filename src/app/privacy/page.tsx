@@ -14,6 +14,9 @@ const SUBTITLE_CLASS = "font-normal text-theme-accent mb-6 text-justify";
 
 export default async function PrivacyPage() {
   const data = await getTextPageFromStoryblok("privacy", DEFAULT_TITLE);
+  const subtitle1 = data.customFields?.["subtitle_1"];
+  const subtitle2 = data.customFields?.["subtitle_2"];
+  const footerTitle = data.customFields?.["footer_title"];
   const contentHtml =
     data.contentRichText != null
       ? (renderRichText(data.contentRichText as unknown as Parameters<typeof renderRichText>[0]) ??
@@ -28,18 +31,14 @@ export default async function PrivacyPage() {
 
           {contentHtml ? (
             <>
-              {data.customFields?.subtitle_1 != null && (
-                <h2 className={SUBTITLE_CLASS}>{data.customFields.subtitle_1}</h2>
-              )}
-              {data.customFields?.subtitle_2 != null && (
-                <h2 className={SUBTITLE_CLASS}>{data.customFields.subtitle_2}</h2>
-              )}
+              {subtitle1 != null && <h2 className={SUBTITLE_CLASS}>{String(subtitle1)}</h2>}
+              {subtitle2 != null && <h2 className={SUBTITLE_CLASS}>{String(subtitle2)}</h2>}
               <section
                 className="prose prose-theme max-w-none text-theme space-y-6 [&_p]:text-justify [&_ul]:text-justify [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-8 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2"
                 dangerouslySetInnerHTML={{ __html: contentHtml }}
               />
-              {data.customFields?.footer_title != null && (
-                <h2 className={`${SUBTITLE_CLASS} mt-12`}>{data.customFields.footer_title}</h2>
+              {footerTitle != null && (
+                <h2 className={`${SUBTITLE_CLASS} mt-12`}>{String(footerTitle)}</h2>
               )}
             </>
           ) : (

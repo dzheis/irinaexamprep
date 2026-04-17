@@ -28,19 +28,20 @@ function parsePrice(value: unknown): number | undefined {
 
 function getModulesFromRaw(raw: Record<string, unknown> | null): RawModule[] {
   if (!raw || typeof raw !== "object") return [];
-  const arr = raw.modules ?? raw.Blocks ?? raw.modules_list ?? raw.items ?? raw.blocks;
+  const arr =
+    raw["modules"] ?? raw["Blocks"] ?? raw["modules_list"] ?? raw["items"] ?? raw["blocks"];
   if (!Array.isArray(arr)) return [];
   return arr as RawModule[];
 }
 
 function getTitleFromRaw(raw: Record<string, unknown> | null): string {
   if (!raw || typeof raw !== "object") return "";
-  const t = (raw.title ?? raw.headline ?? "") as string;
+  const t = (raw["title"] ?? raw["headline"] ?? "") as string;
   if (t?.trim()) return t.trim();
-  const body = raw.body as Record<string, unknown>[] | undefined;
+  const body = raw["body"] as Record<string, unknown>[] | undefined;
   const first = Array.isArray(body) ? body[0] : undefined;
   if (first && typeof first === "object") {
-    const ft = (first.title ?? first.headline ?? "") as string;
+    const ft = (first["title"] ?? first["headline"] ?? "") as string;
     if (ft?.trim()) return ft.trim();
   }
   return "";
@@ -54,12 +55,7 @@ export function rawModuleToVideoItem(m: RawModule): MethodologyVideoItem | null 
   const description =
     (m.description ?? m.Description ?? c?.description ?? c?.Description)?.toString()?.trim() ?? "";
   const price = parsePrice(m.price ?? m.Price ?? c?.price ?? c?.Price);
-  return {
-    id,
-    title: title || undefined,
-    description,
-    price,
-  };
+  return { id, description, ...(title ? { title } : {}), ...(price !== undefined ? { price } : {}) };
 }
 
 export async function getMethodologyFromStoryblok(): Promise<{
@@ -84,7 +80,7 @@ export async function getVideoIdByModuleIdFromStoryblok(moduleId: string): Promi
   const story = await fetchStory<Record<string, unknown>>("methodology");
   const raw = story?.content ?? null;
   const list = getModulesFromRaw(raw);
-  if (!list.length && raw?.body && Array.isArray((raw as { body: unknown[] }).body)) {
+  if (!list.length && raw?.["body"] && Array.isArray((raw as { body: unknown[] })["body"])) {
     const first = (raw as { body: Record<string, unknown>[] }).body[0];
     if (first) list.push(...getModulesFromRaw(first as Record<string, unknown>));
   }
@@ -115,7 +111,7 @@ export async function getAllMethodologyModuleIds(): Promise<string[]> {
   const story = await fetchStory<Record<string, unknown>>("methodology");
   const raw = story?.content ?? null;
   const list = getModulesFromRaw(raw);
-  if (!list.length && raw?.body && Array.isArray((raw as { body: unknown[] }).body)) {
+  if (!list.length && raw?.["body"] && Array.isArray((raw as { body: unknown[] })["body"])) {
     const first = (raw as { body: Record<string, unknown>[] }).body[0];
     if (first) list.push(...getModulesFromRaw(first as Record<string, unknown>));
   }

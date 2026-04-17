@@ -1,7 +1,7 @@
 import { apiPlugin, getStoryblokApi, storyblokInit } from "@storyblok/react/rsc";
 import type { ConfigStoryContent } from "./storyblok-types";
 
-const token = process.env.NEXT_PUBLIC_STORYBLOK_ACCESS_TOKEN;
+const token = process.env["NEXT_PUBLIC_STORYBLOK_ACCESS_TOKEN"];
 
 storyblokInit({
   accessToken: token || "",
@@ -37,7 +37,7 @@ export async function fetchStory<T = Record<string, unknown>>(
 function normalizeConfigContent(raw: Record<string, unknown> | null): ConfigStoryContent | null {
   if (!raw || typeof raw !== "object") return null;
 
-  const body = raw.body as { component?: string; [key: string]: unknown }[] | undefined;
+  const body = raw["body"] as { component?: string; [key: string]: unknown }[] | undefined;
   const headerFromBody = Array.isArray(body)
     ? body.find((b) => String(b?.component ?? "").toLowerCase() === "header")
     : undefined;
@@ -45,13 +45,16 @@ function normalizeConfigContent(raw: Record<string, unknown> | null): ConfigStor
     ? body.find((b) => String(b?.component ?? "").toLowerCase() === "footer")
     : undefined;
 
-  let header = (raw.header ?? headerFromBody) as ConfigStoryContent["header"] | undefined;
-  let footer = (raw.footer ?? footerFromBody) as ConfigStoryContent["footer"] | undefined;
+  let header = (raw["header"] ?? headerFromBody) as ConfigStoryContent["header"] | undefined;
+  let footer = (raw["footer"] ?? footerFromBody) as ConfigStoryContent["footer"] | undefined;
 
   if (Array.isArray(footer)) footer = footer[0] as ConfigStoryContent["footer"];
   if (Array.isArray(header)) header = header[0] as ConfigStoryContent["header"];
 
-  return { header: header ?? undefined, footer: footer ?? undefined };
+  return {
+    ...(header ? { header } : {}),
+    ...(footer ? { footer } : {}),
+  };
 }
 
 export async function getConfig(): Promise<ConfigStoryContent | null> {

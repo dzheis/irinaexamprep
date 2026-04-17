@@ -12,7 +12,7 @@ export async function GET() {
     path: "/",
     httpOnly: false,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env["NODE_ENV"] === "production",
     maxAge: 60 * 30, // 30 minutes
   });
 

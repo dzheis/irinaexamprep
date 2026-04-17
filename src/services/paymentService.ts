@@ -1,4 +1,4 @@
-import { createServiceClient } from "@/services/supabaseClient";
+import { createServiceClient } from "@/services/supabaseServer";
 import type { PendingPaymentRow } from "@/types/domain";
 
 export async function createPendingPayment(params: {

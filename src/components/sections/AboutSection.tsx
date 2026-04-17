@@ -193,7 +193,9 @@ export default function AboutSection({ data }: AboutSectionProps) {
     (e: React.TouchEvent<HTMLDivElement>) => {
       e.stopPropagation();
       if (e.touches.length === 2) {
-        const [a, b] = [e.touches[0], e.touches[1]];
+        const a = e.touches[0];
+        const b = e.touches[1];
+        if (!a || !b) return;
         const distance = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
         pinchStart.current = { distance, scale: certScale };
         setIsPanning(false);
@@ -201,6 +203,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
       }
       if (e.touches.length === 1 && certScale > 1) {
         const t = e.touches[0];
+        if (!t) return;
         setIsPanning(true);
         panStart.current = { x: t.clientX, y: t.clientY, ox: certOffset.x, oy: certOffset.y };
       }
@@ -213,7 +216,9 @@ export default function AboutSection({ data }: AboutSectionProps) {
       e.preventDefault();
       e.stopPropagation();
       if (e.touches.length === 2 && pinchStart.current) {
-        const [a, b] = [e.touches[0], e.touches[1]];
+        const a = e.touches[0];
+        const b = e.touches[1];
+        if (!a || !b) return;
         const distance = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
         const ratio = distance / Math.max(1, pinchStart.current.distance);
         updateScale(pinchStart.current.scale * ratio);
@@ -221,6 +226,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
       }
       if (e.touches.length === 1 && isPanning && certScale > 1) {
         const t = e.touches[0];
+        if (!t) return;
         const dx = t.clientX - panStart.current.x;
         const dy = t.clientY - panStart.current.y;
         setCertOffset({ x: panStart.current.ox + dx, y: panStart.current.oy + dy });
@@ -235,6 +241,7 @@ export default function AboutSection({ data }: AboutSectionProps) {
       if (e.touches.length < 2) pinchStart.current = null;
       if (e.touches.length === 1 && certScale > 1) {
         const t = e.touches[0];
+        if (!t) return;
         setIsPanning(true);
         panStart.current = { x: t.clientX, y: t.clientY, ox: certOffset.x, oy: certOffset.y };
         return;

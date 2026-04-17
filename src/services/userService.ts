@@ -1,5 +1,5 @@
 import type { AuthUser } from "@/types/domain";
-import { createServerClient } from "@/services/supabaseClient";
+import { createServerClient } from "@/services/supabaseServer";
 
 export async function getServerUser(): Promise<AuthUser | null> {
   const supabase = await createServerClient();
@@ -7,6 +7,6 @@ export async function getServerUser(): Promise<AuthUser | null> {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return null;
-  return { id: user.id, email: user.email ?? undefined };
+  return { id: user.id, ...(user.email ? { email: user.email } : {}) };
 }
 

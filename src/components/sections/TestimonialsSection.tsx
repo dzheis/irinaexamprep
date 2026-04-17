@@ -283,7 +283,9 @@ function TestimonialCard({
     (e: React.TouchEvent<HTMLDivElement>) => {
       e.stopPropagation();
       if (e.touches.length === 2) {
-        const [a, b] = [e.touches[0], e.touches[1]];
+        const a = e.touches[0];
+        const b = e.touches[1];
+        if (!a || !b) return;
         const distance = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
         pinchStart.current = { distance, scale: certScale };
         setIsPanning(false);
@@ -291,6 +293,7 @@ function TestimonialCard({
       }
       if (e.touches.length === 1 && certScale > 1) {
         const t = e.touches[0];
+        if (!t) return;
         setIsPanning(true);
         panStart.current = { x: t.clientX, y: t.clientY, ox: certOffset.x, oy: certOffset.y };
       }
@@ -303,7 +306,9 @@ function TestimonialCard({
       e.preventDefault();
       e.stopPropagation();
       if (e.touches.length === 2 && pinchStart.current) {
-        const [a, b] = [e.touches[0], e.touches[1]];
+        const a = e.touches[0];
+        const b = e.touches[1];
+        if (!a || !b) return;
         const distance = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
         const ratio = distance / Math.max(1, pinchStart.current.distance);
         updateScale(pinchStart.current.scale * ratio);
@@ -311,6 +316,7 @@ function TestimonialCard({
       }
       if (e.touches.length === 1 && isPanning && certScale > 1) {
         const t = e.touches[0];
+        if (!t) return;
         const dx = t.clientX - panStart.current.x;
         const dy = t.clientY - panStart.current.y;
         setCertOffset({ x: panStart.current.ox + dx, y: panStart.current.oy + dy });
@@ -327,6 +333,7 @@ function TestimonialCard({
       }
       if (e.touches.length === 1 && certScale > 1) {
         const t = e.touches[0];
+        if (!t) return;
         setIsPanning(true);
         panStart.current = { x: t.clientX, y: t.clientY, ox: certOffset.x, oy: certOffset.y };
         return;
@@ -647,8 +654,10 @@ function interleaveByTextPresence(items: Testimonial[]): Testimonial[] {
   const maxLen = Math.max(withText.length, withoutText.length);
 
   for (let i = 0; i < maxLen; i += 1) {
-    if (withText[i]) result.push(withText[i]);
-    if (withoutText[i]) result.push(withoutText[i]);
+    const withTextItem = withText[i];
+    const withoutTextItem = withoutText[i];
+    if (withTextItem) result.push(withTextItem);
+    if (withoutTextItem) result.push(withoutTextItem);
   }
 
   return result;
@@ -659,18 +668,21 @@ function testimonialsFromData(data: TestimonialsBlockContent | null | undefined)
     (i) => i.name?.trim() && (i.text?.trim() || i.certificate_image?.filename?.trim()),
   );
   if (!items?.length) return interleaveByTextPresence(DEFAULT_TESTIMONIALS);
-  const mapped = items.map((item, i) => ({
-    id: i + 1,
-    name: item.name!.trim(),
-    role: item.role?.trim() ?? "",
-    text: item.text?.trim() ?? "",
-    avatar: item.avatar?.filename?.trim()
-      ? item.avatar.filename.trim()
-      : "/icons/placeholder-avatar.svg",
-    certificateImage: item.certificate_image?.filename?.trim()
+  const mapped = items.map((item, i) => {
+    const certificateImage = item.certificate_image?.filename?.trim()
       ? item.certificate_image.filename.trim()
-      : undefined,
-  }));
+      : null;
+    return {
+      id: i + 1,
+      name: item.name!.trim(),
+      role: item.role?.trim() ?? "",
+      text: item.text?.trim() ?? "",
+      avatar: item.avatar?.filename?.trim()
+        ? item.avatar.filename.trim()
+        : "/icons/placeholder-avatar.svg",
+      ...(certificateImage ? { certificateImage } : {}),
+    };
+  });
   return interleaveByTextPresence(mapped);
 }
 
@@ -768,7 +780,11 @@ export default function TestimonialsSection({ data }: TestimonialsSectionProps) 
     const t = Date.now();
     const arr = lastMove.current;
     arr.push({ x, t });
-    while (arr.length > 0 && t - arr[0].t > VELOCITY_SAMPLE_MS) arr.shift();
+    while (arr.length > 0) {
+      const first = arr[0];
+      if (!first || t - first.t <= VELOCITY_SAMPLE_MS) break;
+      arr.shift();
+    }
   }, []);
 
   const getReleaseVelocity = useCallback(() => {
@@ -776,6 +792,7 @@ export default function TestimonialsSection({ data }: TestimonialsSectionProps) 
     if (arr.length < 2) return 0;
     const a = arr[0];
     const b = arr[arr.length - 1];
+    if (!a || !b) return 0;
     const dt = (b.t - a.t) / 1000;
     if (dt <= 0) return 0;
     const v = (b.x - a.x) / dt;

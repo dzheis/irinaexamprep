@@ -133,7 +133,8 @@ const wordDictionary: Record<string, string> = {
 function capitalizeLike(source: string, target: string): string {
   if (!source) return target;
   if (source === source.toUpperCase()) return target.toUpperCase();
-  if (source[0] === source[0].toUpperCase()) {
+  const firstSourceChar = source[0];
+  if (firstSourceChar && firstSourceChar === firstSourceChar.toUpperCase()) {
     return target.charAt(0).toUpperCase() + target.slice(1);
   }
   return target;

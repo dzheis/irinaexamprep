@@ -1,4 +1,4 @@
-import { createServiceClient } from "@/services/supabaseClient";
+import { createServiceClient } from "@/services/supabaseServer";
 import type { Purchase } from "@/types/domain";
 
 export async function getPurchasedModuleIdsByEmails(emails: string[]): Promise<string[]> {

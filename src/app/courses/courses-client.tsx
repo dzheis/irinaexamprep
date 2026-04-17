@@ -265,12 +265,18 @@ function normalizeCourseBlock(item: CourseBlock): {
   image?: { filename?: string };
 } {
   const c = item.content;
+  const name = item.name ?? c?.name;
+  const title = item.title ?? c?.title;
+  const slug = item.slug ?? c?.slug;
+  const description = item.description ?? c?.description;
+  const image = item.image ?? c?.image;
+
   return {
-    name: item.name ?? c?.name,
-    title: item.title ?? c?.title,
-    slug: item.slug ?? c?.slug,
-    description: item.description ?? c?.description,
-    image: item.image ?? c?.image,
+    ...(name !== undefined ? { name } : {}),
+    ...(title !== undefined ? { title } : {}),
+    ...(slug !== undefined ? { slug } : {}),
+    ...(description !== undefined ? { description } : {}),
+    ...(image !== undefined ? { image } : {}),
   };
 }
 
@@ -509,9 +515,11 @@ export default function CoursesClient({ data }: { data?: CoursesStoryContent | n
                         );
                       }
                       if (n === 1 && isLastRow) {
+                        const single = row[0];
+                        if (!single) return null;
                         return (
                           <div key={rowIndex} className="min-[1400px]:col-start-2">
-                            {renderCard(row[0])}
+                            {renderCard(single)}
                           </div>
                         );
                       }
@@ -629,8 +637,11 @@ function DetailsModal({
               const secondIdx = lines.findIndex((l, idx) => idx > firstIdx && l.trim() !== "");
 
               if (firstIdx !== -1 && secondIdx !== -1) {
-                const first = lines[firstIdx].trim();
-                const second = lines[secondIdx].trim();
+                const firstLine = lines[firstIdx];
+                const secondLine = lines[secondIdx];
+                if (!firstLine || !secondLine) return localizeText(description);
+                const first = firstLine.trim();
+                const second = secondLine.trim();
                 const rest = lines.slice(secondIdx + 1).join("\n");
 
                 const isCAE = first === "CAE" && second === "(C1 Advanced)";

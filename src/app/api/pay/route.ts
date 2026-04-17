@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { cookies } from "next/headers";
-import { createServerClient } from "@/services/supabaseClient";
+import { createServerClient } from "@/services/supabaseServer";
 import { createPendingPayment } from "@/services/paymentService";
 
-const ROBOKASSA_LOGIN = process.env.ROBOKASSA_LOGIN;
-const ROBOKASSA_PASS1 = process.env.ROBOKASSA_PASS1;
-const ROBOKASSA_TEST = process.env.ROBOKASSA_TEST === "1" || process.env.ROBOKASSA_TEST === "true";
+const ROBOKASSA_LOGIN = process.env["ROBOKASSA_LOGIN"];
+const ROBOKASSA_PASS1 = process.env["ROBOKASSA_PASS1"];
+const ROBOKASSA_TEST =
+  process.env["ROBOKASSA_TEST"] === "1" || process.env["ROBOKASSA_TEST"] === "true";
 const ROBOKASSA_BASE_URL = "https://auth.robokassa.ru/Merchant/Index.aspx";
 
 type PayBody = {
@@ -31,8 +32,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const isProd = process.env.NODE_ENV === "production";
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const isProd = process.env["NODE_ENV"] === "production";
+  const siteUrl = process.env["NEXT_PUBLIC_SITE_URL"]?.trim();
   if (isProd && !siteUrl) {
     return NextResponse.json({ error: "Server not configured" }, { status: 503 });
   }
@@ -111,7 +112,7 @@ export async function POST(req: NextRequest) {
   }
 
   const origin =
-    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env["NEXT_PUBLIC_SITE_URL"] ||
     (req.headers.get("x-forwarded-proto") && req.headers.get("host")
       ? `${req.headers.get("x-forwarded-proto")}://${req.headers.get("host")}`
       : "");
