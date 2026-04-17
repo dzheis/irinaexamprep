@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { apiPlugin, getStoryblokApi, storyblokInit } from "@storyblok/react/rsc";
 import type { ConfigStoryContent } from "@/lib/storyblok-types";
 
@@ -18,20 +19,29 @@ export type StoryblokStory<T = Record<string, unknown>> = {
   id: number;
 };
 
+/**
+ * Per-request memoized Storyblok read. Multiple callers (methodology page + video-embed + admin module list)
+ * hitting the same `slug` within a single request share one network call via React.cache.
+ */
+const fetchStoryInternal = cache(
+  async (slug: string, version: "draft" | "published"): Promise<StoryblokStory | null> => {
+    if (!token?.trim()) return null;
+    try {
+      const api = getStoryblokApi();
+      const { data } = await api.get(`cdn/stories/${slug}`, { version });
+      return data?.story ?? null;
+    } catch {
+      return null;
+    }
+  },
+);
+
 export async function fetchStory<T = Record<string, unknown>>(
   slug: string,
   options?: { version?: "draft" | "published" },
 ): Promise<StoryblokStory<T> | null> {
-  if (!token?.trim()) return null;
-  try {
-    const api = getStoryblokApi();
-    const { data } = await api.get(`cdn/stories/${slug}`, {
-      version: options?.version ?? "published",
-    });
-    return data?.story ?? null;
-  } catch {
-    return null;
-  }
+  const story = await fetchStoryInternal(slug, options?.version ?? "published");
+  return (story as StoryblokStory<T> | null) ?? null;
 }
 
 function normalizeConfigContent(raw: Record<string, unknown> | null): ConfigStoryContent | null {
