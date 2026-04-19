@@ -2,15 +2,24 @@ import { cache } from "react";
 import { apiPlugin, getStoryblokApi, storyblokInit } from "@storyblok/react/rsc";
 import type { ConfigStoryContent } from "@/lib/storyblok-types";
 
-const token = process.env["NEXT_PUBLIC_STORYBLOK_ACCESS_TOKEN"];
+const token =
+  process.env["STORYBLOK_ACCESS_TOKEN"]?.trim() ||
+  process.env["NEXT_PUBLIC_STORYBLOK_ACCESS_TOKEN"]?.trim() ||
+  "";
+let isStoryblokInitialized = false;
 
-storyblokInit({
-  accessToken: token || "",
-  use: [apiPlugin],
-  apiOptions: { region: "eu" },
-});
-
-export { getStoryblokApi };
+function ensureStoryblokInit(): boolean {
+  if (!token) return false;
+  if (!isStoryblokInitialized) {
+    storyblokInit({
+      accessToken: token,
+      use: [apiPlugin],
+      apiOptions: { region: "eu" },
+    });
+    isStoryblokInitialized = true;
+  }
+  return true;
+}
 
 export type StoryblokStory<T = Record<string, unknown>> = {
   content: T;
@@ -25,7 +34,7 @@ export type StoryblokStory<T = Record<string, unknown>> = {
  */
 const fetchStoryInternal = cache(
   async (slug: string, version: "draft" | "published"): Promise<StoryblokStory | null> => {
-    if (!token?.trim()) return null;
+    if (!ensureStoryblokInit()) return null;
     try {
       const api = getStoryblokApi();
       const { data } = await api.get(`cdn/stories/${slug}`, { version });
