@@ -1,14 +1,10 @@
-import { getAuthenticatedUserEmail } from "@/infrastructure/auth/supabaseSession";
+import { getAuthenticatedUserIdentity } from "@/infrastructure/auth/supabaseSession";
 import { createMethodologyPayment } from "@/application/useCases/payment/createPayment";
 
 export type StartMethodologyCheckoutResult =
   | { ok: true; redirectUrl: string }
   | { ok: false; error: string; httpStatus: number };
 
-/**
- * HTTP-agnostic orchestrator: verify environment, resolve authenticated payer,
- * delegate to payment creation. Routes should call this directly.
- */
 export async function startMethodologyCheckout(params: {
   productId: string;
   publicSiteOrigin: string;
@@ -26,13 +22,13 @@ export async function startMethodologyCheckout(params: {
     };
   }
 
-  let payerEmail: string | null = null;
+  let payerIdentity: { id: string; email: string } | null = null;
   try {
-    payerEmail = await getAuthenticatedUserEmail();
+    payerIdentity = await getAuthenticatedUserIdentity();
   } catch {
     return { ok: false, error: "Unauthorized", httpStatus: 401 };
   }
-  if (!payerEmail) {
+  if (!payerIdentity) {
     return { ok: false, error: "Unauthorized", httpStatus: 401 };
   }
 
@@ -41,13 +37,13 @@ export async function startMethodologyCheckout(params: {
     robokassaPass1,
     robokassaTest,
     productId: params.productId,
-    payerEmail,
+    payerEmail: payerIdentity.email,
+    payerUserId: payerIdentity.id,
     publicSiteOrigin: params.publicSiteOrigin,
   });
 
   if (!result.ok) {
-    const status = result.error === "Invalid product" ? 400 : 500;
-    return { ok: false, error: result.error, httpStatus: status };
+    return { ok: false, error: result.error, httpStatus: result.httpStatus };
   }
   return { ok: true, redirectUrl: result.redirectUrl };
 }

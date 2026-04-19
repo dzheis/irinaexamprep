@@ -7,10 +7,27 @@ export type Purchase = {
   module_id: string;
 };
 
+export type PendingPaymentStatus =
+  | "pending"
+  | "completed"
+  | "expired"
+  | "reconciliation_failed";
+
 export type PendingPaymentRow = {
+  inv_id: string;
   email: string;
+  user_id: string | null;
   product_id: string;
   out_sum: number;
+  status: PendingPaymentStatus;
+  completed_at: string | null;
+  created_at: string;
+  last_callback_at: string | null;
+  callback_count: number;
+  paid_out_sum: number | null;
+  last_error_code: string | null;
+  last_error_message: string | null;
+  result_last_signature: string | null;
 };
 
 export type PaymentProduct = {

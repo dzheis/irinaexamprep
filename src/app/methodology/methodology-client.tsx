@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useLanguage } from "@/components/ui/LanguageContext";
 import { useUser } from "@/hooks/useUser";
 import { usePurchases } from "@/hooks/usePurchases";
+import { usePaymentStatus } from "@/hooks/usePaymentStatus";
 import { useCsrfToken } from "@/hooks/useCsrfToken";
 import { validatePlainEmail } from "@/application/useCases/auth/resetPassword";
 import {
@@ -39,6 +40,7 @@ type MethodologyClientProps = {
 };
 
 type PaymentProduct = { id: string; title: string; price: number };
+type PaymentResultVariant = "success" | "fail" | "processing";
 
 function PaymentModal({
   product,
@@ -289,9 +291,11 @@ function AuthRequiredModal({ onClose }: { onClose: () => void }) {
 
 function PaymentResultModal({
   variant,
+  message,
   onClose,
 }: {
-  variant: "success" | "fail";
+  variant: PaymentResultVariant;
+  message?: string;
   onClose: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -321,6 +325,7 @@ function PaymentResultModal({
   }, [isClosing, onClose]);
 
   const isSuccess = variant === "success";
+  const isProcessing = variant === "processing";
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -354,7 +359,11 @@ function PaymentResultModal({
         <div className="flex flex-col items-center text-center gap-4">
           <div
             className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${
-              isSuccess ? "bg-green-500/20 text-green-700" : "bg-red-500/20 text-red-700"
+              isSuccess
+                ? "bg-green-500/20 text-green-700"
+                : isProcessing
+                  ? "bg-amber-500/20 text-amber-700"
+                  : "bg-red-500/20 text-red-700"
             }`}
             aria-hidden
           >
@@ -367,6 +376,16 @@ function PaymentResultModal({
                 strokeWidth={2}
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            ) : isProcessing ? (
+              <svg
+                className="h-8 w-8 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v4m0 8v4m8-8h-4M8 12H4m13.657-5.657l-2.828 2.828M9.172 14.828l-2.829 2.829m0-11.314l2.829 2.828m8.485 8.486l-2.828-2.829" />
               </svg>
             ) : (
               <svg
@@ -381,12 +400,19 @@ function PaymentResultModal({
             )}
           </div>
           <h2 id="payment-result-title" className="text-xl font-bold text-theme">
-            {isSuccess ? "Платёж успешен" : "Платёж не прошёл"}
+            {isSuccess
+              ? "Платёж успешен"
+              : isProcessing
+                ? "Подтверждаем оплату"
+                : "Платёж требует внимания"}
           </h2>
           <p className="text-theme/80 text-sm md:text-base">
-            {isSuccess
-              ? "Спасибо за оплату. Мы свяжемся с вами по указанной почте."
-              : "Операция была отменена или произошла ошибка. Попробуйте ещё раз или свяжитесь с нами."}
+            {message ||
+              (isSuccess
+                ? "Спасибо за оплату. Доступ к материалам уже должен появиться в вашем аккаунте."
+                : isProcessing
+                  ? "Robokassa вернула вас на сайт, но сервер ещё подтверждает платёж. Не оплачивайте повторно: просто подождите немного."
+                  : "Операция была отменена или требует проверки. Не оплачивайте повторно, пока не убедитесь в статусе платежа.")}
           </p>
           <button type="button" onClick={startClose} className="btn-primary mt-2 px-8 py-3">
             Закрыть
@@ -399,6 +425,16 @@ function PaymentResultModal({
 
 const DEFAULT_PAGE_TITLE = "Методология";
 
+function getReturnedInvId(searchParams: ReturnType<typeof useSearchParams>): string | null {
+  return (
+    searchParams.get("invId")?.trim() ??
+    searchParams.get("InvId")?.trim() ??
+    searchParams.get("InvoiceID")?.trim() ??
+    searchParams.get("invoiceID")?.trim() ??
+    null
+  );
+}
+
 export default function MethodologyClient({ videos, pageTitle }: MethodologyClientProps) {
   const { localizeText } = useLanguage();
   const list = videos && videos.length > 0 ? videos : METHODOLOGY_VIDEOS;
@@ -410,6 +446,7 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
   const {
     moduleIds: purchasedModuleIds,
     loading: purchasesLoading,
+    error: purchasesError,
     refetch: refetchPurchases,
   } = usePurchases([searchParams.get("payment")]);
   const { token: csrfToken } = useCsrfToken();
@@ -419,10 +456,49 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
       : searchParams.get("payment") === "fail"
         ? "fail"
         : null;
+  const returnedInvId = getReturnedInvId(searchParams);
   const [resultDismissed, setResultDismissed] = useState(false);
-  const paymentResult = paymentFromUrl && !resultDismissed ? paymentFromUrl : null;
+  const shouldTrackPaymentStatus =
+    paymentFromUrl === "success" && !resultDismissed && !!returnedInvId;
+  const {
+    status: paymentStatus,
+    error: paymentStatusError,
+    details: paymentStatusDetails,
+  } = usePaymentStatus(returnedInvId, shouldTrackPaymentStatus);
   const isAuthed = !!user;
   const userEmail = typeof user?.email === "string" ? user.email : null;
+
+  useEffect(() => {
+    if (paymentStatus === "completed") {
+      refetchPurchases();
+    }
+  }, [paymentStatus, refetchPurchases]);
+
+  const paymentResult =
+    paymentFromUrl && !resultDismissed
+      ? paymentFromUrl === "fail"
+        ? "fail"
+        : !returnedInvId
+          ? "success"
+          : paymentStatus === "completed"
+            ? "success"
+            : paymentStatus === "expired" ||
+                paymentStatus === "reconciliation_failed" ||
+                paymentStatus === "not_found"
+              ? "fail"
+              : "processing"
+      : null;
+
+  const paymentResultMessage =
+    paymentFromUrl === "fail"
+      ? "Операция была отменена или Robokassa не подтвердила оплату."
+      : paymentResult === "success"
+        ? "Оплата подтверждена. Если доступ к видео не появился автоматически, обновите страницу."
+        : paymentResult === "processing"
+          ? paymentStatusError ||
+            "Платёж ещё подтверждается сервером. Не оплачивайте повторно: мы ждём ResultURL от Robokassa."
+          : paymentStatusDetails?.lastErrorMessage ||
+            "Статус платежа не был подтверждён автоматически. Не оплачивайте повторно, пока не проверите invoice.";
 
   const handleBuy = (item: MethodologyVideoItem) => {
     const alreadyPurchased = isModulePurchased(purchasedModuleIds, item.id);
@@ -443,7 +519,9 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
     refetchPurchases();
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
-      url.searchParams.delete("payment");
+      ["payment", "invId", "InvId", "InvoiceID", "invoiceID", "OutSum", "SignatureValue", "Culture"].forEach(
+        (key) => url.searchParams.delete(key),
+      );
       window.history.replaceState(null, "", url.pathname + url.search);
     }
   }, [refetchPurchases]);
@@ -460,6 +538,13 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
             <div className="flex flex-col gap-8 md:gap-10">
               {purchasesLoading && (
                 <p className="text-sm text-theme/70">{localizeText("Проверяем доступ к материалам...")}</p>
+              )}
+              {purchasesError && (
+                <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-theme">
+                  {localizeText(
+                    "Не удалось подтвердить доступ к купленным материалам. Если вы только что оплатили, не оплачивайте повторно: подождите немного и обновите страницу.",
+                  )}
+                </div>
               )}
               {list.map((item) => (
                 <MethodologyVideoBlock
@@ -484,7 +569,11 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
               />
             )}
             {paymentResult && (
-              <PaymentResultModal variant={paymentResult} onClose={closePaymentResult} />
+              <PaymentResultModal
+                variant={paymentResult}
+                message={paymentResultMessage}
+                onClose={closePaymentResult}
+              />
             )}
             {authRequiredOpen && <AuthRequiredModal onClose={() => setAuthRequiredOpen(false)} />}
           </section>

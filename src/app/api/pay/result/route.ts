@@ -1,7 +1,22 @@
+import { isIP } from "node:net";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyRobokassaPaymentResult } from "@/application/useCases/payment/verifyPayment";
+import {
+  recordPaymentCallback,
+  type PaymentCallbackHeaders,
+  type PaymentCallbackPayload,
+} from "@/infrastructure/payment/persistence";
 
 const ROBOKASSA_PASS2 = process.env["ROBOKASSA_PASS2"];
+const OBSERVED_HEADER_NAMES = [
+  "content-type",
+  "host",
+  "origin",
+  "referer",
+  "user-agent",
+  "x-forwarded-for",
+  "x-real-ip",
+] as const;
 
 function plainResponse(text: string) {
   return new NextResponse(text, {
@@ -10,32 +25,107 @@ function plainResponse(text: string) {
   });
 }
 
+function toPayloadRecord(searchParams: URLSearchParams): PaymentCallbackPayload {
+  const payload: PaymentCallbackPayload = {};
+  for (const [key, value] of searchParams.entries()) {
+    payload[key] = value;
+  }
+  return payload;
+}
+
+function formDataToPayload(formData: FormData): PaymentCallbackPayload {
+  const payload: PaymentCallbackPayload = {};
+  for (const [key, value] of formData.entries()) {
+    if (typeof value === "string") {
+      payload[key] = value;
+    }
+  }
+  return payload;
+}
+
+function pickObservedHeaders(req: NextRequest): PaymentCallbackHeaders {
+  const headers: PaymentCallbackHeaders = {};
+  for (const name of OBSERVED_HEADER_NAMES) {
+    const value = req.headers.get(name);
+    if (value) {
+      headers[name] = value;
+    }
+  }
+  return headers;
+}
+
+function resolveSourceIp(req: NextRequest): string | null {
+  const candidates = [
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    req.headers.get("x-real-ip")?.trim() ?? null,
+  ];
+
+  for (const candidate of candidates) {
+    if (candidate && isIP(candidate)) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+async function recordRejectedCallback(params: {
+  payload: PaymentCallbackPayload;
+  httpMethod: string;
+  headers: PaymentCallbackHeaders;
+  sourceIp: string | null;
+  processingOutcome: string;
+  errorMessage: string;
+}) {
+  const outSumRaw = params.payload["OutSum"];
+  const outSumParsed = outSumRaw ? Number(outSumRaw.replace(/\s/g, "").replace(",", ".")) : null;
+
+  try {
+    await recordPaymentCallback({
+      invId: params.payload["InvId"] ?? null,
+      httpMethod: params.httpMethod,
+      outSum: Number.isFinite(outSumParsed) ? outSumParsed : null,
+      signatureValue: params.payload["SignatureValue"] ?? null,
+      signatureValid: false,
+      sourceIp: params.sourceIp,
+      headers: params.headers,
+      payload: params.payload,
+      processingOutcome: params.processingOutcome,
+      errorMessage: params.errorMessage,
+    });
+  } catch (error) {
+    console.error("Pay result: failed to record callback before verification", error);
+  }
+}
+
 async function handleResult(params: {
-  OutSum: string | null;
-  InvId: string | null;
-  SignatureValue: string | null;
+  payload: PaymentCallbackPayload;
+  httpMethod: string;
+  headers: PaymentCallbackHeaders;
+  sourceIp: string | null;
 }) {
   if (!ROBOKASSA_PASS2) {
     console.error("Pay result: ROBOKASSA_PASS2 not set");
-    return plainResponse("ERROR");
-  }
-  const outSum = params.OutSum ?? "";
-  const invId = params.InvId ?? "";
-  const signatureValue = params.SignatureValue ?? "";
-  if (!outSum || !invId || !signatureValue) {
-    console.error("Pay result: missing OutSum, InvId or SignatureValue", {
-      hasOutSum: !!outSum,
-      hasInvId: !!invId,
-      hasSignature: !!signatureValue,
+    await recordRejectedCallback({
+      payload: params.payload,
+      httpMethod: params.httpMethod,
+      headers: params.headers,
+      sourceIp: params.sourceIp,
+      processingOutcome: "server_not_configured",
+      errorMessage: "ROBOKASSA_PASS2 is not configured.",
     });
     return plainResponse("ERROR");
   }
 
   const body = await verifyRobokassaPaymentResult({
-    outSum,
-    invId,
-    signatureValue,
+    outSum: params.payload["OutSum"] ?? "",
+    invId: params.payload["InvId"] ?? "",
+    signatureValue: params.payload["SignatureValue"] ?? "",
     pass2: ROBOKASSA_PASS2,
+    payload: params.payload,
+    headers: params.headers,
+    httpMethod: params.httpMethod,
+    sourceIp: params.sourceIp,
   });
   return plainResponse(body);
 }
@@ -43,38 +133,32 @@ async function handleResult(params: {
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   return handleResult({
-    OutSum: searchParams.get("OutSum"),
-    InvId: searchParams.get("InvId"),
-    SignatureValue: searchParams.get("SignatureValue"),
+    payload: toPayloadRecord(searchParams),
+    httpMethod: "GET",
+    headers: pickObservedHeaders(req),
+    sourceIp: resolveSourceIp(req),
   });
 }
 
-function extractResultFields(sp: URLSearchParams) {
-  return {
-    OutSum: sp.get("OutSum"),
-    InvId: sp.get("InvId"),
-    SignatureValue: sp.get("SignatureValue"),
-  };
-}
-
 export async function POST(req: NextRequest) {
-  let OutSum: string | null = null;
-  let InvId: string | null = null;
-  let SignatureValue: string | null = null;
+  let payload: PaymentCallbackPayload = {};
   const contentType = req.headers.get("content-type") ?? "";
   if (contentType.includes("application/x-www-form-urlencoded")) {
     const body = await req.text();
-    ({ OutSum, InvId, SignatureValue } = extractResultFields(new URLSearchParams(body)));
+    payload = toPayloadRecord(new URLSearchParams(body));
   } else if (contentType.includes("multipart/form-data")) {
     const form = await req.formData();
-    OutSum = form.get("OutSum") as string | null;
-    InvId = form.get("InvId") as string | null;
-    SignatureValue = form.get("SignatureValue") as string | null;
+    payload = formDataToPayload(form);
   } else {
     const body = await req.text();
     if (body.trim()) {
-      ({ OutSum, InvId, SignatureValue } = extractResultFields(new URLSearchParams(body)));
+      payload = toPayloadRecord(new URLSearchParams(body));
     }
   }
-  return handleResult({ OutSum, InvId, SignatureValue });
+  return handleResult({
+    payload,
+    httpMethod: "POST",
+    headers: pickObservedHeaders(req),
+    sourceIp: resolveSourceIp(req),
+  });
 }
