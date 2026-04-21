@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { renderRichText } from "@storyblok/react";
 import { getOfferFromStoryblok } from "@/infrastructure/storyblok/offerStoryblok";
+import { sanitizeCmsHtml } from "@/infrastructure/security/sanitizeHtml";
 import { ROUTES } from "@/shared/constants/routes";
 
 export const metadata: Metadata = {
@@ -12,11 +13,13 @@ export const metadata: Metadata = {
 
 export default async function OfferPage() {
   const offer = await getOfferFromStoryblok();
-  const contentHtml =
+  const rawContentHtml =
     offer.contentRichText != null
-      ? (renderRichText(offer.contentRichText as unknown as Parameters<typeof renderRichText>[0]) ??
-        "")
+      ? ((renderRichText(
+          offer.contentRichText as unknown as Parameters<typeof renderRichText>[0],
+        ) as string | undefined) ?? "")
       : null;
+  const contentHtml = rawContentHtml != null ? sanitizeCmsHtml(rawContentHtml) : null;
 
   return (
     <div className="min-h-screen">

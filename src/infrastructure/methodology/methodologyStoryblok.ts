@@ -20,10 +20,18 @@ type RawModule = {
 function parsePrice(value: unknown): number | undefined {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value === "string") {
-    const n = Number(value.replace(/\s/g, ""));
+    const normalized = value.replace(/\s/g, "").replace(",", ".");
+    const n = Number(normalized);
     if (Number.isFinite(n)) return n;
   }
   return undefined;
+}
+
+/** Positive finite RUB amount from Storyblok fields only; otherwise undefined (no checkout). */
+function normalizeListingPriceRub(value: unknown): number | undefined {
+  const parsed = parsePrice(value);
+  if (parsed === undefined || !Number.isFinite(parsed) || parsed <= 0) return undefined;
+  return parsed;
 }
 
 function getModulesFromRaw(raw: Record<string, unknown> | null): RawModule[] {
@@ -54,26 +62,70 @@ export function rawModuleToVideoItem(m: RawModule): MethodologyVideoItem | null 
   const title = (m.title ?? m.Title ?? c?.title ?? c?.Title)?.toString()?.trim();
   const description =
     (m.description ?? m.Description ?? c?.description ?? c?.Description)?.toString()?.trim() ?? "";
-  const price = parsePrice(m.price ?? m.Price ?? c?.price ?? c?.Price);
+  const price = normalizeListingPriceRub(m.price ?? m.Price ?? c?.price ?? c?.Price);
   return { id, description, ...(title ? { title } : {}), ...(price !== undefined ? { price } : {}) };
 }
 
-export async function getMethodologyFromStoryblok(): Promise<{
-  title: string;
-  videos: MethodologyVideoItem[];
-}> {
-  const story = await fetchStory<Record<string, unknown>>("methodology");
-  const raw = story?.content ?? null;
-  const title = getTitleFromRaw(raw) || "Методология";
+export function buildMethodologyVideosFromStoryContent(
+  raw: Record<string, unknown> | null,
+): MethodologyVideoItem[] {
+  if (!raw || typeof raw !== "object") return [];
   const rawModules = getModulesFromRaw(raw);
   const fromBody = Array.isArray((raw as { body?: unknown[] })?.body)
     ? getModulesFromRaw((raw as { body: Record<string, unknown>[] }).body[0] ?? null)
     : [];
   const list = rawModules.length ? rawModules : fromBody;
-  const videos = list
+  return list
     .map((m) => rawModuleToVideoItem(m))
     .filter((v): v is MethodologyVideoItem => !!v && !!v.id);
-  return { title, videos: videos.slice(0, 1) };
+}
+
+export type ResolveMethodologyCheckoutAmountResult =
+  | { ok: true; amount: number }
+  | { ok: false; reason: "invalid_product" | "checkout_unavailable" };
+
+/**
+ * Resolves checkout amount from the published methodology story only (no client-trusted sums).
+ */
+export async function resolveMethodologyCheckoutAmountRub(
+  productId: string,
+): Promise<ResolveMethodologyCheckoutAmountResult> {
+  const story = await fetchStory<Record<string, unknown>>("methodology");
+  if (!story?.content) {
+    return { ok: false, reason: "checkout_unavailable" };
+  }
+  const id = productId.trim();
+  if (!id) {
+    return { ok: false, reason: "invalid_product" };
+  }
+  const videos = buildMethodologyVideosFromStoryContent(story.content);
+  const item = videos.find((v) => v.id === id);
+  if (!item) {
+    return { ok: false, reason: "invalid_product" };
+  }
+  const p = item.price;
+  if (typeof p !== "number" || !Number.isFinite(p) || p <= 0) {
+    return { ok: false, reason: "checkout_unavailable" };
+  }
+  return { ok: true, amount: p };
+}
+
+export async function getMethodologyFromStoryblok(): Promise<{
+  title: string;
+  videos: MethodologyVideoItem[];
+  purchaseEnabled: boolean;
+}> {
+  const story = await fetchStory<Record<string, unknown>>("methodology");
+  if (!story?.content) {
+    return { title: "Методология", videos: [], purchaseEnabled: false };
+  }
+  const raw = story.content;
+  const title = getTitleFromRaw(raw) || "Методология";
+  const videos = buildMethodologyVideosFromStoryContent(raw).slice(0, 1);
+  const purchaseEnabled =
+    videos.length > 0 &&
+    videos.every((v) => typeof v.price === "number" && Number.isFinite(v.price) && v.price > 0);
+  return { title, videos, purchaseEnabled };
 }
 
 export async function getVideoIdByModuleIdFromStoryblok(moduleId: string): Promise<string | null> {

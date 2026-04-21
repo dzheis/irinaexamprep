@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { generateCsrfToken } from "@/infrastructure/security/csrfToken";
+import { clientIp, csrfLimiter } from "@/infrastructure/security/rateLimit";
 
 const CSRF_COOKIE_NAME = "csrf_token";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const rate = await csrfLimiter.limit(`csrf:${clientIp(req)}`);
+  if (!rate.success) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const token = generateCsrfToken();
 
   const cookieStore = await cookies();

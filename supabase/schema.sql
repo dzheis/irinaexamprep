@@ -149,7 +149,7 @@ BEGIN
 END
 $$;
 
-CREATE OR REPLACE FUNCTION finalize_robokassa_result_payment(
+CREATE OR REPLACE FUNCTION public.finalize_robokassa_result_payment(
   p_inv_id TEXT,
   p_out_sum NUMERIC,
   p_signature_value TEXT,
@@ -159,9 +159,10 @@ CREATE OR REPLACE FUNCTION finalize_robokassa_result_payment(
   p_source_ip INET DEFAULT NULL
 ) RETURNS JSONB
 LANGUAGE plpgsql
+SET search_path = ''
 AS $$
 DECLARE
-  v_invoice pending_payments%ROWTYPE;
+  v_invoice public.pending_payments%ROWTYPE;
   v_normalized_email TEXT;
   v_purchase_exists BOOLEAN;
   v_processing_outcome TEXT;
@@ -169,12 +170,12 @@ DECLARE
 BEGIN
   SELECT *
   INTO v_invoice
-  FROM pending_payments
+  FROM public.pending_payments
   WHERE inv_id = p_inv_id
   FOR UPDATE;
 
   IF NOT FOUND THEN
-    INSERT INTO payment_callbacks (
+    INSERT INTO public.payment_callbacks (
       inv_id,
       http_method,
       out_sum,
@@ -208,7 +209,7 @@ BEGIN
 
   IF v_invoice.status = 'completed'
      AND COALESCE(v_invoice.paid_out_sum, v_invoice.out_sum) = p_out_sum THEN
-    UPDATE pending_payments
+    UPDATE public.pending_payments
     SET
       email = v_normalized_email,
       last_callback_at = NOW(),
@@ -220,7 +221,7 @@ BEGIN
       last_error_message = NULL
     WHERE inv_id = p_inv_id;
 
-    INSERT INTO payment_callbacks (
+    INSERT INTO public.payment_callbacks (
       inv_id,
       http_method,
       out_sum,
@@ -257,7 +258,7 @@ BEGIN
       p_out_sum
     );
 
-    UPDATE pending_payments
+    UPDATE public.pending_payments
     SET
       status = CASE
         WHEN status = 'completed' THEN status
@@ -271,7 +272,7 @@ BEGIN
       result_last_signature = p_signature_value
     WHERE inv_id = p_inv_id;
 
-    INSERT INTO payment_callbacks (
+    INSERT INTO public.payment_callbacks (
       inv_id,
       http_method,
       out_sum,
@@ -303,14 +304,14 @@ BEGIN
 
   SELECT EXISTS (
     SELECT 1
-    FROM purchases
+    FROM public.purchases
     WHERE lower(btrim(email)) = v_normalized_email
       AND module_id = v_invoice.product_id
   )
   INTO v_purchase_exists;
 
   IF NOT v_purchase_exists THEN
-    INSERT INTO purchases (email, module_id)
+    INSERT INTO public.purchases (email, module_id)
     VALUES (v_normalized_email, v_invoice.product_id)
     ON CONFLICT (email, module_id) DO NOTHING;
     v_processing_outcome := 'completed';
@@ -318,7 +319,7 @@ BEGIN
     v_processing_outcome := 'purchase_already_exists';
   END IF;
 
-  UPDATE pending_payments
+  UPDATE public.pending_payments
   SET
     email = v_normalized_email,
     status = 'completed',
@@ -332,7 +333,7 @@ BEGIN
     result_last_signature = p_signature_value
   WHERE inv_id = p_inv_id;
 
-  INSERT INTO payment_callbacks (
+  INSERT INTO public.payment_callbacks (
     inv_id,
     http_method,
     out_sum,

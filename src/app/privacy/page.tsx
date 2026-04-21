@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { renderRichText } from "@storyblok/react";
 import { getTextPageFromStoryblok } from "@/infrastructure/storyblok/textPageStoryblok";
+import { sanitizeCmsHtml } from "@/infrastructure/security/sanitizeHtml";
 import { ROUTES } from "@/shared/constants/routes";
 
 export const metadata: Metadata = {
@@ -18,11 +19,13 @@ export default async function PrivacyPage() {
   const subtitle1 = data.customFields?.["subtitle_1"];
   const subtitle2 = data.customFields?.["subtitle_2"];
   const footerTitle = data.customFields?.["footer_title"];
-  const contentHtml =
+  const rawContentHtml =
     data.contentRichText != null
-      ? (renderRichText(data.contentRichText as unknown as Parameters<typeof renderRichText>[0]) ??
-        "")
+      ? ((renderRichText(
+          data.contentRichText as unknown as Parameters<typeof renderRichText>[0],
+        ) as string | undefined) ?? "")
       : null;
+  const contentHtml = rawContentHtml != null ? sanitizeCmsHtml(rawContentHtml) : null;
 
   return (
     <div className="min-h-screen">

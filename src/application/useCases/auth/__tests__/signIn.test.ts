@@ -32,6 +32,36 @@ describe("signIn", () => {
     expect(result).toEqual({ error: null });
   });
 
+  it("should forward captchaToken to infrastructure when provided", async () => {
+    mocked.signInWithEmailPassword.mockResolvedValueOnce({ ok: true });
+    await signIn("user@example.com", "secret1", { captchaToken: "tok-123" });
+    expect(mocked.signInWithEmailPassword).toHaveBeenCalledWith(
+      "user@example.com",
+      "secret1",
+      { captchaToken: "tok-123" },
+    );
+  });
+
+  it("should not pass options when captchaToken is absent", async () => {
+    mocked.signInWithEmailPassword.mockResolvedValueOnce({ ok: true });
+    await signIn("user@example.com", "secret1");
+    expect(mocked.signInWithEmailPassword).toHaveBeenCalledWith(
+      "user@example.com",
+      "secret1",
+      undefined,
+    );
+  });
+
+  it("should map captcha_failed to localized message", async () => {
+    mocked.signInWithEmailPassword.mockResolvedValueOnce({
+      ok: false,
+      reason: "captcha_failed",
+      message: "captcha verification failed",
+    });
+    const result = await signIn("user@example.com", "secret1");
+    expect(result.error).toBe("Проверка антибот не пройдена. Попробуйте ещё раз.");
+  });
+
   it("should map invalid_credentials to localized message", async () => {
     mocked.signInWithEmailPassword.mockResolvedValueOnce({
       ok: false,

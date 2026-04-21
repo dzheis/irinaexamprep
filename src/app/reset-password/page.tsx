@@ -91,7 +91,9 @@ export default function ResetPasswordPage() {
               disabled={loading}
               autoComplete="new-password"
             />
-            <p className="text-xs text-theme/70 mt-1">Не менее 6 символов</p>
+            <p className="text-xs text-theme/70 mt-1">
+              Не менее 12 символов, включая цифру и спецсимвол
+            </p>
           </div>
           <div>
             <label className="block text-sm font-medium text-theme mb-1">

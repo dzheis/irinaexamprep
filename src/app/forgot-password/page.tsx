@@ -1,7 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
+import TurnstileWidget, {
+  isTurnstileConfigured,
+  type TurnstileWidgetHandle,
+} from "@/components/security/TurnstileWidget";
 import { validatePlainEmail } from "@/application/useCases/auth/resetPassword";
 import { ROUTES } from "@/shared/constants/routes";
 import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS } from "@/shared/constants/auth-form";
@@ -13,6 +17,9 @@ export default function ForgotPasswordPage() {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<TurnstileWidgetHandle | null>(null);
+  const captchaRequired = isTurnstileConfigured();
   const { resetPasswordForEmail } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,19 +32,33 @@ export default function ForgotPasswordPage() {
       setEmailError(emailErr);
       return;
     }
+    if (captchaRequired && !captchaToken) {
+      setError("Пожалуйста, подтвердите, что вы не робот.");
+      return;
+    }
     setLoading(true);
     try {
       const origin = typeof window !== "undefined" ? window.location.origin : "";
       const { error: err } = await resetPasswordForEmail(trimmedEmail, {
         redirectTo: `${origin}/reset-password`,
+        ...(captchaToken ? { captchaToken } : {}),
       });
       if (err) {
-        setError(err.message);
+        const lower = (err.message ?? "").toLowerCase();
+        if (lower.includes("captcha") || lower.includes("turnstile")) {
+          setError("Проверка антибот не пройдена. Попробуйте ещё раз.");
+        } else {
+          setError(err.message);
+        }
+        setCaptchaToken(null);
+        captchaRef.current?.reset();
         return;
       }
       setSent(true);
     } catch {
       setError("Ошибка. Попробуйте позже.");
+      setCaptchaToken(null);
+      captchaRef.current?.reset();
     } finally {
       setLoading(false);
     }
@@ -87,8 +108,18 @@ export default function ForgotPasswordPage() {
             />
             {emailError && <p className="mt-1 text-sm text-red-500">{emailError}</p>}
           </div>
+          <TurnstileWidget
+            handleRef={captchaRef}
+            onToken={(t) => setCaptchaToken(t)}
+            onExpire={() => setCaptchaToken(null)}
+            onError={() => setCaptchaToken(null)}
+          />
           {error && <p className="text-sm text-red-500">{error}</p>}
-          <button type="submit" className="btn-primary w-full py-3" disabled={loading}>
+          <button
+            type="submit"
+            className="btn-primary w-full py-3"
+            disabled={loading || (captchaRequired && !captchaToken)}
+          >
             {loading ? "Отправка…" : "Отправить ссылку"}
           </button>
         </form>

@@ -20,12 +20,18 @@ vi.mock("@/infrastructure/payment/persistence", () => ({
   recordPaymentCallback: vi.fn(),
 }));
 
+vi.mock("@/infrastructure/methodology/methodologyStoryblok", () => ({
+  resolveMethodologyCheckoutAmountRub: vi.fn(),
+}));
+
 import { startMethodologyCheckout } from "@/application/useCases/payment/startMethodologyCheckout";
 import * as session from "@/infrastructure/auth/supabaseSession";
 import * as persistence from "@/infrastructure/payment/persistence";
+import * as methodologyStoryblok from "@/infrastructure/methodology/methodologyStoryblok";
 
 const mockedSession = vi.mocked(session);
 const mockedPersistence = vi.mocked(persistence);
+const mockedResolveAmount = vi.mocked(methodologyStoryblok.resolveMethodologyCheckoutAmountRub);
 
 const originalEnv = { ...process.env };
 
@@ -35,6 +41,7 @@ describe("startMethodologyCheckout", () => {
     process.env["ROBOKASSA_LOGIN"] = "shop";
     process.env["ROBOKASSA_PASS1"] = "pass1";
     delete process.env["ROBOKASSA_TEST"];
+    mockedResolveAmount.mockResolvedValue({ ok: true, amount: 1990 });
   });
 
   afterEach(() => {
@@ -67,6 +74,7 @@ describe("startMethodologyCheckout", () => {
       id: "user-1",
       email: "user@example.com",
     });
+    mockedResolveAmount.mockResolvedValueOnce({ ok: false, reason: "invalid_product" });
 
     const result = await startMethodologyCheckout({
       productId: "unknown",

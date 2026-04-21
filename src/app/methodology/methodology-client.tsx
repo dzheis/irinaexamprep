@@ -9,34 +9,44 @@ import { usePurchases } from "@/hooks/usePurchases";
 import { usePaymentStatus } from "@/hooks/usePaymentStatus";
 import { useCsrfToken } from "@/hooks/useCsrfToken";
 import { validatePlainEmail } from "@/application/useCases/auth/resetPassword";
-import {
-  canOpenPaymentModal,
-  getMethodologyProductPriceRub,
-  isModulePurchased,
-} from "@/application/useCases/methodology/methodologyAccess";
+import { canOpenPaymentModal, isModulePurchased } from "@/application/useCases/methodology/methodologyAccess";
 import { ROUTES } from "@/shared/constants/routes";
+import { METHODOLOGY_CHECKOUT_DISABLED_RU } from "@/shared/constants/methodologyCheckout";
 import type { MethodologyVideoItem } from "@/types/methodology";
 
 export type { MethodologyVideoItem };
 
-const DEFAULT_PRICE = getMethodologyProductPriceRub("1") ?? 1990;
-
 const INPUT_BASE_CLASS =
   "w-full px-4 py-3 rounded-xl border bg-white/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-theme-secondary-accent/50 transition-all duration-300 input-theme";
 
-const METHODOLOGY_VIDEOS: MethodologyVideoItem[] = [
-  {
-    id: "1",
-    title: "Why Teaching ≠ Learning: a way towards conscious teaching",
-    price: DEFAULT_PRICE,
-    description:
-      "Teachers often do “everything right”: plan carefully, explain clearly, choose good materials, run communicative activities, and still see slow, uneven progress. Students forget, plateau, and repeat the same errors. This webinar explains why that happens and how to teach more consciously, without overteaching or burning out.\n\nThe core idea is that teaching creates conditions, while learning is what the learner actually processes, retains, and can use later. These are not the same process, and confusing them leads to predictable classroom problems, which we also discuss in the webinar.",
-  },
-];
+/** Default webinar copy (keys align with `phraseDictionary` in LanguageContext for RU). */
+const METHODOLOGY_DEFAULT_VIDEO_TITLE =
+  "Why Teaching ≠ Learning: a way towards conscious teaching";
+
+const METHODOLOGY_DEFAULT_VIDEO_DESCRIPTION =
+  "Teachers often do “everything right”: plan carefully, explain clearly, choose good materials, run communicative activities, and still see slow, uneven progress. Students forget, plateau, and repeat the same errors. This webinar explains why that happens and how to teach more consciously, without overteaching or burning out.\n\nThe core idea is that teaching creates conditions, while learning is what the learner actually processes, retains, and can use later. These are not the same process, and confusing them leads to predictable classroom problems, which we also discuss in the webinar.";
+
+/** When Storyblok returns no modules, still render one row (lock + copy + checkout message). */
+const METHODOLOGY_EMPTY_CATALOG_PLACEHOLDER: MethodologyVideoItem = {
+  id: "__methodology_catalog_empty__",
+  title: METHODOLOGY_DEFAULT_VIDEO_TITLE,
+  description: METHODOLOGY_DEFAULT_VIDEO_DESCRIPTION,
+};
+
+function resolveMethodologyDescription(item: MethodologyVideoItem): string {
+  return item.description.trim() ? item.description : METHODOLOGY_DEFAULT_VIDEO_DESCRIPTION;
+}
+
+function resolveMethodologyTitle(item: MethodologyVideoItem): string {
+  const t = item.title?.trim();
+  return t || METHODOLOGY_DEFAULT_VIDEO_TITLE;
+}
 
 type MethodologyClientProps = {
   videos?: MethodologyVideoItem[];
   pageTitle?: string;
+  /** Checkout is allowed only when Storyblok returned a valid positive price for each listed item. */
+  purchaseEnabled: boolean;
 };
 
 type PaymentProduct = { id: string; title: string; price: number };
@@ -435,9 +445,11 @@ function getReturnedInvId(searchParams: ReturnType<typeof useSearchParams>): str
   );
 }
 
-export default function MethodologyClient({ videos, pageTitle }: MethodologyClientProps) {
+export default function MethodologyClient({ videos, pageTitle, purchaseEnabled }: MethodologyClientProps) {
   const { localizeText } = useLanguage();
-  const list = videos && videos.length > 0 ? videos : METHODOLOGY_VIDEOS;
+  const rawList = videos ?? [];
+  const list =
+    rawList.length > 0 ? rawList : [METHODOLOGY_EMPTY_CATALOG_PLACEHOLDER];
   const title = pageTitle?.trim() || DEFAULT_PAGE_TITLE;
   const [paymentProduct, setPaymentProduct] = useState<PaymentProduct | null>(null);
   const [authRequiredOpen, setAuthRequiredOpen] = useState(false);
@@ -501,6 +513,7 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
             "Статус платежа не был подтверждён автоматически. Не оплачивайте повторно, пока не проверите invoice.";
 
   const handleBuy = (item: MethodologyVideoItem) => {
+    if (!purchaseEnabled || typeof item.price !== "number") return;
     const alreadyPurchased = isModulePurchased(purchasedModuleIds, item.id);
     if (alreadyPurchased) return;
     if (!canOpenPaymentModal({ isAuthed, purchasedModuleIds, moduleId: item.id })) {
@@ -509,8 +522,8 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
     }
     setPaymentProduct({
       id: item.id,
-      title: item.title ?? "Курс",
-      price: item.price ?? DEFAULT_PRICE,
+      title: localizeText(resolveMethodologyTitle(item)),
+      price: typeof item.price === "number" ? item.price : 0,
     });
   };
 
@@ -551,11 +564,12 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
                   key={item.id}
                   item={{
                     id: item.id,
-                    description: localizeText(item.description),
+                    description: localizeText(resolveMethodologyDescription(item)),
                     ...(typeof item.price === "number" ? { price: item.price } : {}),
-                    ...(item.title ? { title: localizeText(item.title) } : {}),
+                    title: localizeText(resolveMethodologyTitle(item)),
                   }}
                   hasAccess={purchasedModuleIds.includes(item.id)}
+                  purchaseEnabled={purchaseEnabled}
                   onBuy={() => handleBuy(item)}
                 />
               ))}
@@ -586,10 +600,12 @@ export default function MethodologyClient({ videos, pageTitle }: MethodologyClie
 function MethodologyVideoBlock({
   item,
   hasAccess,
+  purchaseEnabled,
   onBuy,
 }: {
   item: MethodologyVideoItem;
   hasAccess: boolean;
+  purchaseEnabled: boolean;
   onBuy: () => void;
 }) {
   const { localizeText } = useLanguage();
@@ -644,27 +660,50 @@ function MethodologyVideoBlock({
             {item.title}
           </h2>
         )}
-        <div className="prose prose-theme max-w-none text-theme text-justify leading-relaxed [&>*]:text-justify">
-          <p className="whitespace-pre-line">{item.description}</p>
-        </div>
+        {item.description.trim() ? (
+          <div className="prose prose-theme max-w-none text-theme text-justify leading-relaxed [&>*]:text-justify">
+            <p className="whitespace-pre-line">{item.description}</p>
+          </div>
+        ) : null}
         {!hasAccess && (
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-3 md:gap-4">
-            <span
-              className="inline-flex items-center rounded-full px-5 py-2.5 md:px-6 md:py-3 text-base md:text-lg min-[1200px]:text-xl min-[1200px]:md:text-2xl font-semibold text-theme bg-white/80 border border-theme/20 shadow-[0_2px_8px_rgba(47,52,64,0.12),0_1px_3px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.8)] transition-transform duration-300 hover:scale-[1.02]"
-              aria-label={localizeText("Цена")}
-            >
-              {typeof item.price === "number"
-                ? item.price.toLocaleString("ru-RU")
-                : DEFAULT_PRICE.toLocaleString("ru-RU")}{" "}
-              ₽
-            </span>
-            <button
-              type="button"
-              onClick={onBuy}
-              className="btn-primary text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl px-10 py-3 md:py-4 min-w-[200px]"
-            >
-              {localizeText("Купить")}
-            </button>
+          <div
+            className={
+              purchaseEnabled && typeof item.price === "number"
+                ? "mt-4 flex flex-wrap items-center justify-center gap-3 md:gap-4"
+                : "mt-4 w-full flex justify-center"
+            }
+          >
+            {purchaseEnabled && typeof item.price === "number" ? (
+              <>
+                <span
+                  className="inline-flex items-center rounded-full px-5 py-2.5 md:px-6 md:py-3 text-base md:text-lg min-[1200px]:text-xl min-[1200px]:md:text-2xl font-semibold text-theme bg-white/80 border border-theme/20 shadow-[0_2px_8px_rgba(47,52,64,0.12),0_1px_3px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.8)] transition-transform duration-300 hover:scale-[1.02]"
+                  aria-label={localizeText("Цена")}
+                >
+                  {item.price.toLocaleString("ru-RU")} ₽
+                </span>
+                <button
+                  type="button"
+                  onClick={onBuy}
+                  className="btn-primary text-sm md:text-base min-[1200px]:text-lg min-[1200px]:md:text-xl px-10 py-3 md:py-4 min-w-[200px]"
+                >
+                  {localizeText("Купить")}
+                </button>
+              </>
+            ) : (
+              <div
+                className="glass w-full max-w-xl rounded-2xl overflow-hidden ring-1 ring-inset ring-white/50"
+                role="status"
+              >
+                <div className="px-6 py-6 md:px-9 md:py-8">
+                  <p
+                    className="max-w-md mx-auto text-center text-base md:text-lg min-[1200px]:text-xl leading-relaxed text-theme antialiased [font-family:var(--font-family-base)]"
+                    style={{ fontFeatureSettings: '"kern" 1, "liga" 1' }}
+                  >
+                    {METHODOLOGY_CHECKOUT_DISABLED_RU}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

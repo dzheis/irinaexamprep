@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { md5Utf8HexUppercase } from "@/infrastructure/payment/robokassaHash";
 import { paySignatureSource } from "@/domain/payment/robokassaSignature";
+import { METHODOLOGY_CHECKOUT_DISABLED_RU } from "@/shared/constants/methodologyCheckout";
+
+vi.mock("@/infrastructure/methodology/methodologyStoryblok", () => ({
+  resolveMethodologyCheckoutAmountRub: vi.fn(),
+}));
 
 vi.mock("@/infrastructure/payment/persistence", () => ({
   createPendingPayment: vi.fn(),
@@ -17,8 +22,10 @@ vi.mock("@/infrastructure/payment/persistence", () => ({
 
 import { createMethodologyPayment } from "@/application/useCases/payment/createPayment";
 import * as persistence from "@/infrastructure/payment/persistence";
+import * as methodologyStoryblok from "@/infrastructure/methodology/methodologyStoryblok";
 
 const mockedPersistence = vi.mocked(persistence);
+const mockedResolveAmount = vi.mocked(methodologyStoryblok.resolveMethodologyCheckoutAmountRub);
 
 const BASE_PARAMS = {
   robokassaLogin: "shop",
@@ -32,13 +39,26 @@ const BASE_PARAMS = {
 describe("createMethodologyPayment", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedResolveAmount.mockResolvedValue({ ok: true, amount: 1990 });
     mockedPersistence.hasPurchaseForEmailAndProduct.mockResolvedValue(false);
     mockedPersistence.getOpenPendingPayment.mockResolvedValue(null);
   });
 
   it("should reject unknown product before touching persistence", async () => {
+    mockedResolveAmount.mockResolvedValueOnce({ ok: false, reason: "invalid_product" });
     const result = await createMethodologyPayment({ ...BASE_PARAMS, productId: "unknown" });
     expect(result).toEqual({ ok: false, error: "Invalid product", httpStatus: 400 });
+    expect(mockedPersistence.createPendingPayment).not.toHaveBeenCalled();
+  });
+
+  it("should reject checkout when Storyblok price is unavailable", async () => {
+    mockedResolveAmount.mockResolvedValueOnce({ ok: false, reason: "checkout_unavailable" });
+    const result = await createMethodologyPayment({ ...BASE_PARAMS, productId: "1" });
+    expect(result).toEqual({
+      ok: false,
+      error: METHODOLOGY_CHECKOUT_DISABLED_RU,
+      httpStatus: 503,
+    });
     expect(mockedPersistence.createPendingPayment).not.toHaveBeenCalled();
   });
 

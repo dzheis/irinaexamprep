@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Methodology() {
-  const { title: pageTitle, videos } = await getMethodologyFromStoryblok();
+  const { title: pageTitle, videos, purchaseEnabled } = await getMethodologyFromStoryblok();
   return (
     <Suspense
       fallback={
@@ -22,7 +22,11 @@ export default async function Methodology() {
         </div>
       }
     >
-      <MethodologyClient pageTitle={pageTitle} {...(videos.length > 0 ? { videos } : {})} />
+      <MethodologyClient
+        pageTitle={pageTitle}
+        purchaseEnabled={purchaseEnabled}
+        videos={videos}
+      />
     </Suspense>
   );
 }

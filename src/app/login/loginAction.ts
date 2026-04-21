@@ -14,9 +14,18 @@ export async function loginAction(
 ): Promise<LoginActionState> {
   const emailRaw = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
+  const captchaTokenRaw = formData.get("captchaToken");
+  const captchaToken =
+    typeof captchaTokenRaw === "string" && captchaTokenRaw.trim().length > 0
+      ? captchaTokenRaw.trim()
+      : undefined;
   const email = emailRaw.trim();
 
-  const result = await signIn(email, password);
+  const result = await signIn(
+    email,
+    password,
+    captchaToken ? { captchaToken } : undefined,
+  );
   if (result.error) {
     return { error: result.error };
   }

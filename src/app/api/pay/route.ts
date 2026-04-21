@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { startMethodologyCheckout } from "@/application/useCases/payment/startMethodologyCheckout";
+import { clientIp, payLimiter } from "@/infrastructure/security/rateLimit";
 
 type PayBody = {
   productId?: string;
@@ -68,6 +69,11 @@ export async function POST(req: NextRequest) {
 
   const csrfCheck = await enforceCsrf(req);
   if (csrfCheck) return csrfCheck;
+
+  const rate = await payLimiter.limit(`pay:${clientIp(req)}`);
+  if (!rate.success) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
 
   let body: PayBody;
   try {

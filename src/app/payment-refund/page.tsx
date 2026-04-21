@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { renderRichText } from "@storyblok/react";
 import { getTextPageFromStoryblok } from "@/infrastructure/storyblok/textPageStoryblok";
+import { sanitizeCmsHtml } from "@/infrastructure/security/sanitizeHtml";
 import { ROUTES } from "@/shared/constants/routes";
 
 export const metadata: Metadata = {
@@ -16,11 +17,13 @@ const SUBTITLE_CLASS = "font-normal text-theme-accent mb-6 text-justify";
 export default async function PaymentRefundPage() {
   const data = await getTextPageFromStoryblok("payment-refund", DEFAULT_TITLE);
   const subtitle = data.customFields?.["subtitle"];
-  const contentHtml =
+  const rawContentHtml =
     data.contentRichText != null
-      ? (renderRichText(data.contentRichText as unknown as Parameters<typeof renderRichText>[0]) ??
-        "")
+      ? ((renderRichText(
+          data.contentRichText as unknown as Parameters<typeof renderRichText>[0],
+        ) as string | undefined) ?? "")
       : null;
+  const contentHtml = rawContentHtml != null ? sanitizeCmsHtml(rawContentHtml) : null;
 
   return (
     <div className="min-h-screen">

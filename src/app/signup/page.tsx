@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PasswordInput from "@/components/ui/PasswordInput";
+import TurnstileWidget, {
+  isTurnstileConfigured,
+  type TurnstileWidgetHandle,
+} from "@/components/security/TurnstileWidget";
 import { validateSignUpForm } from "@/application/useCases/auth/signUp";
 import { ROUTES } from "@/shared/constants/routes";
 import { INPUT_BASE_CLASS, INPUT_ERROR_CLASS } from "@/shared/constants/auth-form";
@@ -18,6 +22,9 @@ export default function SignupPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<TurnstileWidgetHandle | null>(null);
+  const captchaRequired = isTurnstileConfigured();
   const router = useRouter();
   const { signUp } = useAuth();
 
@@ -37,6 +44,10 @@ export default function SignupPage() {
       else setPasswordError(check.message);
       return;
     }
+    if (captchaRequired && !captchaToken) {
+      setError("Пожалуйста, подтвердите, что вы не робот.");
+      return;
+    }
     setLoading(true);
     try {
       const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -45,6 +56,7 @@ export default function SignupPage() {
         password,
         options: {
           emailRedirectTo: `${origin}/auth/callback?next=/methodology`,
+          ...(captchaToken ? { captchaToken } : {}),
         },
       });
       if (err) {
@@ -62,6 +74,11 @@ export default function SignupPage() {
         ) {
           setPasswordError("Пароль не соответствует требованиям (минимум 6 символов).");
         } else if (
+          lower.includes("captcha") ||
+          lower.includes("turnstile")
+        ) {
+          setError("Проверка антибот не пройдена. Попробуйте ещё раз.");
+        } else if (
           lower.includes("rate") ||
           lower.includes("too many") ||
           lower.includes("limit")
@@ -71,6 +88,8 @@ export default function SignupPage() {
           console.error("Signup error:", err);
           setError("Не удалось зарегистрироваться. Попробуйте позже.");
         }
+        setCaptchaToken(null);
+        captchaRef.current?.reset();
         return;
       }
 
@@ -88,6 +107,8 @@ export default function SignupPage() {
       setEmailSent(true);
     } catch {
       setError("Ошибка регистрации. Попробуйте позже.");
+      setCaptchaToken(null);
+      captchaRef.current?.reset();
     } finally {
       setLoading(false);
     }
@@ -146,7 +167,9 @@ export default function SignupPage() {
               disabled={loading}
               autoComplete="new-password"
             />
-            <p className="text-xs text-theme/70 mt-1">Не менее 6 символов</p>
+            <p className="text-xs text-theme/70 mt-1">
+              Не менее 12 символов, включая цифру и спецсимвол
+            </p>
           </div>
           <div>
             <label className="block text-sm font-medium text-theme mb-1">
@@ -164,8 +187,18 @@ export default function SignupPage() {
             />
             {passwordError && <p className="mt-1 text-sm text-red-500">{passwordError}</p>}
           </div>
+          <TurnstileWidget
+            handleRef={captchaRef}
+            onToken={(t) => setCaptchaToken(t)}
+            onExpire={() => setCaptchaToken(null)}
+            onError={() => setCaptchaToken(null)}
+          />
           {error && <p className="text-sm text-red-500">{error}</p>}
-          <button type="submit" className="btn-primary w-full py-3" disabled={loading}>
+          <button
+            type="submit"
+            className="btn-primary w-full py-3"
+            disabled={loading || (captchaRequired && !captchaToken)}
+          >
             {loading ? "Регистрация…" : "Зарегистрироваться"}
           </button>
         </form>

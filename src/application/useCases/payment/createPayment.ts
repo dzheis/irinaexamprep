@@ -1,5 +1,6 @@
-import { getMethodologyProductPriceRub } from "@/domain/payment/methodologyProducts";
 import { paySignatureSource } from "@/domain/payment/robokassaSignature";
+import { resolveMethodologyCheckoutAmountRub } from "@/infrastructure/methodology/methodologyStoryblok";
+import { METHODOLOGY_CHECKOUT_DISABLED_RU } from "@/shared/constants/methodologyCheckout";
 import { md5Utf8HexUppercase, randomRobokassaInvId } from "@/infrastructure/payment/robokassaHash";
 import {
   createPendingPayment,
@@ -71,10 +72,14 @@ export async function createMethodologyPayment(params: {
   payerUserId: string;
   publicSiteOrigin: string;
 }): Promise<CreateMethodologyPaymentResult> {
-  const amount = getMethodologyProductPriceRub(params.productId);
-  if (amount === undefined) {
-    return { ok: false, error: "Invalid product", httpStatus: 400 };
+  const resolved = await resolveMethodologyCheckoutAmountRub(params.productId);
+  if (!resolved.ok) {
+    if (resolved.reason === "invalid_product") {
+      return { ok: false, error: "Invalid product", httpStatus: 400 };
+    }
+    return { ok: false, error: METHODOLOGY_CHECKOUT_DISABLED_RU, httpStatus: 503 };
   }
+  const amount = resolved.amount;
 
   try {
     const alreadyPurchased = await hasPurchaseForEmailAndProduct({
