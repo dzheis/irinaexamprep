@@ -32,6 +32,13 @@ export type FinalizeRobokassaResult = {
   processingOutcome: string;
 };
 
+export type PurchaseConfirmationEmailClaim = {
+  invId: string;
+  email: string;
+  productId: string;
+  outSum: number;
+};
+
 export type PaymentCallbackRow = {
   received_at: string;
   processing_outcome: string;
@@ -107,7 +114,7 @@ export async function getPaymentByInvId(invId: string): Promise<PendingPaymentRo
   const { data, error } = await supabase
     .from("pending_payments")
     .select(
-      "inv_id, email, user_id, product_id, out_sum, status, completed_at, created_at, last_callback_at, callback_count, paid_out_sum, last_error_code, last_error_message, result_last_signature",
+      "inv_id, email, user_id, product_id, out_sum, status, completed_at, created_at, last_callback_at, callback_count, paid_out_sum, last_error_code, last_error_message, result_last_signature, confirmation_email_claimed_at, confirmation_email_sent_at, confirmation_email_last_error",
     )
     .eq("inv_id", invId)
     .maybeSingle();
@@ -265,4 +272,63 @@ export async function finalizeRobokassaResult(params: {
     acknowledgement: acknowledgement as "ok" | "error",
     processingOutcome,
   };
+}
+
+export async function claimPurchaseConfirmationEmail(
+  invId: string,
+): Promise<PurchaseConfirmationEmailClaim | null> {
+  const supabase = createServiceClient();
+  const staleClaimThreshold = new Date(Date.now() - 1000 * 60 * 10).toISOString();
+  const { data, error } = await supabase
+    .from("pending_payments")
+    .update({
+      confirmation_email_claimed_at: new Date().toISOString(),
+      confirmation_email_last_error: null,
+    })
+    .eq("inv_id", invId)
+    .eq("status", "completed")
+    .is("confirmation_email_sent_at", null)
+    .or(`confirmation_email_claimed_at.is.null,confirmation_email_claimed_at.lt.${staleClaimThreshold}`)
+    .select("inv_id, email, product_id, out_sum")
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+
+  return {
+    invId: data.inv_id,
+    email: data.email,
+    productId: data.product_id,
+    outSum: Number(data.out_sum),
+  };
+}
+
+export async function markPurchaseConfirmationEmailSent(invId: string): Promise<void> {
+  const supabase = createServiceClient();
+  const { error } = await supabase
+    .from("pending_payments")
+    .update({
+      confirmation_email_sent_at: new Date().toISOString(),
+      confirmation_email_claimed_at: null,
+      confirmation_email_last_error: null,
+    })
+    .eq("inv_id", invId);
+
+  if (error) throw error;
+}
+
+export async function markPurchaseConfirmationEmailFailed(params: {
+  invId: string;
+  errorMessage: string;
+}): Promise<void> {
+  const supabase = createServiceClient();
+  const { error } = await supabase
+    .from("pending_payments")
+    .update({
+      confirmation_email_claimed_at: null,
+      confirmation_email_last_error: params.errorMessage,
+    })
+    .eq("inv_id", params.invId);
+
+  if (error) throw error;
 }

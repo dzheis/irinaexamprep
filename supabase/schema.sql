@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS pending_payments (
   last_error_message TEXT NULL,
   result_last_payload JSONB NULL,
   result_last_signature TEXT NULL,
+  confirmation_email_claimed_at TIMESTAMPTZ NULL,
+  confirmation_email_sent_at TIMESTAMPTZ NULL,
+  confirmation_email_last_error TEXT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -26,6 +29,9 @@ ALTER TABLE pending_payments ADD COLUMN IF NOT EXISTS last_error_code TEXT NULL;
 ALTER TABLE pending_payments ADD COLUMN IF NOT EXISTS last_error_message TEXT NULL;
 ALTER TABLE pending_payments ADD COLUMN IF NOT EXISTS result_last_payload JSONB NULL;
 ALTER TABLE pending_payments ADD COLUMN IF NOT EXISTS result_last_signature TEXT NULL;
+ALTER TABLE pending_payments ADD COLUMN IF NOT EXISTS confirmation_email_claimed_at TIMESTAMPTZ NULL;
+ALTER TABLE pending_payments ADD COLUMN IF NOT EXISTS confirmation_email_sent_at TIMESTAMPTZ NULL;
+ALTER TABLE pending_payments ADD COLUMN IF NOT EXISTS confirmation_email_last_error TEXT NULL;
 
 UPDATE pending_payments
 SET status = 'pending'

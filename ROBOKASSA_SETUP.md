@@ -156,13 +156,27 @@ ROBOKASSA_TEST=1
 
 - **Создание платежа:** пользователь на странице «Методика» нажимает оплату → фронт отправляет `POST /api/pay` с `outSum`, `email` (и при необходимости `productId`). Сервер формирует подпись (Пароль #1), возвращает `redirectUrl` на Robokassa.
 - **Переход на Robokassa:** пользователь перенаправляется по `redirectUrl`, вводит данные карты в тестовой/боевой форме Robokassa.
-- **Result URL:** после успешной оплаты Robokassa вызывает `GET` или `POST /api/pay/result` с параметрами `OutSum`, `InvId`, `SignatureValue`. Сервер проверяет подпись с **Паролем #2** и отвечает `OK{InvId}` или `ERROR`.
+- **Result URL:** после успешной оплаты Robokassa вызывает `GET` или `POST /api/pay/result` с параметрами `OutSum`, `InvId`, `SignatureValue`. Сервер проверяет подпись с **Паролем #2**, открывает доступ, отправляет письмо-подтверждение покупателю и отвечает `OK{InvId}` или `ERROR`.
 - **Success / Fail:** пользователь возвращается на `SuccessURL` или `FailURL` (в коде — `/methodology?payment=success` или `?payment=fail`).
 
 Файлы в проекте:
 
 - `src/app/api/pay/route.ts` — создание платежа и выдача `redirectUrl`.
 - `src/app/api/pay/result/route.ts` — приём Result URL и ответ `OK{InvId}`/`ERROR`.
+- `src/infrastructure/email/purchaseConfirmationEmail.ts` — HTML-письмо покупателю после подтверждённой оплаты.
+
+### Письмо-подтверждение оплаты
+
+Письмо отправляется только после валидного Result URL от Robokassa, когда платеж уже переведён в `completed` и доступ открыт. Это письмо не является фискальным чеком; в шаблоне оно называется подтверждением оплаты.
+
+Для отправки используются существующие Gmail/Nodemailer переменные окружения:
+
+```env
+EMAIL_USER=почта_отправителя
+EMAIL_PASS=пароль_приложения_gmail
+```
+
+Чтобы Robokassa не вызвала повторную отправку при дублирующих callback-ах, в `pending_payments` хранятся поля `confirmation_email_claimed_at`, `confirmation_email_sent_at` и `confirmation_email_last_error`.
 
 ---
 

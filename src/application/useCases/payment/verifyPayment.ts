@@ -4,6 +4,7 @@ import {
   resultSignatureSource,
 } from "@/domain/payment/robokassaSignature";
 import { md5Utf8HexUppercase } from "@/infrastructure/payment/robokassaHash";
+import { sendPurchaseConfirmationForPayment } from "@/application/useCases/payment/sendPurchaseConfirmation";
 import {
   finalizeRobokassaResult,
   recordPaymentCallback,
@@ -123,6 +124,13 @@ export async function verifyRobokassaPaymentResult(params: {
       headers: params.headers,
       sourceIp: params.sourceIp,
     });
+    if (result.acknowledgement === "ok") {
+      try {
+        await sendPurchaseConfirmationForPayment(invId);
+      } catch (emailError) {
+        console.error("Pay result: failed to send purchase confirmation email", emailError);
+      }
+    }
     return result.acknowledgement === "ok" ? `OK${invId}` : "ERROR";
   } catch (error) {
     console.error("Pay result: failed to finalize payment", error);

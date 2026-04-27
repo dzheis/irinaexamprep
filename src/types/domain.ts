@@ -28,6 +28,9 @@ export type PendingPaymentRow = {
   last_error_code: string | null;
   last_error_message: string | null;
   result_last_signature: string | null;
+  confirmation_email_claimed_at: string | null;
+  confirmation_email_sent_at: string | null;
+  confirmation_email_last_error: string | null;
 };
 
 export type PaymentProduct = {
