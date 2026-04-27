@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { md5Utf8HexUppercase } from "@/infrastructure/payment/robokassaHash";
+import { paySignatureSource } from "@/domain/payment/robokassaSignature";
 
 vi.mock("@/infrastructure/auth/supabaseSession", () => ({
   getAuthenticatedUserIdentity: vi.fn(),
@@ -41,6 +43,7 @@ describe("startMethodologyCheckout", () => {
     process.env["ROBOKASSA_LOGIN"] = "shop";
     process.env["ROBOKASSA_PASS1"] = "pass1";
     delete process.env["ROBOKASSA_TEST"];
+    delete process.env["ROBOKASSA_TESTPASS1"];
     mockedResolveAmount.mockResolvedValue({ ok: true, amount: 1990 });
   });
 
@@ -121,5 +124,33 @@ describe("startMethodologyCheckout", () => {
       expect(result.httpStatus).toBe(409);
       expect(result.error).toBe("Доступ уже активирован для этого материала.");
     }
+  });
+
+  it("should use the test payment password when Robokassa test mode is enabled", async () => {
+    process.env["ROBOKASSA_TEST"] = "1";
+    process.env["ROBOKASSA_TESTPASS1"] = "test-pass1";
+    mockedSession.getAuthenticatedUserIdentity.mockResolvedValueOnce({
+      id: "user-1",
+      email: "user@example.com",
+    });
+    mockedPersistence.createPendingPayment.mockResolvedValueOnce(undefined);
+    mockedPersistence.hasPurchaseForEmailAndProduct.mockResolvedValueOnce(false);
+    mockedPersistence.getOpenPendingPayment.mockResolvedValueOnce(null);
+
+    const result = await startMethodologyCheckout({
+      productId: "1",
+      publicSiteOrigin: "https://example.com",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const url = new URL(result.redirectUrl);
+    const outSum = url.searchParams.get("OutSum");
+    const invId = url.searchParams.get("InvId");
+    expect(url.searchParams.get("IsTest")).toBe("1");
+    expect(url.searchParams.get("SignatureValue")).toBe(
+      md5Utf8HexUppercase(paySignatureSource("shop", outSum!, invId!, "test-pass1")),
+    );
   });
 });

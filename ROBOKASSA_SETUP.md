@@ -83,8 +83,10 @@ ROBOKASSA_TEST=1
 
 ```env
 ROBOKASSA_LOGIN=cambridge_exams_and_methodology
-ROBOKASSA_PASS1=сюда_пароль_1_из_тестового_блока
-ROBOKASSA_PASS2=сюда_пароль_2_из_тестового_блока
+ROBOKASSA_PASS1=сюда_пароль_1_из_технических_настроек
+ROBOKASSA_PASS2=сюда_пароль_2_из_технических_настроек
+ROBOKASSA_TESTPASS1=сюда_пароль_1_из_блока_тестовых_платежей
+ROBOKASSA_TESTPASS2=сюда_пароль_2_из_блока_тестовых_платежей
 ROBOKASSA_TEST=1
 NEXT_PUBLIC_SITE_URL=https://irinaexamprep.com
 ```
@@ -137,10 +139,14 @@ NEXT_PUBLIC_SITE_URL=https://ваш-домен.com
 ROBOKASSA_LOGIN=ваш_логин_магазина
 ROBOKASSA_PASS1=пароль_номер_1
 ROBOKASSA_PASS2=пароль_номер_2
+ROBOKASSA_TESTPASS1=тестовый_пароль_номер_1
+ROBOKASSA_TESTPASS2=тестовый_пароль_номер_2
 
 # Тестовый режим: 1 или true — оплата идёт в песочницу Robokassa (деньги не списываются)
 ROBOKASSA_TEST=1
 ```
+
+Когда `ROBOKASSA_TEST=1`, код использует `ROBOKASSA_TESTPASS1` для создания ссылки и `ROBOKASSA_TESTPASS2` для проверки Result URL. Если этих переменных нет, используется fallback на `ROBOKASSA_PASS1`/`ROBOKASSA_PASS2`, поэтому старый вариант с тестовыми паролями прямо в `ROBOKASSA_PASS1`/`ROBOKASSA_PASS2` тоже работает.
 
 После перехода на боевой режим выставьте `ROBOKASSA_TEST=0` или удалите переменную и укажите боевые логин и пароли.
 

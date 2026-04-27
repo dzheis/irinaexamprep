@@ -1,13 +1,13 @@
 import { isIP } from "node:net";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyRobokassaPaymentResult } from "@/application/useCases/payment/verifyPayment";
+import { getRobokassaResultPass2 } from "@/infrastructure/payment/robokassaConfig";
 import {
   recordPaymentCallback,
   type PaymentCallbackHeaders,
   type PaymentCallbackPayload,
 } from "@/infrastructure/payment/persistence";
 
-const ROBOKASSA_PASS2 = process.env["ROBOKASSA_PASS2"];
 const OBSERVED_HEADER_NAMES = [
   "content-type",
   "host",
@@ -104,7 +104,9 @@ async function handleResult(params: {
   headers: PaymentCallbackHeaders;
   sourceIp: string | null;
 }) {
-  if (!ROBOKASSA_PASS2) {
+  const robokassaPass2 = getRobokassaResultPass2();
+
+  if (!robokassaPass2) {
     console.error("Pay result: ROBOKASSA_PASS2 not set");
     await recordRejectedCallback({
       payload: params.payload,
@@ -121,7 +123,7 @@ async function handleResult(params: {
     outSum: params.payload["OutSum"] ?? "",
     invId: params.payload["InvId"] ?? "",
     signatureValue: params.payload["SignatureValue"] ?? "",
-    pass2: ROBOKASSA_PASS2,
+    pass2: robokassaPass2,
     payload: params.payload,
     headers: params.headers,
     httpMethod: params.httpMethod,

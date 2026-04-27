@@ -1,5 +1,6 @@
 import { getAuthenticatedUserIdentity } from "@/infrastructure/auth/supabaseSession";
 import { createMethodologyPayment } from "@/application/useCases/payment/createPayment";
+import { getRobokassaPaymentPass1, isRobokassaTestMode } from "@/infrastructure/payment/robokassaConfig";
 
 export type StartMethodologyCheckoutResult =
   | { ok: true; redirectUrl: string }
@@ -10,9 +11,8 @@ export async function startMethodologyCheckout(params: {
   publicSiteOrigin: string;
 }): Promise<StartMethodologyCheckoutResult> {
   const robokassaLogin = process.env["ROBOKASSA_LOGIN"];
-  const robokassaPass1 = process.env["ROBOKASSA_PASS1"];
-  const robokassaTest =
-    process.env["ROBOKASSA_TEST"] === "1" || process.env["ROBOKASSA_TEST"] === "true";
+  const robokassaPass1 = getRobokassaPaymentPass1();
+  const robokassaTest = isRobokassaTestMode();
 
   if (!robokassaLogin || !robokassaPass1) {
     return {
