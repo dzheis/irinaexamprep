@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { timingSafeEqual } from "node:crypto";
 
-/** Storyblok publish webhook: requires `x-revalidate-secret` matching `REVALIDATE_SECRET`. */
+/** Storyblok publish webhook: requires a secret matching `REVALIDATE_SECRET`. */
 const REVALIDATE_SECRET = process.env["REVALIDATE_SECRET"];
 
 type StoryblokWebhookBody = {
+  full_slug?: string;
+  slug?: string;
   story?: { full_slug?: string; slug?: string };
 };
 
@@ -21,7 +23,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Revalidation not configured" }, { status: 503 });
   }
 
-  const secret = req.headers.get("x-revalidate-secret");
+  const secret = req.headers.get("x-revalidate-secret") ?? req.nextUrl.searchParams.get("secret");
   if (!secret || !safeEqual(secret, REVALIDATE_SECRET)) {
     return NextResponse.json({ error: "Invalid secret" }, { status: 401 });
   }
@@ -29,7 +31,7 @@ export async function POST(req: NextRequest) {
   let storySlug: string | undefined;
   try {
     const body = (await req.json()) as StoryblokWebhookBody;
-    const s = body?.story?.full_slug ?? body?.story?.slug;
+    const s = body?.story?.full_slug ?? body?.story?.slug ?? body?.full_slug ?? body?.slug;
     if (typeof s === "string" && s.trim()) storySlug = s.trim();
   } catch {
     // Empty or non-JSON body is fine.
